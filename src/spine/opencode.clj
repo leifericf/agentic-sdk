@@ -18,9 +18,11 @@
   edit the master and re-run.")
 
 (defn- masters-dir
-  "First existing masters dir: .claude/agents (deployed) then agents (repo)."
+  "First existing masters dir: .agentic-sdk/agents (deployed), .claude/agents
+  (legacy symlink), then agents (this repo)."
   [root]
-  (let [candidates [(fs/path root ".claude" "agents")
+  (let [candidates [(fs/path root ".agentic-sdk" "agents")
+                    (fs/path root ".claude" "agents")
                     (fs/path root "agents")]]
     (first (filter #(fs/exists? %) candidates))))
 

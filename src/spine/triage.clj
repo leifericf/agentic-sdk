@@ -3,28 +3,43 @@
   editorial judgment, only the fixed ordering doctrine. Dedupe on
   [file evidence rule] merging reporters and keeping the most severe,
   drop protected-idiom findings, convert rule-less opinions to queries,
-  order by editing level then severity then file order, renumber FINDING-N.
+  order by editing tier then severity then file order, renumber FINDING-N.
   Reviewers and lint write findings/*.edn; this is their sole consumer.
 
-  Software level mapping:
-    1 correctness / security / conformance
-    2 factoring / performance / portability / memory
-    3 style / clarity
-    4 lint / render"
+  Tier and severity come from the reporter. A reviewer sets :level
+  (:correctness | :factoring | :style) and :severity (:high | :medium |
+  :low). Findings without :level (lint, render) fall back to their
+  dimension's tier. Severity normalizes the lint task's uppercase vocabulary
+  (:CRITICAL/:SIGNIFICANT -> :high, :MODERATE -> :medium, :MINOR -> :low)
+  so one vocabulary reaches the punch list.
+
+  Ordering tiers: correctness, then factoring, then style, then lint."
   (:require [babashka.fs :as fs]
             [clojure.edn :as edn]
             [clojure.pprint :as pprint]
             [clojure.string :as str]
             [spine.core :as core]))
 
-(def ^:private dimension-level
-  {:correctness 1 :security 1 :conformance 1
-   :factoring 2 :performance 2 :portability 2 :memory 2
-   :style 3 :clarity 3
-   :lint 4 :render 4})
+(def ^:private dimension-tier
+  "Fallback only: when a finding carries no :level, derive its tier from
+  its dimension. Reporters set :level; this covers lint and render findings."
+  {:correctness :correctness, :security :correctness, :conformance :correctness
+   :factoring :factoring, :performance :factoring, :portability :factoring, :memory :factoring
+   :style :style, :clarity :style
+   :lint :lint, :render :lint})
 
-(def ^:private severity-rank
-  {:CRITICAL 0 :SIGNIFICANT 1 :MODERATE 2 :MINOR 3})
+(def ^:private tier-rank
+  {:correctness 0, :factoring 1, :style 2, :lint 3})
+
+(def ^:private severity-normalize
+  "Map the lint task's uppercase vocabulary onto the reviewer vocabulary."
+  {:CRITICAL :high, :SIGNIFICANT :high
+   :MODERATE :medium, :MINOR :low
+   :high :high, :medium :medium, :low :low})
+
+(def ^:private severity-rank {:high 0, :medium 1, :low 2})
+
+(defn- norm-sev [s] (severity-normalize (keyword s) :low))
 
 (defn- dedupe-key [f]
   ;; Flat shape: file and evidence live on the finding, not under :location.
@@ -34,8 +49,10 @@
   "Collapse same-span same-rule findings: most severe severity, every
   reporter, the suggestion from the most severe report."
   [fs]
-  (let [most (first (sort-by (comp severity-rank :severity) fs))]
+  (let [ranked (sort-by (comp severity-rank norm-sev :severity) fs)
+        most (first ranked)]
     (assoc most
+           :severity (norm-sev (:severity most))
            :reporters (vec (distinct (keep :reporter fs)))
            :suggestion (:suggestion most))))
 
@@ -50,12 +67,14 @@
    :line (:line f)
    :reporter (:reporter f)})
 
-(defn- level-of [f] (dimension-level (:dimension f) 99))
+(defn- tier-of [f]
+  (or (:level f) (dimension-tier (:dimension f) :lint)))
 
 (defn triage
   "Findings (a seq of finding maps) -> {:findings :queries :counts :by-file}.
   protected-idioms is an optional seq of strings dropped as a backstop.
-  Pure: same inputs, same output, order-independent (group-by before sort)."
+  Pure: same inputs, same output, order-independent (group-by before sort).
+  Honors each finding's :level when set; falls back to the dimension tier."
   [raw & {:keys [protected-idioms] :or {protected-idioms []}}]
   (let [;; rule-less opinions become queries; protected idioms vanish
         {queries true keepers false}
@@ -63,10 +82,10 @@
         kept (remove #(protected? protected-idioms (:evidence %)) keepers)
         ;; dedupe same file + same evidence + same rule
         deduped (->> (group-by dedupe-key kept) vals (map merge-group))
-        ;; editing level, then severity, then file, then line
+        ;; tier, then severity, then file, then line
         ordered (sort-by (fn [f]
-                           [(level-of f)
-                            (severity-rank (:severity f) 99)
+                           [(tier-rank (tier-of f) 99)
+                            (severity-rank (norm-sev (:severity f)) 99)
                             (str (:file f))
                             (str (or (:line f) 0))])
                          deduped)
@@ -74,7 +93,8 @@
                   (fn [i f]
                     (assoc f
                            :id (str "FINDING-" (inc i))
-                           :level (level-of f)))
+                           :level (tier-of f)
+                           :severity (norm-sev (:severity f))))
                   ordered)]
     {:findings (vec numbered)
      :queries (vec (map ->query queries))
@@ -92,7 +112,7 @@
                   (or (:suggestion f) (:evidence f)))
              (str "- Dimension: " (name (:dimension f)))
              (str "- Severity: " (name (:severity f)))
-             (str "- Level: " (:level f))
+             (str "- Level: " (name (:level f)))
              (str "- File: " (:file f)
                   (when (:line f) (str ":" (:line f))))
              (str "- Evidence: \"" (:evidence f) "\"")

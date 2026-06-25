@@ -42,14 +42,14 @@
 ;; --- descriptor / plan discovery ----------------------------------------
 
 (defn- read-descriptor [root]
-  (or (core/read-edn (str (fs/path root ".claude" "project.edn")))
+  (or (core/read-edn (str (fs/path root ".agentic-sdk" "project.edn")))
       (core/read-edn (str (fs/path root "project.edn")))
       {}))
 
 (defn- read-plan [root]
-  ;; A plan names the campaign's phases. Look in the common spots; absence
-  ;; means a single implicit phase.
-  (or (core/read-edn (str (fs/path root ".claude" "runs" "current" "plan.edn")))
+  ;; A plan names the campaign's phases. The active campaign lives at
+  ;; .agentic-sdk/runs/current/plan.edn; absence means a single implicit phase.
+  (or (core/read-edn (str (fs/path root ".agentic-sdk" "runs" "current" "plan.edn")))
       (core/read-edn (str (fs/path root "plan.edn")))
       {}))
 
@@ -80,8 +80,8 @@
                :stages      (zipmap order (repeat :pending))
                :phases      (-> (zipmap phs (repeat :pending))
                                 (assoc (first phs) :active))
-               :plan-hash     (file-hash root "plan.edn")
-               :descriptor-hash (file-hash root ".claude/project.edn")}]
+                :plan-hash     (file-hash root ".agentic-sdk/runs/current/plan.edn")
+                :descriptor-hash (file-hash root ".agentic-sdk/project.edn")}]
     (write-state! root state)))
 
 (defn advance!
@@ -142,10 +142,10 @@
      :active-phase       (:active-phase state)
      :collisions-pending (core/pending-collisions root)
      :pending-phases     (vec (stale-phases state))
-     :plan-changed?      (not= (:plan-hash state)
-                               (file-hash root "plan.edn"))
-     :descriptor-changed? (not= (:descriptor-hash state)
-                                (file-hash root ".claude/project.edn"))}))
+      :plan-changed?      (not= (:plan-hash state)
+                                (file-hash root ".agentic-sdk/runs/current/plan.edn"))
+      :descriptor-changed? (not= (:descriptor-hash state)
+                                 (file-hash root ".agentic-sdk/project.edn"))}))
 
 (defn -main
   "bb run init|status|advance [ROOT] [EDN-OPTS]. status prints the directive

@@ -13,15 +13,16 @@
 
 (defn working-dir
   "The spine working dir under root. Honors the project descriptor's
-  :spine :working-dir when present, else defaults to .spine. Created on
-  first write, never assumed to exist on read."
+  :spine :working-dir when present, else defaults to .agentic-sdk/.spine.
+  Created on first write, never assumed to exist on read."
   [root]
-  (let [desc-path (or (fs/path root ".claude" "project.edn")
-                      (fs/path root "project.edn"))]
-    (if (fs/exists? desc-path)
-      (let [desc (edn/read-string (slurp (str desc-path)))]
-        (fs/path root (or (get-in desc [:spine :working-dir]) ".spine")))
-      (fs/path root ".spine"))))
+  (let [desc (some (fn [rel]
+                     (let [f (fs/path root rel)]
+                       (when (fs/exists? f)
+                         (edn/read-string (slurp (str f))))))
+                   [".agentic-sdk/project.edn" "project.edn"])]
+    (fs/path root (or (get-in desc [:spine :working-dir])
+                      ".agentic-sdk/.spine"))))
 
 ;; --- EDN read/write ------------------------------------------------------
 

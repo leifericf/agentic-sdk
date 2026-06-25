@@ -78,9 +78,9 @@
     {:files (vec (sort (keys outputs)))}))
 
 (defn- find-decisions [root]
-  (or (core/read-edn (str (fs/path root ".claude" "decisions.edn")))
+  (or (core/read-edn (str (fs/path (core/working-dir root) "decisions.edn")))
       (core/read-edn (str (fs/path root "decisions.edn")))
-      (throw (ex-info "no decisions.edn found at .claude/decisions.edn or ./decisions.edn"
+      (throw (ex-info "no decisions.edn found under the spine working dir or ./decisions.edn"
                       {:root root}))))
 
 (defn -main
