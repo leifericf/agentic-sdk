@@ -1,4 +1,13 @@
-# Claude Code Agentic Toolkit
+# agentic-sdk
+
+A runtime-agnostic system of skills, agents, and a deterministic spine for
+software development across a bounded stack (C, Zig, Clojure, Elixir). Claude
+Code is the master format; an OpenCode projection is generated from it.
+
+> **Refresh in progress.** This skill system is being homogenized from several
+> predecessor systems into the architecture described in
+> [docs/design.md](docs/design.md). The documentation below describes the
+> previous three-layer edition and is being replaced section by section.
 
 A set of composable skills for software development, organized into three layers for maximum flexibility and parallel execution.
 
@@ -324,7 +333,7 @@ projects/
 
 ## Origins
 
-This toolkit is a Claude Code-native port of the [Agentic Software Delivery Toolkit](https://github.com/leifericf/agentic-software-delivery-toolkit), which is tool-agnostic. This edition replaces the generic file-reference chains with Claude Code's native skill system and adds a three-layer architecture for better composition and parallel execution.
+This toolkit is a Claude Code-native port of a prior tool-agnostic edition, replacing the generic file-reference chains with Claude Code's native skill system and adding a layered architecture for composition and parallel execution.
 
 ## License
 

@@ -1,0 +1,75 @@
+{:paths ["src" "test"]
+
+ ;; Deterministic spine for the agentic-sdk toolkit. Ported and generalized
+ ;; from a prior prose-production system's Babashka spine. Babashka tasks
+ ;; own the clerical work; agents write EDN to a working dir (default
+ ;; .spine/ under the target root); tasks fold deterministically; collisions
+ ;; escalate, never guess; code never parses its own rendered output.
+ ;; Namespaces live under spine. The software task set is triage, integrate,
+ ;; run-status, compile-rules, lint, opencode-sync, opencode-check.
+ ;; Working-dir format and the task interface are documented in
+ ;; spine/README.md, cross-referencing skills/shared/references/spine.md
+ ;; (the doctrine owner's human-facing reference, authored separately).
+
+ :tasks
+ {:requires ([babashka.fs :as fs]
+             [clojure.test :as t])
+
+  test
+  {:doc "Run the spine test suite"
+   :task (do
+           (doseq [f (fs/glob "test" "**/*_test.clj")]
+             (load-file (str f)))
+           (let [{:keys [fail error]} (t/run-all-tests
+                                       (re-pattern "spine\\..*-test"))]
+             (println (format "test: %d fail, %d error" fail error))
+             (when (pos? (+ fail error))
+               (System/exit 1))))}
+
+  triage
+  {:doc "Fold findings/*.edn into one ordered punch list: bb triage [ROOT]"
+   :requires ([spine.triage :as triage])
+   :task (apply triage/-main *command-line-args*)}
+
+  integrate
+  {:doc "Land parallel fix branches oldest-first: bb integrate [ROOT]"
+   :requires ([spine.integrate :as integrate])
+   :task (apply integrate/-main *command-line-args*)}
+
+  run
+  {:doc "Resumption state: bb run init|status|advance [ROOT] [EDN]"
+   :requires ([spine.run :as run])
+   :task (apply run/-main *command-line-args*)}
+
+  compile-rules
+  {:doc "Project decisions.edn into lint rules: bb compile-rules [ROOT] [DIR]"
+   :requires ([spine.rules :as rules])
+   :task (apply rules/-main *command-line-args*)}
+
+  lint
+  {:doc "House prose regex plus project linter: bb lint [--edn PATH] [FILE...]"
+   :requires ([spine.lint :as lint])
+   :task (apply lint/-main *command-line-args*)}
+
+  opencode-sync
+  {:doc "Project .claude/agents masters into .opencode/agent: bb opencode-sync [ROOT]"
+   :requires ([spine.opencode :as oc])
+   :task (oc/-main "sync" (first *command-line-args*))}
+
+  opencode-check
+  {:doc "Fail when derived agents are stale: bb opencode-check [ROOT]"
+   :requires ([spine.opencode :as oc])
+   :task (oc/-main "check" (first *command-line-args*))}
+
+  help
+  {:doc "List the spine tasks"
+   :task (do
+           (println "spine tasks:")
+           (println "  bb test              Run the spine test suite")
+           (println "  bb triage [ROOT]     Fold findings into a punch list")
+           (println "  bb integrate [ROOT]  Land fix branches oldest-first")
+           (println "  bb run init|status|advance [ROOT] [EDN]  Resumption state")
+           (println "  bb compile-rules [ROOT] [DIR]  Project decisions to lint rules")
+           (println "  bb lint [--edn PATH] [FILE...]  House prose + project linter")
+           (println "  bb opencode-sync [ROOT]   Project agents to .opencode/agent")
+           (println "  bb opencode-check [ROOT]  Fail when derived agents are stale"))}}}
