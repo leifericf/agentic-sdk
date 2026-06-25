@@ -67,15 +67,23 @@ record rather than stall.
    for it end to end in its own context, and returns exactly one line
    and nothing else:
 
-   `PHASE <name>: <n> tasks landed, <e> escalated, <d> decisions, verify <PASS|FAIL>, <done|blocked>`
+   `SLICE <name>: <n> units landed, <e> escalated, <d> decisions, verify <PASS|FAIL>, <done|blocked>`
 
-   No per-phase confirmation. Minimize work in progress: a phase lands
-   before its dependents start. Independent phases may run in one batch;
-   keep concurrency modest and respect the graph. Hold each returned
-   line and update the checklist. Do not read into the phase; the line
-   is the whole hand-off out. On `blocked`, stop dispatching dependents
-   of the blocked phase and record the escalation; phases that do not
-   depend on it continue.
+   Parse the slice name, the unit count, the escalation and decision
+   counts, the verify verdict, and the outcome from that line; it is the
+   whole hand-off out of the phase. No per-phase confirmation. Minimize
+   work in progress: a phase lands before its dependents start.
+   Independent phases may run in one batch; keep concurrency modest and
+   respect the graph. Hold each returned line and update the checklist.
+   Do not read into the phase; the line is the whole hand-off out. On
+   `blocked`, stop dispatching dependents of the blocked phase and
+   record the escalation; phases that do not depend on it continue.
+
+   The change-runner's review sub-runners also return a `dry` or
+   `continue` signal for the round cap. A `dry` round from a phase's
+   review means that phase is clean (no new findings) and the campaign
+   advances; do not block on it. `continue` ran another round under the
+   cap; the change-runner's own line still says `done` or `blocked`.
 5. **Decide, record, checkpoint.** The run does not stall on ambiguity.
    Each change-runner's agents decide and record to unblock; the runner
    returns those decisions and any escalation in its line. Accumulate

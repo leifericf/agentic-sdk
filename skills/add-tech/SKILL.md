@@ -47,10 +47,10 @@ kind depends on the gap.
      which tools), the check, and the deny or warn action.
 3. **Generate the artifact.**
    - For a lane entry: no new file; the command lands in the descriptor.
-   - For a spine task: author the task entry against the interface in
-     `spine.md`. It joins the five stable names (triage, integrate,
-     run-status, compile-rules, lint) or extends the catalog with a new
-     name that answers the same contract shape.
+    - For a spine task: author the task entry against the interface in
+      `spine.md`. It joins the five stable names (triage, integrate,
+      run, compile-rules, lint) or extends the catalog with a new
+      name that answers the same contract shape.
    - For a hook policy: author the hook template into the toolkit's hook
      templates, parameterized by the descriptor.
 4. **Wire the descriptor.** Add the lane command to `:lanes`, the spine

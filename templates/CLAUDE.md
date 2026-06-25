@@ -23,7 +23,7 @@ bootstrap.
   resolves them through the `.claude/hooks` symlink. Do not work
   around a hook denial; fix the underlying condition.
 - **One source of truth for the run.** The orchestrator reads
-  `run-status` after each phase, not the transcript. Workers return one
+  `run` after each phase, not the transcript. Workers return one
   contracted line.
 
 ## Tools and MCP

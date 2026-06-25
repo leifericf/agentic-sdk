@@ -123,7 +123,7 @@ context (you process N compact returns per batch, not 50 at once).
    twice before recording an escalation and stopping the round.
 7. **Found-new flag.** True iff triage produced one or more items this
    round, regardless of how many were fixed.
-8. **Advance.** Run the `run-status` spine task (`bb run status`
+8. **Advance.** Run the `run` spine task (`bb run status`
    today) to mark the round complete and compute the next directive
    (`:next-round` when this round found new findings and the cap is not
    hit, else `:complete`). If the run keeps a resume checkpoint, mark

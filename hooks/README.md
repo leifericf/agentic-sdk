@@ -1,10 +1,13 @@
 # Policy-as-hook templates
 
 Policy that lives in hooks, not in prompts, is far more reliable. These
-four scripts are the templates the descriptor's `:hooks` list selects.
-`bootstrap-project` snaps the named subset into a project's
-`.agentic-sdk/hooks/` and wires them into the host runtime via the
-`.claude/hooks` symlink.
+three hook templates plus one shared Babashka form are the artifacts the
+descriptor's `:hooks` list selects. `bootstrap-project` snaps the named
+subset into a project's `.agentic-sdk/hooks/` and wires them into the
+host runtime via the `.claude/hooks` symlink. The hook templates are
+`format-on-write.sh`, `deny-secrets.sh`, and `require-tests-before-land.sh`;
+the shared Babashka form is `require-tests-before-land.clj`, which the
+shell hook and the OpenCode plugin both shell out to.
 
 **The master scripts live at `.agentic-sdk/hooks/`** and are authored
 against the Claude Code hook protocol. In an installed project, Claude

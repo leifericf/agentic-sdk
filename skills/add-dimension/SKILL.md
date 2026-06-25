@@ -32,9 +32,11 @@ against the skeleton, wire into the descriptor, validate.
 2. **Interview for the shape.** Ask one batch of at most three questions
    for what the dimension shape needs: the one-sentence failure model
    (what goes wrong), the ordered look-fors (where to look, in priority
-   order), the ignore-rules (what not to flag), the default severity,
-   and the editing level (correctness and factoring at level 1,
-   conformance and security at 2, style at 3, lint and render at 4).
+   order), the ignore-rules (what not to flag), the default severity
+   (`:high`, `:medium`, or `:low`), and the level (`:correctness`,
+   `:factoring`, or `:style`). A `check-<dimension>` sets `:level` to
+   one of those three keywords; `triage` orders correctness, then
+   factoring, then style, then lint.
 3. **Generate the recipe.** Author `skills/check-<dimension>/SKILL.md`
    from the dimension shape: frontmatter (`name: check-<dimension>`,
    model-invoked, read-only reviewer), the one-sentence failure model,

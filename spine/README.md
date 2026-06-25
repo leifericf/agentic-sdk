@@ -53,26 +53,31 @@ Default `<root>/.spine/` (overridable via the descriptor key
 Every producer (reviewers, lint) writes maps with these flat keys:
 
 ```edn
-{:dimension :correctness    ; one of the catalog dimensions
- :severity   :SIGNIFICANT   ; :CRITICAL :SIGNIFICANT :MODERATE :MINOR
- :level      1              ; derived by triage from :dimension, need not be set
- :file       "src/x.c"
- :line       42             ; optional, used for ordering and display
- :evidence   "nil deref of p"
- :suggestion "guard null"   ; nil when none
- :rule       "nil-check"    ; blank rule makes the finding a query, not a fix
- :reporter   "reviewer-1"}
+{:dimension   :correctness    ; one of the catalog dimensions
+ :level       :correctness    ; :correctness | :factoring | :style (reporter sets)
+ :severity    :high           ; :high | :medium | :low
+ :file        "src/x.c"
+ :line        42              ; optional, used for ordering and display
+ :evidence    "nil deref of p"
+ :suggestion  "guard null"    ; nil when none
+ :rule        "nil-check"     ; blank rule makes the finding a query, not a fix
+ :reporter    "reviewer-1"}
 ```
+
+The lint task emits its own uppercase severity vocabulary; `triage` normalizes
+those to `:high`/`:medium`/`:low` before ordering, so producers may stay in
+either vocabulary.
 
 ## Editing-level mapping (software)
 
-`triage` orders findings by level, then severity, then file. The level comes
-from the dimension:
+`triage` orders findings by level, then severity, then file. Reviewers carry
+their own `:level`; lint and render do not, so triage falls back to a
+dimension-to-tier map. The tier ordering is:
 
-- Level 1: correctness, security, conformance
-- Level 2: factoring, performance, portability, memory
-- Level 3: style, clarity
-- Level 4: lint, render
+- correctness
+- factoring
+- style
+- lint and render
 
 ## Directives from `bb run status`
 

@@ -24,7 +24,7 @@ get the same contract.
 
 ## Task catalog
 
-Five tasks. Each entry fixes: the **invocation** (name and arguments), what it
+Seven tasks. Each entry fixes: the **invocation** (name and arguments), what it
 **reads** (input paths and EDN), what it **writes** (output paths and EDN), the
 **invariant** it owns, and the **exit contract** (one line on stdout, exit code).
 
@@ -48,9 +48,11 @@ working dir are relative to `:spine :working-dir` (shown here as
 - **exit contract:** prints `triage: N findings, M queries`; exit `0` clean, `1`
   findings present, `2` usage.
 
-For software projects the editing levels are `1` correctness and factoring, `2`
-conformance and security, `3` style, `4` lint and render. The dimension set
-differs from the prose levels, but the ordering law is the same.
+Level discipline: triage honors the reporter's `:level` (`:correctness`,
+`:factoring`, `:style`); findings without `:level` (lint, render) fall back to
+a dimension-to-tier map. Ordering tiers: correctness, then factoring, then
+style, then lint. The lint task emits its own uppercase severity vocabulary;
+triage normalizes those to `:high`/`:medium`/`:low` before ordering.
 
 ### `integrate`
 
@@ -67,11 +69,11 @@ differs from the prose levels, but the ordering law is the same.
 - **exit contract:** prints `integrate: N landed, M conflicts`; exit `0` clean,
   `1` conflicts present.
 
-### `run-status`
+### `run`
 
 Resumption state. Three subforms, all under one task name.
 
-#### `run-status init`
+#### `run init`
 
 - **invocation:** `run init [ROOT] [EDN-OPTS]`. Opts: `:mode` (default
   `:campaign`), `:round-cap`
@@ -80,10 +82,10 @@ Resumption state. Three subforms, all under one task name.
 - **writes:** `.agentic-sdk/.spine/run.edn`.
 - **invariant:** seeds a minimal checkpoint: scope, the stage map (every stage
   `:pending`), round `0`, per-unit status, and the sha256 of the gate-arming
-  inputs (the plan and the style file). Not a state engine; the orchestrator
+  inputs (the plan and the descriptor). Not a state engine; the orchestrator
   stays near-stateless.
 
-#### `run-status status`
+#### `run status`
 
 - **invocation:** `run status [ROOT]`.
 - **reads:** `.agentic-sdk/.spine/run.edn`, the plan,
@@ -92,10 +94,11 @@ Resumption state. Three subforms, all under one task name.
 - **writes:** nothing. Prints the directive map.
 - **invariant:** compute the single next directive (run the first pending stage,
   start the next round when a round found new findings and the cap is not hit,
-  else complete), plus the bounded signals: collisions pending, stale units, and
-  whether the gate-arming inputs changed since init.
+  advance to the next phase when the rounds for this one are exhausted and a
+  phase remains pending, else complete), plus the bounded signals: collisions
+  pending, stale units, and whether the gate-arming inputs changed since init.
 
-#### `run-status advance`
+#### `run advance`
 
 - **invocation:** `run advance [ROOT] [EDN]`. The EDN is a partial update map.
 - **reads:** `.agentic-sdk/.spine/run.edn`.
@@ -104,8 +107,9 @@ Resumption state. Three subforms, all under one task name.
 - **invariant:** the orchestrator advances the checkpoint after each phase and
   reads `status` to learn the next directive, never the transcript.
 
-The directive actions are `:run-stage`, `:next-round`, `:complete`. Exit `0`
-when the directive is `:complete`, `1` otherwise, `2` usage.
+The directive actions are `:run-stage`, `:next-round`, `:next-phase`,
+`:complete`. Exit `0` when the directive is `:complete`, `1` otherwise, `2`
+usage.
 
 ### `compile-rules`
 
@@ -143,6 +147,28 @@ separate; `compile-rules` owns only the project's house rules.
 - **exit contract:** prints `file:line|SEVERITY|id|message` per finding; exit `0`
   clean, `1` findings, `2` hard error (a detected linter failed to run).
 
+### `opencode-sync`
+
+- **invocation:** `opencode-sync [ROOT]`.
+- **reads:** the agent masters under `.agentic-sdk/agents/` (or `agents/` in
+  this repo).
+- **writes:** the projected OpenCode form under `.opencode/agent/`.
+- **invariant:** one-way deterministic projection of the masters into the
+  OpenCode format. Masters are never hand-edited in the derived form. See
+  `docs/design.md` section 12 for the runtime-port contract this task serves.
+- **exit contract:** prints `opencode-sync: wrote N agents`; exit `0`.
+
+### `opencode-check`
+
+- **invocation:** `opencode-check [ROOT]`.
+- **reads:** the agent masters and the derived `.opencode/agent/` form.
+- **writes:** nothing.
+- **invariant:** fail when any derived agent file is stale against its master.
+  Running `opencode-sync` is the fix. Pairs with `opencode-sync` as the
+  verify-lanes-style gate for the runtime port (section 12).
+- **exit contract:** prints `opencode-check: N stale`; exit `0` clean, `1`
+  stale, `2` usage.
+
 ## Working-directory format
 
 The gitignored `.agentic-sdk/.spine/` dir (path from `:spine :working-dir`,
@@ -156,7 +182,7 @@ EDN shapes are the contract the future store schema must preserve.
   triage/
     punch-list.edn      ; the ordered, deduped, numbered findings (triage writes)
     punch-list.md       ; the human-form projection of the above
-  run.edn               ; resumption checkpoint (run-status reads and writes)
+  run.edn               ; resumption checkpoint (run reads and writes)
   decisions.edn         ; the project's banned-idiom and naming decisions (compile-rules reads)
   escalation.edn        ; collisions and blocked merges (any merge task may write)
   protected-idioms.edn  ; optional vector of idiom strings (triage reads)
@@ -168,17 +194,19 @@ plan.
 
 ### `findings/*.edn`
 
-One finding map per alert, or a vector of them. The shared shape every reviewer
-and `lint` writes:
+One finding map per alert, or a vector of them. The flat shape every
+reviewer and `lint` writes:
 
 ```edn
-{:dimension     :style                   ; one of the active dimensions
- :severity      :SIGNIFICANT             ; :CRITICAL | :SIGNIFICANT | :MODERATE | :MINOR
- :location      {:file "src/catalog/core.zig" :anchor "line 42"}
- :evidence      "the matched text"
- :proposed-fix  "the suggested change, or nil"
- :rule          "rule-id"                ; nil for rule-less opinions (become queries)
- :reporter      "reviewer"}              ; who raised it
+{:dimension   :style                   ; one of the active dimensions
+ :level       :style                   ; :correctness | :factoring | :style (reporter sets)
+ :severity    :high                    ; :high | :medium | :low
+ :file        "src/catalog/core.zig"
+ :line        42                       ; optional, used for ordering and display
+ :evidence    "the matched text"
+ :suggestion  "the suggested change, or nil"
+ :rule        "rule-id"                ; nil for rule-less opinions (become queries)
+ :reporter    "reviewer"}              ; who raised it
 ```
 
 ### `protected-idioms.edn`
@@ -196,35 +224,37 @@ The output of `triage`:
 
 ```edn
 {:findings   [{:id           "FINDING-1"
-               :dimension    :style
-               :severity     :SIGNIFICANT
-               :level        3                        ; editing level (1 to 4)
-               :location     {:file "src/catalog/core.zig" :anchor "line 42"}
-               :evidence     "the matched text"
-               :proposed-fix "the suggested change"
-               :rule         "rule-id"
-               :reporters    ["reviewer-a" "reviewer-b"] ; deduped across reporters
-               :unit         "catalog"}]              ; module or phase (software port)
- :queries    [{:question  "the rule-less opinion, phrased as a question"
-               :dimension :clarity
-               :location  {:file "..." :anchor "..."}
-               :reporter  "reviewer-a"}]
- :by-unit    {"catalog"   ["FINDING-1" "FINDING-2"]   ; ids grouped by unit
-              "checkout"  ["FINDING-3"]}
- :counts     {:total      3
-              :by-level   {1 0, 2 1, 3 2, 4 0}
-              :by-severity {:SIGNIFICANT 2, :MODERATE 1}}}
+                :dimension    :style
+                :level        :style                   ; reporter tier, normalized
+                :severity     :high
+                :file         "src/catalog/core.zig"
+                :line         42
+                :evidence     "the matched text"
+                :suggestion   "the suggested change"
+                :rule         "rule-id"
+                :reporters    ["reviewer-a" "reviewer-b"] ; deduped across reporters
+                :unit         "catalog"}]              ; module or phase (software port)
+  :queries    [{:question  "the rule-less opinion, phrased as a question"
+                :dimension :clarity
+                :file      "..."
+                :line      42
+                :reporter  "reviewer-a"}]
+  :by-unit    {"catalog"   ["FINDING-1" "FINDING-2"]   ; ids grouped by unit
+               "checkout"  ["FINDING-3"]}
+  :counts     {:total       3
+               :by-level    {:correctness 0, :factoring 1, :style 2}
+               :by-severity {:high 2, :medium 1}}}
 ```
 
 ### `run.edn`
 
-The resumption checkpoint `run-status init` seeds and `run-status advance`
+The resumption checkpoint `run init` seeds and `run advance`
 mutates:
 
 ```edn
 {:run/scope    {:mode :campaign :units ["catalog" "checkout"]}
   :plan-hash    "sha256:..."              ; gate-arming hash of the plan
-  :style-hash   "sha256:..."              ; gate-arming hash of the style file
+  :descriptor-hash "sha256:..."           ; gate-arming hash of the descriptor
  :round        0
  :round-cap    3                         ; max review rounds before dry
  :found-new?   false                     ; did the current round raise new findings
@@ -238,7 +268,7 @@ The `:stages` map uses the fixed stage order `[:lint :review :triage :fix
 :verify]`. Each stage is `:pending`, `:done`, or (rarely) `:blocked`. The
 directive computation walks this order.
 
-### The `run-status status` return
+### The `run status` return
 
 Printed by `run status`. This is what the orchestrator reads after each phase,
 instead of the transcript:
@@ -250,12 +280,13 @@ instead of the transcript:
  :collisions-pending 0                       ; count of escalation.edn entries
  :stale-units        ["catalog"]              ; units whose digest drifted post-approval
  :plan-changed?      false                    ; did the plan hash move since init
- :style-changed?     false}                   ; did the style hash move since init
+ :descriptor-changed? false}                  ; did the descriptor hash move since init
 ```
 
 Directive actions: `:run-stage` (run the named stage at the current round),
 `:next-round` (increment the round, reset stages to `:pending`, arm the gate),
-`:complete` (the campaign is dry).
+`:next-phase` (the rounds for this phase are exhausted; advance to the next
+pending phase), `:complete` (the campaign is dry).
 
 ### `escalation.edn`
 
@@ -299,15 +330,15 @@ answer and how.
 
 ### Full spine (`:babashka`)
 
-All five tasks invocable as bb tasks over the EDN working dir. Maximum
+All seven tasks invocable as bb tasks over the EDN working dir. Maximum
 guarantees: deterministic triage, conflict-free integration, lossless
-resumption, one-way rule projection, zero-token lint. The level for Clojure
-projects and any project with `bb` on PATH. Picks this level when
-`:spine :runtime :babashka`.
+resumption, one-way rule projection, zero-token lint, a green runtime port.
+The level for Clojure projects and any project with `bb` on PATH. Picks this
+level when `:spine :runtime :babashka`.
 
 ### Thin spine (`:thin`)
 
-Plain shell-script stand-ins for `lint`, `integrate`, and `run-status` only. The
+Plain shell-script stand-ins for `lint`, `integrate`, and `run` only. The
 rest (detailed `triage`, `compile-rules`) falls back to return-value hand-off:
 the orchestrator reads one-line returns from sub-agents and folds them in
 conversation, accepting that long campaigns re-derive ground truth from

@@ -61,7 +61,7 @@ flowchart TD
   AG["agent fleet (§7): 8 roles<br/>planner · change-runner · review-round-runner · writer · reviewer · editor · verifier (haiku) · ui-designer"]
   SD["shared doctrine (§5): stack-agnostic<br/>orchestration · FC/IS · native-edge · dimensions · craft"]
   LC["language craft (§6): four adapters<br/>write-c · write-zig · write-clj · write-elixir · write-tests · write-ui · write-prose · write-commit · write-changelog"]
-  SP["deterministic spine (§4): core, always present<br/>triage · integrate · run-status · compile-rules · lint · opencode-sync / opencode-check<br/>adapter today: Babashka + EDN; adapter future: future runtime + store"]
+  SP["deterministic spine (§4): core, always present<br/>triage · integrate · run · compile-rules · lint · opencode-sync / opencode-check<br/>adapter today: Babashka + EDN; adapter future: future runtime + store"]
   PD["project descriptor (§8): .agentic-sdk/project.edn<br/>vcs · languages · architecture · lanes · dimensions · spine · adr · commit · hooks"]
   EP --> AG
   MS --> AG
@@ -77,11 +77,11 @@ run-state (§10), and the runtime port (§12).
 
 A small number of deep orchestrators do big pieces of work autonomously between
 approval gates. Everything else is model-invoked (recipes, primitives), reached
-by these eight entry points.
+by these seven entry points. Meta-skills (section 8.3) are a separate class
+that retunes the system itself and are not entry points.
 
 | Entry point | What it does | Approval gates |
 |---|---|---|
-| `bootstrap-project` | **Meta-skill.** Detect stack, write descriptor, materialize `write-<lang>` recipes, scaffold hooks and artifact dirs. Run once per project. | none (writes config) |
 | `plan-system` | Upstream: turn a problem or idea into an approved backlog and implementation plan. Runs describe-problem to requirements to risks to design-ux (if applicable) to design-technical to backlog to plan, with the Gherkin elicitation gate folded in. | one: the plan/backlog |
 | `advance-plan` | **Campaign.** Take a chunk of the plan and build it unattended, phase by phase, dispatching one change-runner per phase through the full implement-review-fix engine. | one up front |
 | `implement-change` | **Phase.** Build one change or slice end to end (plan units, tests, impl, integrate, verify, at most 2 review rounds). The lighter entry when there is no campaign. | final land |
@@ -105,7 +105,7 @@ do not.
 |---|---|---|---|
 | `triage` | findings dir | `punch-list.edn` and `.md` | dedup, drop protected idioms, order by editing-level then severity, renumber findings |
 | `integrate` | fix branches / finding-ids | landed branch and consumed fix branches | cherry-pick parallel fixes oldest-first, report conflicts |
-| `run-status` | scope | directive EDN | compute next directive (run-stage / next-round / complete) plus staleness and gate arming |
+| `run` | scope | directive EDN | compute next directive (run-stage / next-round / next-phase / complete) plus staleness and gate arming |
 | `compile-rules` | decisions | lint rules and commit categories | decisions to enforced rules (one-way, deterministic) |
 | `lint` | source files | findings EDN | zero-token mechanical pre-pass (style regexes; the AI-tells catalog) |
 | `opencode-sync` | `.agentic-sdk/agents` masters | `.opencode/agent/` derived | project masters into the OpenCode format |
@@ -137,7 +137,7 @@ A project sits at one of three spine-presence levels, recorded in the descriptor
 - **Full spine**: bb tasks plus an EDN working dir (Clojure projects today; any
   project with bb installed). Maximum guarantees.
 - **Thin spine**: plain shell-script stand-ins for `lint`, `integrate`, and
-  `run-status` only; the rest falls back to return-value hand-off. For
+  `run` only; the rest falls back to return-value hand-off. For
   C/Zig/Elixir projects without bb.
 - **Return-value-only**: no spine tasks. The engine still works; long campaigns
   re-derive ground truth from `git log` and `ls`.
@@ -386,7 +386,7 @@ tracked. Everything else is regenerable by re-running `bootstrap-project`;
 `templates/gitignore` is the canonical project `.gitignore` dropped at the
 project root.
 
-Resume model: the orchestrator reads `run-status` (not the transcript) after
+Resume model: the orchestrator reads `run` (not the transcript) after
 each phase; workers return pointer lines; sub-orchestrators return one line.
 Disk is the system of record, so compaction is lossless.
 
@@ -480,6 +480,11 @@ Every atom is non-overlapping and single-layer.
 - **Review dimensions (10):** `check-correctness`, `check-factoring`,
   `check-style`, `check-conformance`, `check-security`, `check-performance`,
   `check-portability`, `check-memory`, `check-design`, `check-clarity`.
+- **Ops and release recipes (5):** `analyze-root-cause`, `assess-risk`,
+  `design-ui`, `review-incident`, `triage-logs`. `design-ui` is the UI design
+  recipe the `ui-designer` loads; `assess-risk` is the release-risk recipe
+  under `ship`; `analyze-root-cause`, `review-incident`, `triage-logs` are ops
+  recipes under `investigate`.
 - **Other primitives (9):** `verify-lanes`, `apply-findings`,
   `gather-module-context`, `maintain-toolchain`, `record-decision`,
   `capture-guidance`, `incorporate-feedback`, `develop-at-repl`,

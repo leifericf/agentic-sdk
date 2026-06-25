@@ -121,8 +121,8 @@ project root, in vector order, and stop on the first failure.
   `["bb test"]`, Zig `["zig fmt --check" "zig build"]`).
 - **configures:** the lanes the `verifier` agent runs on every unit and after
   every edit. The cheap tier fits in a tight loop.
-- **reads:** `verifier`, `check-build`, `check-format`, `check-tests`, the
-  `format-on-write` and `require-tests-before-land` hooks.
+- **reads:** `verifier` (running `verify-lanes`), the `format-on-write` and
+  `require-tests-before-land` hooks.
 - **origin:** DETECT per language template, refined by ELICIT.
 
 #### `:lanes :wave`
