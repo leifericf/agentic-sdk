@@ -31,9 +31,9 @@ kind depends on the gap.
    - **Spine task:** a new deterministic clerical task that joins the
      interface in `skills/shared/references/spine.md`. The model does
      it identically every time, so it earns promotion to the spine.
-   - **Hook policy:** a new template in `:hooks` that enforces a policy
-     at the tool boundary, the way `format-on-write`, `deny-secrets`,
-     `require-tests-before-land`, and `mcp-first` do.
+    - **Hook policy:** a new template in `:hooks` that enforces a policy
+      at the tool boundary, the way `format-on-write`, `deny-secrets`,
+      and `require-tests-before-land` do.
 2. **Interview for the schema.** Ask one batch of at most three
    questions for what the artifact's schema needs:
    - For a lane entry: the command, the tier (cheap, wave, pre-land),

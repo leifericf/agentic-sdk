@@ -266,15 +266,13 @@ A map of two keys.
 
 - **type:** vector of hook template keys (keywords).
 - **values:** any subset of `#{:format-on-write :deny-secrets
-  :require-tests-before-land :mcp-first}`.
+  :require-tests-before-land}`.
   - `:format-on-write` runs the project formatter at the editor boundary
     (PreToolUse and PostToolUse on Write and Edit).
   - `:deny-secrets` blocks `.env`, credentials, and private keys (PreToolUse on
     Read, Edit, Write).
   - `:require-tests-before-land` gates land on a green `:pre-land` lane run
     (PreToolUse on commit and merge).
-  - `:mcp-first` enforces query-before-read for projects with a knowledge-graph
-    MCP (PreToolUse on Read, Glob, Grep).
 - **default:** `[:format-on-write :deny-secrets]`.
 - **configures:** which hook templates `bootstrap-project` scaffolds into
   `.claude/hooks/`.

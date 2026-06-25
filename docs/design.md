@@ -318,8 +318,6 @@ toolkit ships hook **templates** activated by the descriptor:
   credentials, private keys.
 - **`require-tests-before-land`** (PreToolUse on commit/merge): gates land on a
   green lane run.
-- **`mcp-first`** (optional; PreToolUse on Read|Glob|Grep): for projects with a
-  knowledge-graph MCP, enforce query-before-read.
 
 `bootstrap-project` also drops a **CLAUDE.md skeleton** into the project: a
 hard-rule-first router, then a tool/MCP table, normative domain guidelines,
