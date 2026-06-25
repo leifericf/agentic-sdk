@@ -1,339 +1,93 @@
 # agentic-sdk
 
 A runtime-agnostic system of skills, agents, and a deterministic spine for
-software development across a bounded stack (C, Zig, Clojure, Elixir). Claude
-Code is the master format; an OpenCode projection is generated from it.
+software development across a bounded stack: C, Zig, Clojure, Elixir. One
+architecture ties them together: Functional Core, Imperative Shell, with native
+edges between languages.
 
-> **Refresh in progress.** This skill system is being homogenized from several
-> predecessor systems into the architecture described in
-> [docs/design.md](docs/design.md). The documentation below describes the
-> previous three-layer edition and is being replaced section by section.
+Claude Code is the master format; an OpenCode projection is generated from it.
+Install once into a project and the same system drives either runtime.
 
-A set of composable skills for software development, organized into three layers for maximum flexibility and parallel execution.
+## What it gives you
 
-## Quick Start
+A small set of deep orchestrators that run big pieces of work autonomously
+between approval gates:
 
-### Most Common: Implement a Feature
+| Orchestrator | Does |
+|---|---|
+| `plan-system` | Turn a problem into an approved backlog and plan |
+| `advance-plan` | Build a chunk of the plan unattended, phase by phase |
+| `implement-change` | Build one change or slice end to end |
+| `audit-code` | Review and fix any scope until a round finds nothing |
+| `investigate` | Triage an incident to root cause and follow-up |
+| `fix-bug` | Fix one bug with a regression test |
+| `ship` | Cut a release |
 
-```bash
-/implement-feature
+Four meta-skills tailor the system itself: `bootstrap-project` (install into a
+project), `add-language`, `add-dimension`, `add-tech`. Everything else is
+model-invoked (recipes, primitives, review dimensions), composed by these
+orchestrators. The full inventory lives in [docs/design.md](docs/design.md).
+
+## Architecture
+
+```mermaid
+flowchart TD
+  EP["human surface: 7 orchestrators + 4 meta-skills"] --> AG["agent fleet: 8 roles (planner, change-runner, review-round-runner, writer, reviewer, editor, verifier, ui-designer)"]
+  AG --> RC["recipes (write-<lang>, plan-work, run-review-round, ...) and review dimensions (check-*)"]
+  RC --> SP["deterministic spine: triage, integrate, run, compile-rules, lint, opencode-sync/check"]
+  SP --> PD[".agentic-sdk/project.edn descriptor"]
 ```
 
-One command handles the complete implementation workflow:
-1. Pick feature from backlog
-2. Create implementation plan
-3. Implement with quality gates
-4. Validate the feature
+- A deterministic **spine** (Babashka and EDN) owns the clerical work: triage,
+  integration, resumption, rule projection, prose lint. The model is left to
+  judgment.
+- A fleet of 8 **agents** does the work in isolated contexts, returning
+  one-line summaries upward (context is the budget).
+- A **descriptor** (`.agentic-sdk/project.edn`) tunes the system per project:
+  languages, lanes, active review dimensions, spine level.
 
-### Other High-Level Workflows
+## Install
 
-```bash
-/design-system        # Design a system from problem to backlog
-/incident-response     # Handle incidents from triage to follow-up
-/setup-project         # Set up a new project
-/merge-to-trunk        # Merge a feature branch to trunk
-/prepare-release       # Prepare a versioned release
-/audit-codebase        # Audit for bugs, security, and UX/UI issues
-/remediate-issues      # Fix all discovered issues across all tracks
-```
+agentic-sdk is promptware: the skills and agents are the software, the model is
+the runtime. Clone this repo, then in a target project run the `bootstrap-project`
+skill (the toolkit's skills must be reachable from your runtime). It:
 
-### Fine-Grained Control
+1. Detects the stack (`deps.edn`, `build.zig`, `mix.exs`, `CMakeLists.txt`, ...).
+2. Writes `.agentic-sdk/project.edn`.
+3. Snaps the active `write-<lang>` recipes, the spine, and the hook templates
+   into `.agentic-sdk/`.
+4. Symlinks `.claude/{skills,agents,hooks}` into `.agentic-sdk/` (the Claude
+   Code adapter) and generates `.opencode/agent/` (the OpenCode adapter).
+5. Drops a project `CLAUDE.md` and a `.gitignore`.
 
-Need more control? Run individual workflows directly:
+The install home is `.agentic-sdk/`. Commit only `.agentic-sdk/project.edn`,
+`.agentic-sdk/artifacts/`, the root `CLAUDE.md`, and the small runtime configs
+(`.claude/settings.json`, `.opencode/opencode.json`); the snapped-in masters,
+the spine, runs, and working state are gitignored and re-installable. The full
+layout and commit policy are in [docs/design.md](docs/design.md).
 
-```bash
-# Planning workflows
-/describe-problem
-/define-requirements
-/design-ux
-/design-technical
-/create-backlog
+## The spine
 
-# Implementation workflows
-/pick-feature
-/plan-feature
-/execute-plan
-/review-plan
-/validate-feature
-/triage-backlog
+The deterministic spine runs as Babashka tasks over an EDN working directory:
 
-# Issue discovery and remediation workflows
-/find-issues
-/fix-issues
+| Task | Does |
+|---|---|
+| `triage` | Fold findings into one ordered punch list |
+| `integrate` | Land parallel fix branches oldest-first |
+| `run` | Resumption state (`bb run init\|status\|advance`) |
+| `compile-rules` | Project decisions to lint rules |
+| `lint` | House prose pre-pass plus a detected project linter |
+| `opencode-sync` / `opencode-check` | Project and verify the OpenCode adapter |
 
-# Operations workflows
-/triage-logs
-/review-incident
-/analyze-root-cause
-/assess-risk
-```
+The interface is stable; the runtime can swap (a future static-binary task
+runtime and an immutable-fact store) without touching the skill layer.
 
-## Installation
+Verify the spine: `bb test`. Prose-lint the docs: `bb lint`.
 
-```bash
-# Clone the toolkit somewhere on your machine:
-git clone https://github.com/leifericf/claude-code-toolkit.git ~/claude-code-toolkit
+## Status
 
-# Symlink into your project (macOS, Linux, WSL):
-mkdir -p /path/to/your/project/.claude
-ln -s ~/claude-code-toolkit/skills /path/to/your/project/.claude/skills
-ln -s ~/claude-code-toolkit/agents /path/to/your/project/.claude/agents
-
-# Or copy if you prefer a standalone snapshot:
-cp -r ~/claude-code-toolkit/skills /path/to/your/project/.claude/skills
-cp -r ~/claude-code-toolkit/agents /path/to/your/project/.claude/agents
-```
-
-**Note:** Symlinks work on macOS, Linux, and WSL. Native Windows does not reliably support symlinks — use WSL or copy instead.
-
-**Note:** Claude Code's sandbox may block symlinks that point outside the project directory. If you encounter sandbox errors, use the copy approach instead.
-
-Then run `/setup-project` in Claude Code to initialize the project's artifact structure.
-
-## Architecture: Three Layers
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ LAYER 1: Orchestrators (High-Level Intent)                  │
-│ "I want to accomplish X"                                     │
-│ Examples: /implement-feature, /design-system                 │
-└─────────────────────────────────────────────────────────────┘
-                           ↓ compose
-┌─────────────────────────────────────────────────────────────┐
-│ LAYER 2: Workflows (Declarative Processes)                  │
-│ "I need to do this specific thing"                            │
-│ Examples: /plan-feature, /execute-plan, /design-technical    │
-└─────────────────────────────────────────────────────────────┘
-                           ↓ compose
-┌─────────────────────────────────────────────────────────────┐
-│ LAYER 3: Primitives (Atomic Assessments)                    │
-│ Internal units launched by workflows (do not invoke directly)│
-│ Examples: assess-observability, check-format                │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Layer 1: Orchestrators (`disable-model-invocation: true`)
-
-**High-level entry points you invoke directly.** Each orchestrator composes multiple workflows into complete end-to-end flows.
-
-- **Most of the time**: You'll run an orchestrator
-- **Benefit**: One command handles everything automatically
-- **Count**: 8 orchestrators
-
-### Layer 2: Workflows
-
-**Composable workflows you can run standalone or composed into orchestrators.** Each workflow focuses on a specific aspect of software development.
-
-- **Sometimes**: You'll run a workflow directly for fine-grained control
-- **Benefit**: Each workflow is independently useful and reusable
-- **Count**: 22 workflows
-
-### Layer 3: Primitives (`user-invocable: false`)
-
-**Internal atomic units launched automatically by workflows.** Hidden from the `/` menu — do not invoke these directly.
-
-- **Never**: You'll invoke primitives directly
-- **Benefit**: Enable parallel execution, reusable components
-- **Count**: 11 primitives
-
-All 41 skills live in a flat `skills/` directory. Layers are distinguished by frontmatter fields, not directory structure.
-
-## Design Principles
-
-1. **Decompose**: Complex workflows → small focused primitives
-2. **Compose**: Recombine primitives into higher-level orchestrators
-3. **Reuse**: Same primitive in multiple contexts
-4. **Parallelize**: Independent primitives run concurrently
-5. **Simplicity**: Each component does one thing well
-6. **Directness**: Clear entry points; no ambiguity
-7. **Agnosticism**: High-level, declarative, works with any tech stack
-
-## Tech Stack Agnostic
-
-This toolkit captures **general values, principles, and concepts** that apply to software development using **any** tech stack.
-
-**What we focus on**:
-- What to build (outcomes, requirements)
-- Why it matters (problems, user needs)
-- How we'll know it works (acceptance criteria, testing)
-- What could go wrong (risks, edge cases)
-
-**What we avoid**:
-- Package managers (npm vs cargo vs pip)
-- Test runners (jest vs pytest vs cargo test)
-- Frameworks (React vs Django vs Phoenix)
-- Cloud providers (AWS vs GCP vs Azure)
-
-## Parallel Execution
-
-Workflows launch primitives in parallel for faster execution:
-
-**Sequential** (old): 4 assessments take 4 minutes
-```
-assess-observability (1 min)
-  → wait
-assess-testing (1 min)
-  → wait
-assess-data (1 min)
-  → wait
-assess-rollout (1 min)
-Total: 4 minutes
-```
-
-**Parallel** (new): 4 assessments take 1 minute
-```
-assess-observability (1 min)
-assess-testing (1 min)
-assess-data (1 min)
-assess-rollout (1 min)
-  → all run concurrently
-Total: 1 minute
-```
-
-## Directory Structure
-
-```
-claude-code-toolkit/
-└── skills/                          # All skills (flat, auto-discovered)
-    ├── implement-feature/SKILL.md   # Orchestrator
-    ├── design-system/SKILL.md       # Orchestrator
-    ├── incident-response/SKILL.md   # Orchestrator
-    ├── setup-project/SKILL.md       # Orchestrator
-    ├── merge-to-trunk/SKILL.md      # Orchestrator
-    ├── prepare-release/SKILL.md     # Orchestrator
-    ├── audit-codebase/SKILL.md      # Orchestrator
-    ├── remediate-issues/SKILL.md    # Orchestrator
-    ├── bootstrap-project/SKILL.md   # Workflow
-    ├── capture-preferences/SKILL.md # Workflow
-    ├── describe-problem/SKILL.md    # Workflow
-    ├── define-requirements/SKILL.md # Workflow
-    ├── design-ux/SKILL.md           # Workflow
-    ├── design-technical/SKILL.md    # Workflow
-    ├── review-risks/SKILL.md        # Workflow
-    ├── create-backlog/SKILL.md      # Workflow
-    ├── pick-feature/SKILL.md        # Workflow
-    ├── plan-feature/                # Workflow (with supporting file)
-    │   ├── SKILL.md
-    │   └── plan-template.md
-    ├── execute-plan/SKILL.md        # Workflow
-    ├── review-plan/SKILL.md         # Workflow
-    ├── validate-feature/SKILL.md    # Workflow
-    ├── triage-backlog/SKILL.md      # Workflow
-    ├── quality-gate/SKILL.md        # Workflow
-    ├── assess-quality-gates/SKILL.md# Workflow
-    ├── triage-logs/SKILL.md         # Workflow
-    ├── review-incident/SKILL.md     # Workflow
-    ├── analyze-root-cause/SKILL.md  # Workflow
-    ├── assess-risk/SKILL.md         # Workflow
-    ├── find-issues/SKILL.md         # Workflow
-    ├── fix-issues/SKILL.md          # Workflow
-    ├── assess-observability/SKILL.md# Primitive (hidden)
-    ├── assess-testing/SKILL.md      # Primitive (hidden)
-    ├── assess-data/SKILL.md         # Primitive (hidden)
-    ├── assess-rollout/SKILL.md      # Primitive (hidden)
-    ├── check-format/SKILL.md        # Primitive (hidden)
-    ├── check-lint/SKILL.md          # Primitive (hidden)
-    ├── check-tests/SKILL.md         # Primitive (hidden)
-    ├── check-build/SKILL.md         # Primitive (hidden)
-    ├── discover-bugs/SKILL.md       # Primitive (hidden)
-    ├── discover-security-issues/SKILL.md # Primitive (hidden)
-    └── discover-ux-issues/SKILL.md  # Primitive (hidden)
-```
-
-## How to Use
-
-### For Most Users
-
-Run an orchestrator:
-```bash
-/implement-feature
-```
-
-The orchestrator will:
-1. Guide you through the complete workflow
-2. Invoke the right workflows at the right time
-3. Launch primitives in parallel when beneficial
-4. Report progress clearly
-
-### For Power Users
-
-Run workflows directly:
-```bash
-/plan-feature
-```
-
-You get fine-grained control over each step.
-
-### For Developers (Composing New Workflows)
-
-Launch primitives via the Task tool:
-```yaml
-Launch 4 primitives in parallel:
-  → Task: Invoke /assess-observability
-  → Task: Invoke /assess-testing
-  → Task: Invoke /assess-data
-  → Task: Invoke /assess-rollout
-Wait for all to complete
-Merge results
-```
-
-## Artifact Structure
-
-Created by `/setup-project` inside your project's `.claude/` directory:
-
-```
-.claude/
-  skills/                  # Skills (symlinked or copied from this repo)
-  agents/                  # Custom subagent types (symlinked or copied from this repo)
-  artifacts/
-    planning/              # Backlog, requirements, problem description, designs
-      tasks/               # Feature implementation plans
-    decisions/             # Decision log, open questions
-    project/               # Project meta, release tracking
-    ops/                   # Incident reviews, RCAs, risk assessments, issue lists
-```
-
-Commit `skills`, `agents`, and `artifacts` to your repo so the team shares them. Add a `.claude/.gitignore` to exclude personal files:
-
-```gitignore
-# Personal settings (not shared)
-settings.local.json
-
-# Temporary plans (conversation-scoped)
-plans/
-
-# Claude Code memory (per-user, not project docs)
-projects/
-```
-
-## Workflows
-
-### Full Planning Cycle
-```
-/setup-project → /describe-problem → /define-requirements →
-/review-risks → /design-ux → /design-technical →
-/create-backlog
-```
-
-### Implementation Loop
-```
-/design-system → /implement-feature →
-/incident-response → (repeat)
-```
-
-### Issue Discovery and Remediation
-```
-/audit-codebase → /remediate-issues → /audit-codebase (verify)
-```
-
-### Ship
-```
-/merge-to-trunk → /prepare-release
-```
-
-## Origins
-
-This toolkit is a Claude Code-native port of a prior tool-agnostic edition, replacing the generic file-reference chains with Claude Code's native skill system and adding a layered architecture for composition and parallel execution.
+agentic-sdk is a fresh, runtime-agnostic system. It replaces an earlier
+Claude-Code-only edition.
 
 ## License
 
