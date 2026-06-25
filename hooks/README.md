@@ -122,11 +122,14 @@ the project's `opencode.json` when `:opencode` is in `:runtimes`.
   (a `formatter` field in `opencode.json` or the language's default); no
   shell hook is needed.
 - **`require-tests-before-land`** expresses a prior-state requirement that
-  permission rules alone cannot capture. It is implemented as an OpenCode
-  plugin hook (a small JS module under `.opencode/plugin/`) that registers
-  the same check against the OpenCode tool events. The plugin is optional;
-  a project that runs OpenCode without it loses that gate but keeps the
-  deny list and the formatter.
+  permission rules alone cannot capture. The policy lives in
+  `hooks/require-tests-before-land.clj` (Babashka, shared with the Claude Code
+  shell hook); an OpenCode adapter at
+  `.opencode/plugin/require-tests-before-land.mjs` shells out to it from a
+  `permission.ask` hook. `bootstrap-project` arms it by writing a `bash`
+  permission rule that turns push and merge into `ask` (the trigger) and
+  registering the plugin module under `plugin` in `opencode.json`. The plugin
+  is fail-safe: any error allows, so it can never block work.
 
 The OpenCode projection is generated and gitignored or regenerated; the
 master form under `.claude/` is the source of truth. The `opencode-sync`
