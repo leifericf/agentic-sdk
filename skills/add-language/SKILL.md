@@ -70,7 +70,7 @@ write-<lang> skeleton (in `docs/design.md` section 6),
 Validation dispatches a writer (loading the new recipe) and a reviewer
 (running check-* dimensions).
 
-## Returns
+## Return
 
 One line: the new recipe path, the descriptor field amended, and the
 validation verdict.

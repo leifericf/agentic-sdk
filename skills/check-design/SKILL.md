@@ -120,7 +120,7 @@ targets. Siblings: check-style owns naming and comments; check-factoring
 owns module boundaries; check-performance owns back-end cost;
 check-clarity owns the prose a UI surfaces.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, citing the

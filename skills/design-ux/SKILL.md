@@ -4,7 +4,7 @@ description: Establish UX guardrails and interaction patterns
 user-invocable: false
 ---
 
-# Design UX
+# design-ux
 
 Establish UX guardrails, visual direction, and interaction patterns across
 web, mobile, desktop, TUI, and CLI surfaces. Reduce interface entropy with

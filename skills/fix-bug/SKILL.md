@@ -65,7 +65,7 @@ Atoms dispatched: write-tests (the regression test), write-<lang> (the
 source fix), verify-lanes, optionally reviewer dispatches for a
 hypothesis hunt, write-commit.
 
-## Returns
+## Return
 
 One line: the commit id, the category, and the verify verdict, with the
 regression test that failed before and passes after.

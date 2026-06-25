@@ -97,7 +97,7 @@ untrusted input can reach the defect; check-performance owns the cost of
 the allocation pattern; check-conformance owns the edge contract the
 handle catalog depends on.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each with

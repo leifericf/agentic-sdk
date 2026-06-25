@@ -66,7 +66,7 @@ the approved follow-up plan; it does not start the fix. Atoms
 dispatched: triage-logs, analyze-root-cause, review-incident,
 record-decision for architectural choices.
 
-## Returns
+## Return
 
 The three artifact paths (triage, RCA, incident review), a follow-up
 plan of fix and hardening items, and the backlog entries, ready to hand

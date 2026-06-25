@@ -87,7 +87,7 @@ reporting the verdict; the descriptor owns the lane commands and the
 toolchain pin sites; `record-decision` owns the ADR a ceiling
 investigation promotes to when it proves architectural.
 
-## Return contract
+## Return
 
 When run as a lane (the doctor check), the same contract as
 `verify-lanes`: `PASS|SKIP|FAIL <lane>` lines plus

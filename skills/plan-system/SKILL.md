@@ -71,7 +71,7 @@ describe-problem, define-requirements, review-risks, design-ux
 plan-feature (which itself runs the Gherkin gate, fans out the four
 assess-* concerns, and calls record-decision for real choices).
 
-## Returns
+## Return
 
 One line per planning recipe plus the approved backlog and feature plan
 paths, ready to hand to advance-plan or implement-change.

@@ -4,7 +4,7 @@ description: Surface risky assumptions and missing acceptance criteria
 user-invocable: false
 ---
 
-# Review Risks
+# review-risks
 
 Surface ambiguity, contradictions, risky assumptions, and missing acceptance
 criteria. Translate risks into testable questions and mitigations.

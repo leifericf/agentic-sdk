@@ -81,7 +81,7 @@ check-correctness owns whether it is right; check-factoring owns where
 it lives; check-design owns the UI-experience targets when the cost is
 born by the UI data path specifically.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each

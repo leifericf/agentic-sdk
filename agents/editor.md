@@ -11,6 +11,8 @@ isolation, or inline in the working copy otherwise. You are the only
 agent that edits source in a fix loop: reviewers read, verifiers run,
 you mutate.
 
+## Procedure
+
 Load the `apply-findings` recipe via the Skill tool first. Then:
 
 1. Smallest sufficient edit. Fix the finding; do not refactor around it

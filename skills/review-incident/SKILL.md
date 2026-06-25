@@ -4,7 +4,7 @@ description: Run a blameless incident review with action items
 user-invocable: false
 ---
 
-# Review Incident
+# review-incident
 
 Run a blameless incident review focused on learning and preventing recurrence.
 Factual, empathetic, thorough; never blame-oriented. Start with impact,

@@ -98,7 +98,7 @@ owns whether it is right; check-conformance owns whether it matches the
 spec; the `lint` spine task owns the deterministic mechanical pre-pass;
 `write-prose` owns the prose standard this dimension enforces.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect. When the

@@ -118,7 +118,7 @@ the spine triage task, and dispatches editor waves via apply-findings),
 record-decision for real choices, write-commit and write-changelog at
 the land.
 
-## Returns
+## Return
 
 A one-line summary to the caller (the maintainer, or a change-runner
 under a campaign): the change landed, the round count, the verify

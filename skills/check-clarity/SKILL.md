@@ -80,7 +80,7 @@ prose standard; check-conformance owns whether the prose's claims match
 the code; the `lint` spine task owns the mechanical tells; `write-prose`
 owns the standard this dimension enforces.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each with

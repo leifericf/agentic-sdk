@@ -70,7 +70,7 @@ the dimension shape (in `docs/design.md` section 11),
 project descriptor. Validation dispatches a reviewer (loading the new
 recipe).
 
-## Returns
+## Return
 
 One line: the new recipe path, the descriptor field amended, and the
 validation verdict.

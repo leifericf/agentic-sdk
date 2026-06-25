@@ -4,7 +4,7 @@ description: Trace the causal chain from trigger to failure
 user-invocable: false
 ---
 
-# Analyze Root Cause
+# analyze-root-cause
 
 Trace the full causal chain from trigger to failure, identify defense gaps,
 and define preventative controls. Anchor on one precise, falsifiable failure

@@ -4,7 +4,7 @@ description: Turn a backlog item into slices, a Gherkin spec, and a plan
 user-invocable: false
 ---
 
-# Plan Feature
+# plan-feature
 
 Turn a selected backlog item into a dependency-ordered implementation plan with
 a Gherkin acceptance gate and parallel quality-dimension assessments. Runs in

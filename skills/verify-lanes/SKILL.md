@@ -91,7 +91,7 @@ the lanes depend on; the `lint` spine task owns the zero-token mechanical
 pre-pass whose findings join the same pool; the reviewer dimensions own
 judgment over what the lanes cannot catch.
 
-## Return contract
+## Return
 
 The `PASS|SKIP|FAIL <lane>` lines plus `VERDICT: PASS|FAIL`, nothing
 else.

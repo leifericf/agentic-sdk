@@ -90,7 +90,7 @@ how it reads; check-conformance owns whether it matches the spec;
 check-memory owns native state lifetime; check-security owns the trust
 lines; check-performance owns the cost.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each

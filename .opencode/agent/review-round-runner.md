@@ -21,6 +21,8 @@ retries run within their budgets (twice each); only a budget-exceeded
 escalation stops work on that item, and even then you record it and
 continue with the rest of the round.
 
+## Procedure
+
 Load the `run-review-round` recipe via the Skill tool first; it carries
 the step-by-step and the module-batch fan-out rules. That fan-out
 follows the runtime adaptation rule in the orchestration reference

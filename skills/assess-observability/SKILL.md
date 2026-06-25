@@ -4,7 +4,7 @@ description: Plan logging, metrics, and tracing for a feature
 user-invocable: false
 ---
 
-# Assess Observability
+# assess-observability
 
 Assess a feature's logging, metrics, and tracing needs. High-level and
 declarative (what to observe, not which tool); stack-agnostic; never log

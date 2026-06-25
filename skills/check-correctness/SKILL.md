@@ -76,7 +76,7 @@ check-memory owns the lifetime and ownership of native state;
 check-security owns untrusted input reaching the unsafety;
 check-performance owns the cost.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each with

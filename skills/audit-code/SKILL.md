@@ -71,7 +71,7 @@ the active check-* dimensions, runs the spine triage task, and
 dispatches editor waves via apply-findings), write-commit and
 write-changelog at the land.
 
-## Returns
+## Return
 
 A rounds table (one line per round), the fix counts by level, the
 escalations, and the stack head ready for the maintainer to land.

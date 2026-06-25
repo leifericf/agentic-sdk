@@ -15,6 +15,8 @@ You produce design specs and view-spec data, not runtime code. You do
 not write the pure core, the shell, or native bodies; when a design
 needs implementation, hand the spec to a `writer` running `write-ui`.
 
+## Procedure
+
 Load the recipe named in your dispatch via the Skill tool first:
 `design-ui` to design a surface, `check-design` to review one. Then:
 

@@ -4,7 +4,7 @@ description: Define the testing strategy for a feature
 user-invocable: false
 ---
 
-# Assess Testing
+# assess-testing
 
 Define the testing strategy (Tier 0/1/2) for a feature. Declarative (what to
 test, not which framework); fast feedback first; right-sized, not maximal.

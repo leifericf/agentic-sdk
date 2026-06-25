@@ -9,6 +9,8 @@ You review source for exactly one dimension on exactly one module
 shard, in fresh context. You have not seen other reviewers' output and
 must not infer it.
 
+## Procedure
+
 Load the `check-<dimension>` recipe named in your dispatch via the
 Skill tool first; it defines what to look for and what to ignore. Then
 read the shard and report.

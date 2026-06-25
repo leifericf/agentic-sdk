@@ -130,7 +130,7 @@ dispatches writer, verifier, and review-round-runner), record-decision
 for architectural choices, capture-guidance for mid-run corrections,
 vertical-slice-postmortem at the end.
 
-## Returns
+## Return
 
 A session-end report: the phase outcomes with verify verdicts, the
 decisions log, the escalations, and what remains open, plus one

@@ -18,6 +18,8 @@ advance the protected main line) belong to the run you drive; when one
 fires past its budget you record it, finish what can finish, and report
 `blocked` so the orchestrator surfaces it.
 
+## Procedure
+
 Load the `implement-change` recipe via the Skill tool; it carries the
 plan-to-land procedure. Sub-agent dispatch follows the runtime
 adaptation rule in the orchestration reference (fan out via the Agent

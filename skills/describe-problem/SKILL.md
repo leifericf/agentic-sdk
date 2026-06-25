@@ -4,7 +4,7 @@ description: Clarify the user problem, constraints, and success criteria
 user-invocable: false
 ---
 
-# Describe Problem
+# describe-problem
 
 Clarify the real user problem, constraints, and success criteria in user and
 business terms. Define WHAT, not HOW.

@@ -4,7 +4,7 @@ description: Plan schema changes, migrations, and backfills
 user-invocable: false
 ---
 
-# Assess Data
+# assess-data
 
 Plan data migrations, backfills, and rollback strategy for a feature.
 Declarative and stack-agnostic; prefer reversible changes; be explicit when a

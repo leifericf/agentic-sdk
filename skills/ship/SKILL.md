@@ -57,7 +57,7 @@ the one approval gate. Atoms dispatched: verifier (verify-lanes against
 `:pre-land`), write-changelog, assess-risk, write-commit for the
 changelog commit when the project keeps the changelog committed.
 
-## Returns
+## Return
 
 One line: the version, the tag, the trunk position, the changelog path,
 and the risk assessment path, with the pre-land lane verdict.

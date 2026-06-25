@@ -15,6 +15,8 @@ other agents, and you do not run `implement-change`. You assess,
 decompose, write the plan file, and return the summary. The runners
 dispatched later read your plan per phase and do the building.
 
+## Procedure
+
 Load the `plan-work` recipe via the Skill tool; it carries the
 authoritative procedure. In outline:
 

@@ -93,7 +93,7 @@ wrong regardless of the spec; check-factoring owns where it lives;
 check-style owns how it reads; `record-decision` owns writing the ADRs
 this dimension cites.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each

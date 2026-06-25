@@ -4,7 +4,7 @@ description: Create a prioritized backlog from the technical design
 user-invocable: false
 ---
 
-# Create Backlog
+# create-backlog
 
 Translate the technical design into a prioritized, living product backlog of
 capabilities. No implementation task breakdown.

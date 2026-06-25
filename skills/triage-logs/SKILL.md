@@ -4,7 +4,7 @@ description: Turn noisy signals into structured analysis
 user-invocable: false
 ---
 
-# Triage Logs
+# triage-logs
 
 Triage production signals into structured, actionable analysis. Methodical,
 hypothesis-driven, biased toward reversible mitigations. Start with the

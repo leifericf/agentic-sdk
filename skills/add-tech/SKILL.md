@@ -76,7 +76,7 @@ only the descriptor and adds only the artifact file. Atoms referenced:
 `docs/design.md` section 9 for the hook templates, the project
 descriptor.
 
-## Returns
+## Return
 
 One line: the artifact kind and path (or the descriptor field for a
 lane entry), the descriptor field amended, and the validation verdict.

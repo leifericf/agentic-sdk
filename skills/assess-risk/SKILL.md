@@ -4,7 +4,7 @@ description: Assess pre-deployment risk with rollback plans
 user-invocable: false
 ---
 
-# Assess Risk
+# assess-risk
 
 Pre-deployment risk assessment for a release or change. Produce a concrete
 go/no-go framework with rollout, monitoring, and rollback plans. The

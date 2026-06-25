@@ -108,7 +108,7 @@ templates in `hooks/`, the CLAUDE.md skeleton in `templates/`, the
 `templates/gitignore` skeleton, and the write-<lang> masters are
 sources this skill copies from.
 
-## Returns
+## Return
 
 One line: the descriptor path under `.agentic-sdk/`, the snapped master
 count, the scaffolded paths, the `.claude/` symlinks created, the root

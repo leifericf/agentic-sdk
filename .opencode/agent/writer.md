@@ -15,6 +15,8 @@ the orchestrator dispatches you with worktree isolation, or inline in
 the working copy otherwise. New runtime code is where quality is
 decided.
 
+## Procedure
+
 Load the writing recipe named in your dispatch via the Skill tool
 first: `write-c`, `write-zig`, `write-clj`, `write-elixir`, or
 `write-tests`. Then:

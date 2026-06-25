@@ -102,7 +102,7 @@ and lifetime discipline; check-correctness owns logic bugs not on the
 trust line; check-conformance owns the edge contract shape; the
 `deny-secrets` hook owns the commit-time block.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each with

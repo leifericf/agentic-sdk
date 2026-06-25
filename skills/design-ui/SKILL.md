@@ -105,7 +105,7 @@ itself; write-prose owns the prose standard. Produces data and prose,
 never running code; the design decision that belongs in the architecture
 goes to record-decision, not into this spec.
 
-## Returns
+## Return
 
 One line: the surface designed, the spec's location, and whether every
 state is covered.

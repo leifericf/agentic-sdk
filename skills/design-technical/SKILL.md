@@ -4,7 +4,7 @@ description: Design architecture, components, and data flows
 user-invocable: false
 ---
 
-# Design Technical
+# design-technical
 
 Design a simple, evolvable system with clear boundaries and data flows. Prefer
 operational simplicity; make tradeoffs explicit and recorded. Express the

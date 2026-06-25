@@ -4,7 +4,7 @@ description: Select and triage the next feature to implement
 user-invocable: false
 ---
 
-# Pick Feature
+# pick-feature
 
 Select the best next feature to implement from the backlog, and triage the
 inbox as part of selection. Optimize for the smallest user-visible value with

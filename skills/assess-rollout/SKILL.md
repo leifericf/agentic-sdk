@@ -4,7 +4,7 @@ description: Define deployment strategy and verification
 user-invocable: false
 ---
 
-# Assess Rollout
+# assess-rollout
 
 Define the rollout strategy and verification for a feature. Declarative and
 stack-agnostic; match strategy to risk; verify from the user perspective.

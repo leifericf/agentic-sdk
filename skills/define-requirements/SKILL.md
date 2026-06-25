@@ -4,7 +4,7 @@ description: Define testable, scoped requirements
 user-invocable: false
 ---
 
-# Define Requirements
+# define-requirements
 
 Define WHAT must be built as testable, scoped requirements. No tech stack,
 architecture, timelines, or estimates.

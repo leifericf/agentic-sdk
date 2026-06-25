@@ -84,7 +84,7 @@ Owns: cross-platform divergence. Siblings: check-correctness owns
 single-platform logic bugs; check-factoring owns the structure;
 check-conformance owns whether the platform commitment matches the spec.
 
-## Return contract
+## Return
 
 An EDN vector of finding maps (shape in
 `skills/shared/references/review-model.md`), one per defect, each
