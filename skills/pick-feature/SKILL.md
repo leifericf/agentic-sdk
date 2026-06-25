@@ -1,68 +1,44 @@
 ---
 name: pick-feature
-description: Select the next feature to implement from the backlog
+description: Select and triage the next feature to implement
+user-invocable: false
 ---
 
 # Pick Feature
 
-## Role
-
-You are a product-minded advisor helping the user select the best next feature to implement from the backlog. You optimize for smallest end-user-visible value with low risk and clear acceptance criteria.
-
-## Prerequisites
-
-- `.claude/artifacts/planning/product-backlog.md` exists and has content
-- `.claude/artifacts/planning/product-requirements.md` exists (if available)
-- `.claude/artifacts/decisions/decision-log.md` exists (if available)
-- `.claude/artifacts/decisions/open-questions.md` exists (if available)
+Select the best next feature to implement from the backlog, and triage the
+inbox as part of selection. Optimize for the smallest user-visible value with
+low risk and clear acceptance criteria.
 
 ## Procedure
 
-### 1. Check for Blockers
+1. Read `product-backlog.md`, `product-requirements.md`, `decision-log.md`,
+   and `open-questions.md` (the latter three if present). If the backlog is
+   missing or empty, return `blocked: no backlog`.
+2. Surface and resolve any `[Blocking]` item affecting backlog selection
+   before proceeding.
+3. Triage the inbox: promote zero to two clearly apt items into `Now / Next`,
+   move clearly lower-priority items to `Later`, and leave vague items.
+   Rewrite unclear titles into plain user-facing language. Keep `Now / Next`
+   short and ordered; `In product (shipped)` stays plain capability names.
+4. Ask a short batch of prioritization questions, at most three, tailored to
+   the actual backlog items: the outcome to optimize for, sequencing and
+   prerequisite constraints (not timelines), and the preferred shape of the
+   first increment (thin vertical slice versus foundation-first). Where you
+   can derive three to five mutually exclusive options from the backlog,
+   present them as choices; always include "write your own" and "can't answer".
+5. Present a shortlist of two to five items from `Now / Next`, each with a
+   one-line rationale and any risk or dependency note. Prefer the smallest
+   user-visible value, the lowest risk, and the clearest acceptance criteria.
+6. Confirm the selection with the user. Write the triaged backlog back to
+   `product-backlog.md`.
 
-Read `.claude/artifacts/decisions/open-questions.md`. If any unchecked `[Blocking]` item affects backlog selection or core scope, stop and ask the user for an answer before proceeding.
+## Boundaries
 
-### 2. Triage the Inbox
+Owns selecting the next item and triaging the inbox. create-backlog owns the
+initial backlog; plan-feature owns decomposing the chosen item. Reached by
+plan-system.
 
-Read `.claude/artifacts/planning/product-backlog.md`. Scan the `Inbox (untriaged)` bucket:
+## Return
 
-- Promote 0-2 items into `Now / Next` if they clearly match what the user cares about right now.
-- Move clearly lower-priority items to `Later`.
-- Leave vague items in the inbox.
-- If the backlog feels stale or the inbox is growing, recommend running `/triage-backlog` first.
-
-### 3. Ask Prioritization Questions (max 3)
-
-Ask a short batch of questions tailored to the current backlog and requirements context. Use these as themes (not fixed questions):
-
-- **Outcome to optimize for** -- helps choose between competing stories
-- **Sequencing/prerequisite constraints** -- ordering dependencies (not timelines)
-- **Preferred shape of the first increment** -- thin vertical slice vs. foundation-first
-
-Guidelines:
-- When you can offer 3-5 mutually exclusive options derived from the backlog's actual items, present them as choices (A/B/C/D).
-- Always include "Write your own answer" and "Can't answer / N/A" as options.
-- Derive option text from the user's backlog language; do not use generic placeholders.
-
-### 4. Present a Shortlist
-
-Present a short shortlist (2-5 items) from the `Now / Next` bucket, each with:
-- The item name/ID
-- A one-line rationale for why it is a good next pick
-- Any risk or dependency note
-
-Prefer items that are: smallest user-visible value, lowest risk, clearest acceptance criteria.
-
-Ask the user to choose a single story/feature to implement next.
-
-### 5. Confirm Selection
-
-Once the user chooses, confirm the selection.
-
-## Output
-
-No artifact is produced. The output is the confirmed feature selection in conversation.
-
-## Next Step
-
-`/plan-feature` -- Create a detailed implementation plan for the selected feature.
+One line: the selected feature and the triage applied, or `blocked: <reason>`.

@@ -1,10 +1,11 @@
 (ns spine.lint
   "Generalized prose and code lint. Does NOT require Vale. Two layers:
 
-    1. House regex pre-pass over prose files (.md/.mdx/.txt): bans the
-       em-dash character, ASCII arrows in prose, plan/task process IDs, and
-       ASCII banner lines. Fence-aware so code blocks are exempt (the em-dash
-       check is global; it is never legitimate in this codebase).
+     1. House regex pre-pass over prose files (.md/.mdx/.txt): bans the
+        em-dash character, ASCII arrows in prose, plan/task process IDs, and
+        ASCII banner lines. Fence-aware for code blocks, and inline-code
+        spans are stripped on every rule, so documenting a banned token
+        (the em dash, the `->` macro, an ID format) inside backticks is exempt.
 
     2. A project linter, when one is detectable from the descriptor's :lanes
        or a common config file, run over its natural scope.
@@ -25,6 +26,12 @@
 (def ^:private arrow-re #"(?<![-<])->(?!-)")
 (def ^:private pid-re #"\b[pPtT]\d{2,}\b")
 
+(defn- strip-inline-code
+  "Remove `...` spans so documenting a token like the `->` macro or an ID
+  format inside backticks does not trip the arrow or process-id rules."
+  [line]
+  (str/replace line #"`[^`]*`" ""))
+
 (defn- prose-ext? [p]
   (let [ext (some-> (fs/extension p) str/lower-case (str/replace #"^\." ""))]
     (contains? #{"md" "mdx" "txt"} ext)))
@@ -44,8 +51,9 @@
 ;; --- house regex pre-pass ------------------------------------------------
 
 (defn- scan-lines
-  "Return findings for one file. fence-aware for the arrow, pid, and banner
-  rules; the em-dash rule is global. Each finding carries line + rule id."
+  "Return findings for one file. fence-aware for every rule; inline-code
+  spans are stripped throughout (documenting a banned token in backticks
+  is exempt). Each finding carries line + rule id."
   [file text]
   (let [lines (str/split-lines text)]
     (loop [i 0 in-fence false acc []]
@@ -56,17 +64,17 @@
               now-fence (if fence? (not in-fence) in-fence)
               finds
               (cond-> []
-                (str/includes? line em-dash)
+                (str/includes? (strip-inline-code line) em-dash)
                 (conj {:file file :line (inc i) :severity :MODERATE
                        :rule "prose/em-dash"
                        :evidence (str "Em-dash character is banned: "
                                       (str/trim line))})
-                (and (not in-fence) (re-find arrow-re line))
+                (and (not in-fence) (re-find arrow-re (strip-inline-code line)))
                 (conj {:file file :line (inc i) :severity :MINOR
                        :rule "prose/ascii-arrow"
                        :evidence (str "ASCII arrow in prose is an AI tell: "
                                       (str/trim line))})
-                (and (not in-fence) (re-find pid-re line))
+                (and (not in-fence) (re-find pid-re (strip-inline-code line)))
                 (conj {:file file :line (inc i) :severity :MINOR
                        :rule "prose/process-id"
                        :evidence (str "Plan/task process ID is banned: "

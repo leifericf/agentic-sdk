@@ -6,118 +6,34 @@ user-invocable: false
 
 # Assess Observability
 
-You are an observability specialist assessing a feature's monitoring and observability needs.
-
-## Context
-
-You will be provided with:
-- Gherkin specification for the feature
-- Feature context and scope
-- Business and technical context
+Assess a feature's logging, metrics, and tracing needs. High-level and
+declarative (what to observe, not which tool); stack-agnostic; never log
+secrets or PII.
 
 ## Procedure
 
-1. **Review the feature scope**
-   - What does this feature do?
-   - What systems/components does it touch?
-   - What data flows through it?
+1. Read the dispatched inputs: the Gherkin specification, the feature scope,
+   and the technical context (systems touched, data flows).
+2. Determine applicability. Required when the feature touches money or
+   payments, authn or authz or access control, permissions or account state,
+   irreversible actions, PII or sensitive data, data-loss or corruption risk,
+   integration boundaries, or scheduled and async flows. N/A when it is purely
+   visual, a no-behavior-change refactor, docs, or low-risk internal tooling.
+3. If Required, define three to six user-visible failure modes and how each
+   should degrade. Define structured log events at boundaries (name, level,
+   key fields; confirm no secrets or PII). Define at least one signal per
+   critical flow (counter, gauge, or histogram) with healthy and broken
+   thresholds.
+4. If N/A, give a one-line reason.
 
-2. **Determine applicability**
-   Observability is **Required** when the feature touches:
-   - Money, payments, or financial transactions
-   - Authentication, authorization, or access control
-   - Permissions or account state changes
-   - Irreversible actions (deletes, transfers, state changes)
-   - PII, sensitive data, or privacy concerns
-   - Data loss, corruption, or duplication risks
-   - Integration boundaries (external APIs, third-party services)
-   - Scheduled or async flows
+## Boundaries
 
-   Observability is **N/A** when the feature is:
-   - Purely UI/visual changes
-   - Internal refactoring with no behavior change
-   - Documentation or content changes
-   - Low-risk internal tooling
+Owns observability (logs, metrics, traces). assess-testing owns test tiers;
+plan-feature owns folding the result into the plan. Reached by plan-feature's
+fan-out.
 
-3. **If Required: Define observability strategy**
+## Return
 
-   **Failure modes** (3-6 bullets):
-   - What can break? How should it degrade gracefully?
-   - Focus on user-visible failures, not internal errors
-
-   **Logs** (structured logging):
-   - What events should we log at boundaries?
-   - Event names and levels (info/warn/error)
-   - Key fields to include (correlation ID, user ID, etc.)
-   - Confirm NO secrets or PII in logs
-
-   **Signals/metrics** (at least one for critical flows):
-   - What indicates "healthy" vs "broken"?
-   - Latency thresholds, error rates, queue depths
-   - Business metrics (orders processed, payments completed)
-
-4. **If N/A: Provide one-line reason**
-   - Example: "Purely UI changes with no backend impact"
-
-## Output
-
-Return a structured object to the parent workflow:
-
-```yaml
-observability:
-  applicability: Required | N/A
-  n/a_reason: <one-line if N/A, else omit>
-  failure_modes:
-    - <failure mode> → <expected degraded behavior>
-  logs:
-    events:
-      - name: <event_name>
-        level: <info|warn|error>
-        fields: <correlation_id, user_id, etc.>
-  signals:
-    - name: <metric_name>
-      type: <counter|gauge|histogram>
-      healthy_threshold: <value>
-      broken_threshold: <value>
-```
-
-## Principles
-
-- **High-level and declarative**: Ask "what to observe", not "which tool"
-- **Tech-stack agnostic**: Don't prescribe OpenTelemetry, Datadog, etc.
-- **User-focused**: Log what matters for debugging and operations
-- **Security-first**: Never log secrets, passwords, tokens, or PII
-
-## Example
-
-**Input**: Gherkin spec for a payment processing feature
-
-**Output**:
-```yaml
-observability:
-  applicability: Required
-  failure_modes:
-    - Payment gateway timeout → Queue payment, retry with backoff
-    - Invalid payment method → Return clear error to user, log attempt
-    - Duplicate payment → Detect by idempotency key, return original result
-  logs:
-    events:
-      - name: payment_attempt
-        level: info
-        fields: payment_id, user_id, amount, currency, status
-      - name: payment_success
-        level: info
-        fields: payment_id, user_id, amount, payment_gateway
-      - name: payment_failure
-        level: warn
-        fields: payment_id, user_id, error_code, error_message
-  signals:
-    - name: payment_success_rate
-      type: gauge
-      healthy_threshold: "> 95%"
-      broken_threshold: "< 90%"
-    - name: payment_latency_seconds
-      type: histogram
-      healthy_threshold: "< 3s"
-      broken_threshold: "> 10s"
-```
+One EDN map: `{:applicability :required|:n/a :n/a-reason <str>
+:failure-modes [...] :logs [...] :signals [...]}`. For N/A, only
+`:applicability` and `:n/a-reason`.

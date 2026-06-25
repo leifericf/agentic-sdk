@@ -21,7 +21,7 @@
 - Must never happen:
   - <unacceptable outcome>
 - Key edge cases:
-  - <edge case> -> <expected behavior>
+  - <edge case>: <expected behavior>
 - Business rules:
   - <rule>
 - Integrations (if any):
@@ -67,7 +67,7 @@ Feature: <short capability name>
 ## Observability (Minimum Viable)
 - Applicability: Required | N/A (Reason: <one line>)
 - Failure modes:
-  - <failure mode> -> <expected degraded behavior>
+  - <failure mode>: <expected degraded behavior>
 - Logs (structured): <events + key fields; no sensitive data>
 - Signals/metrics: <1-3 key signals>
 
@@ -89,12 +89,12 @@ Feature: <short capability name>
 - Verify (smoke path): <2-6 steps>
 - Signals to watch: <1-3>
 
-## Cleanup Before Merge
+## Cleanup Before Land
 - Remove: <temporary flags/debug logs/spike code/transitional scaffolding>
 - If anything temporary remains: <decision log row + follow-up backlog item>
-- Squash intermediate commits into logical commits
-- Ensure all commits follow Conventional Commits
-- Rebase onto trunk and merge with fast-forward only
+- Fold intermediate commits into one clean commit per task
+- Ensure commits follow the project commit form (Category: Imperative subject)
+- Land on trunk when green
 
 ## Definition of Done
 - Gherkin specification is complete and current in the plan artifact
@@ -139,10 +139,10 @@ Feature: <short capability name>
   - [ ] T-901 Run linters
   - [ ] T-902 Run tests
 
-- [ ] Merge to trunk
-  - [ ] T-950 Squash intermediate commits into logical commits
-  - [ ] T-951 Ensure all commits follow Conventional Commits
-  - [ ] T-952 Rebase onto trunk and merge (fast-forward only)
+- [ ] Land on trunk
+  - [ ] T-950 Fold intermediate commits into one clean commit per task
+  - [ ] T-951 Ensure commits follow the project commit form
+  - [ ] T-952 Land on trunk when green
 
 ## Open Questions
 - <any non-blocking questions or none>

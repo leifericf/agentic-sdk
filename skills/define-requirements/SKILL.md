@@ -1,106 +1,38 @@
 ---
 name: define-requirements
 description: Define testable, scoped requirements
+user-invocable: false
 ---
 
 # Define Requirements
 
-## Role
-
-You are a pragmatic product manager. Your focus is to define WHAT must be built -- not HOW. Keep requirements testable, scoped, and easy to remember. Do not discuss tech stack, architecture, timelines, or estimates.
-
-## Prerequisites
-
-- `.claude/artifacts/project/project-meta.md` exists.
-- `.claude/artifacts/planning/problem-description.md` exists.
-- `.claude/artifacts/decisions/open-questions.md` exists.
-
-If any prerequisite is missing, tell the user which artifact is needed and which skill to run first.
+Define WHAT must be built as testable, scoped requirements. No tech stack,
+architecture, timelines, or estimates.
 
 ## Procedure
 
-### 1. Review Existing Artifacts
+1. Read `project-meta.md`, `problem-description.md`, and `open-questions.md`.
+   If a prerequisite is missing, return `blocked: <which artifact>`.
+2. Surface any `[Blocking]` items affecting `product-requirements.md` and
+   resolve them first.
+3. Clarify ambiguities, at most three questions per turn: contradictions
+   between goals and constraints, implicit assumptions, acceptance criteria
+   made concrete and testable. Park unclear requirements in
+   `open-questions.md` as `- [ ] [Affects: product-requirements.md] <question>
+   (Answer: TBD)`.
+4. Iterate until scope is crisp and confirmed. Shape requirements around the
+   smallest valuable increments.
+5. Write `.claude/artifacts/planning/product-requirements.md` with: Metadata,
+   Problem Statement, Goals, Non-Goals, Users, Scope, Functional Requirements
+   (each with priority and acceptance criteria), Non-Functional Requirements,
+   Workflows, Success Criteria, Assumptions. Keep open questions out of the
+   PRD; they live in `open-questions.md`.
 
-Read all prerequisite artifacts. Check `.claude/artifacts/decisions/open-questions.md` for any `[Blocking]` items that affect `product-requirements.md`. If blocking questions exist, surface them and resolve before proceeding.
+## Boundaries
 
-### 2. Clarify Ambiguities
+Owns the testable requirements. review-risks owns surfacing risk and
+assumptions; design-technical owns HOW. Reached by plan-system.
 
-Ask clarification questions (no more than 3 per turn) where ambiguity exists in the problem description. Focus on:
+## Return
 
-- Identifying contradictions between stated goals and constraints.
-- Highlighting implicit assumptions.
-- Making acceptance criteria concrete and testable.
-
-When you identify unclear requirements, add them to `.claude/artifacts/decisions/open-questions.md` under `## Open`:
-- `- [ ] [Affects: product-requirements.md] <question> (Answer: TBD)`
-
-### 3. Iterate Until Scope Is Crisp
-
-Continue until the user confirms the requirements are complete and accurate. Shape requirements around the smallest valuable increments.
-
-### 4. Write the Artifact
-
-Write `.claude/artifacts/planning/product-requirements.md` using this exact structure:
-
-```md
-# PRD: <Product/Project Name>
-
-## Metadata
-- Version: 0.1
-- Date: YYYY-MM-DD
-- Owner: <name or role>
-
-## Problem Statement
-<1-3 paragraphs>
-
-## Goals
-- <goal>
-
-## Non-Goals
-- <explicitly out of scope>
-
-## Users
-- <user type> (Primary | Secondary | Internal)
-
-## Scope
-<1-2 paragraphs>
-
-## Functional Requirements
-- <title>
-  - Description: <1-3 sentences>
-  - Priority: Must | Should | Could
-  - Acceptance Criteria:
-    - <criterion>
-    - <criterion>
-
-## Non-Functional Requirements
-- <title>
-  - Target: <measurable target when possible>
-  - Priority: Must | Should | Could
-
-## Workflows
-- <workflow name>
-  - Trigger: <what starts it>
-  - Steps:
-    1. <step>
-    2. <step>
-  - Success End State: <what "done" means>
-  - Failure States:
-    - <failure>
-
-## Success Criteria
-- <metric or observable outcome>
-
-## Assumptions
-- <assumption>
-```
-
-Do not include an "Open Questions" section in the PRD. Open questions belong in `.claude/artifacts/decisions/open-questions.md`.
-
-## Output
-
-`.claude/artifacts/planning/product-requirements.md`
-
-## Next Step
-
-`/review-risks` -- Surface ambiguity, contradictions, risky assumptions, and missing acceptance criteria.
+One line: the artifact written and a terse status, or `blocked: <reason>`.

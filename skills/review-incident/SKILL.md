@@ -1,113 +1,42 @@
 ---
 name: review-incident
-description: Blameless incident review with action items
+description: Run a blameless incident review with action items
+user-invocable: false
 ---
 
 # Review Incident
 
-## Role
-
-You are a quality engineer conducting a blameless incident review. You focus on learning and preventing recurrence, never on assigning blame. You are factual, empathetic, and thorough.
-
-## Prerequisites
-
-At least one of:
-- Incident summary (even 3-7 bullets is enough to start)
-- Incident ticket or chat transcript link
-
-Optional (use if available):
-- Timeline notes
-- Metrics or graphs from the incident window
-
-## Starting Point
-
-Do not demand a perfect timeline up front. Start with impact, detection, and resolution. Fill in the timeline as facts become available.
+Run a blameless incident review focused on learning and preventing recurrence.
+Factual, empathetic, thorough; never blame-oriented. Start with impact,
+detection, and resolution; fill the timeline as facts arrive.
 
 ## Procedure
 
-1. **Gather context**: Ask up to 3 focused questions. Prefer binary questions (did X happen?) and choice questions (pick the primary contributing factor categories). **Never** use blame-oriented language.
-2. **Establish impact**: What users experienced, duration, blast radius, business impact.
-3. **Understand detection**: How was the incident detected? Was there a detection gap?
-4. **Build timeline**: Reconstruct key events in chronological order (UTC recommended).
-5. **Document response**: What was done, what worked, what did not.
-6. **Review communication**: How were internal and external stakeholders informed?
-7. **Identify contributing factors** (blameless): Categorize across product, technical, data, operational, and org/process dimensions.
-8. **Define action items**: Each with type (prevent/detect/mitigate), owner, due date.
-9. **Plan follow-up verification**: How will you verify that fixes actually work?
-10. **Write the artifact**.
+1. Gather context, at most three questions, preferring binary and pick-one;
+   never use blame-oriented language.
+2. Establish impact: what users experienced, duration, blast radius, business
+   impact.
+3. Understand detection and any detection gap.
+4. Build the timeline in chronological order (UTC recommended).
+5. Document the response: what was done, what worked, what did not.
+6. Review internal and external communication.
+7. Identify contributing factors across product, technical, data, operational,
+   and org or process dimensions.
+8. Define action items, each with type (prevent, detect, mitigate), owner, and
+   due date.
+9. Plan follow-up verification: how to confirm the fixes work.
+10. Write `.claude/artifacts/ops/YYYY-MM-DD_incident_<incident_slug>.md` with:
+    Metadata, Summary, Impact, Detection, Timeline, Response, Communication,
+    Contributing Factors (blameless), Action Items, Follow-Up Verification,
+    Open Questions. Slug: lowercase, hyphens, descriptive.
 
-## Output
+## Boundaries
 
-Write the incident review to: `.claude/artifacts/ops/YYYY-MM-DD_incident_<incident_slug>.md`
+Owns the blameless incident review and its action items. analyze-root-cause
+owns the technical causal chain; triage-logs owns live signal triage. Reached
+by investigate.
 
-Slug rules: lowercase, hyphens, no spaces, descriptive (e.g., `checkout-outage`, `data-sync-failure`).
+## Return
 
-Use this exact template:
-
-```md
-# Incident Review: <Incident Name>
-
-## Metadata
-- Date: YYYY-MM-DD
-- Incident slug: <incident_slug>
-- Severity: Sev0 | Sev1 | Sev2 | Sev3 | Unknown
-- Owner: <name or role>
-- Related:
-  - Incident ticket: <link or ->
-  - Status page: <link or ->
-  - Dashboard: <link or ->
-  - Postmortem doc: <link or ->
-
-## Summary
-- <1-5 bullets: what happened, impact, and the most important follow-ups>
-
-## Impact
-- User impact: <what users experienced>
-- Duration: <start> to <end> (timezone)
-- Blast radius: <who/what was affected>
-- Business impact: <if known>
-
-## Detection
-- How detected: <alert/user report/on-call observation>
-- Detection gap (if any): <what should have caught it>
-
-## Timeline (UTC recommended)
-| Time | Event |
-| --- | --- |
-| <time> | <event> |
-
-## Response
-- What we did: <key steps>
-- What worked well: <notes>
-- What didn't: <notes>
-
-## Communication
-- Internal comms: <what happened>
-- External comms: <what happened>
-
-## Contributing Factors (Blameless)
-- Product: <factor or ->
-- Technical: <factor or ->
-- Data: <factor or ->
-- Operational: <factor or ->
-- Org/process: <factor or ->
-
-## Action Items
-| Action | Type | Owner | Due date | Status |
-| --- | --- | --- | --- | --- |
-| <action> | Prevent | <role> | YYYY-MM-DD | Open |
-
-## Follow-Up Verification
-- How we will verify fixes worked: <tests/alerts/drills>
-
-## Open Questions
-- <question>
-```
-
-## Output
-
-`.claude/artifacts/ops/YYYY-MM-DD_incident_<incident_slug>.md`
-
-## Next Step
-
-`/analyze-root-cause` (optional) -- Perform deep root cause analysis for contributing factors.
+One line: the artifact written, the severity, and the open action-item count,
+or `blocked: <reason>`.
