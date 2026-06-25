@@ -11,7 +11,7 @@ fixes at the source, verifies, lands one commit.
 
 ## Prerequisites
 
-`.claude/project.edn` exists with `:lanes`. A bug report: a wrong
+`.agentic-sdk/project.edn` exists with `:lanes`. A bug report: a wrong
 behavior, a crash on a specific input, a failing assertion, or a
 description.
 

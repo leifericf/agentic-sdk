@@ -9,7 +9,7 @@ user-invocable: false
 Role: run the project's deterministic lanes and report a verdict.
 
 The lane table is descriptor data, never hardcoded commands. Read
-`.claude/project.edn`'s `:lanes` map (see
+`.agentic-sdk/project.edn`'s `:lanes` map (see
 `skills/shared/references/project-descriptor.md`): three tiers, each a
 vector of shell command strings run in vector order, stopping on the
 first failure.

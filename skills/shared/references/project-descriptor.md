@@ -1,4 +1,4 @@
-# Project descriptor: `.claude/project.edn`
+# Project descriptor: `.agentic-sdk/project.edn`
 
 Status: **Authoritative schema.** The descriptor is the single tuning valve for
 a project. Recipes read it to pick a language recipe; the spine reads it to pick
@@ -7,7 +7,7 @@ read it to know which lanes to run and which dimensions to fan out. Nothing
 downstream hardcodes a stack. `bootstrap-project` writes it once; the `add-*`
 meta-skills amend it.
 
-The file lives at `.claude/project.edn`, committed (not gitignored). EDN, a
+The file lives at `.agentic-sdk/project.edn`, committed (not gitignored). EDN, a
 single map, no code execution. Every field has a default, so a minimal descriptor
 is `{}`. Every field is optional in the sense that the system degrades to a sane
 default, but a production project states the ones that matter.
@@ -40,7 +40,7 @@ asks the user, default applied when the user gives no answer).
   list.
 - **default:** `[]` (no recognized language markers).
 - **configures:** which `write-<lang>` recipes `bootstrap-project` materializes
-  into `.claude/skills/`, and which language discipline the `writer` agent loads
+  into `.agentic-sdk/skills/`, and which language discipline the `writer` agent loads
   per unit.
 - **reads:** `bootstrap-project`, `writer`, `change-runner`.
 - **origin:** DETECT. Markers: `deps.edn` or `project.clj` for `:clojure`;
@@ -202,13 +202,13 @@ A map of three keys.
 #### `:spine :working-dir`
 
 - **type:** string path.
-- **values:** any path relative to the project root. Convention: `.<project>/`
-  (for example `.agentic-sdk/`).
-- **default:** `.<repo-name>/`, derived from the repo directory name.
+- **values:** any path relative to the project root. Convention:
+  `.agentic-sdk/.spine/`.
+- **default:** `.agentic-sdk/.spine/`.
 - **configures:** where the spine writes proposals, scans, findings, triage
   output, run state, and escalations. Gitignored.
 - **reads:** every spine task (each resolves this once and prefixes all paths).
-- **origin:** DETECT from the repo name.
+- **origin:** DETECT, fixed to the canonical `.agentic-sdk/.spine/` home.
 
 ### `:adr`
 
@@ -218,8 +218,8 @@ A map of two keys.
 
 - **type:** string path.
 - **values:** any directory path.
-- **default:** `"docs/adr/"`. Set to `.claude/artifacts/adr/` when the project
-  prefers the artifacts tree.
+- **default:** `"docs/adr/"`. Set to `.agentic-sdk/artifacts/adr/` when the
+  project prefers the artifacts tree.
 - **configures:** where `record-decision` writes ADR files and where
   `write-<lang>` looks for prior decisions ("scan before designing against an
   unexplained rule").
@@ -275,7 +275,7 @@ A map of two keys.
     (PreToolUse on commit and merge).
 - **default:** `[:format-on-write :deny-secrets]`.
 - **configures:** which hook templates `bootstrap-project` scaffolds into
-  `.claude/hooks/`.
+  `.agentic-sdk/hooks/`.
 - **reads:** the host runtime hook loader, `bootstrap-project`.
 - **origin:** ELICIT, default applied.
 
@@ -314,7 +314,7 @@ A map of two keys.
  :spine
   {:runtime     :babashka                          ; :babashka | :thin | :none
    :store       :edn                               ; :edn | :future (the future store, not selectable yet)
-   :working-dir ".agentic-sdk/"}
+    :working-dir ".agentic-sdk/.spine/"}
  :adr        {:store "docs/adr/" :format :nygard}
  :commit     {:categories ["Build" "Tests" "Fix" "Refactor" "Docs" "CI" "Skills"]
               :form      "Category: Imperative subject"}
@@ -333,7 +333,7 @@ A map of two keys.
 | `:ui?` | frontend surface markers (heuristic) |
 | `:spine :runtime` | `bb` on PATH |
 | `:spine :store` | always `:edn` today |
-| `:spine :working-dir` | repo directory name |
+| `:spine :working-dir` | canonical `.agentic-sdk/.spine/` |
 | `:lanes` | per-language template, then author refines |
 | `:dimensions-active` | per-stack floor, then author refines |
 

@@ -11,9 +11,13 @@ One skill system, reused across every project, serving a bounded stack
 
 Hard constraints:
 
-1. **One home.** This repo (`agentic-sdk`) is the system. It is installed into a
-   project by symlink or copy of `skills/` and `agents/`, plus the generated
-   spine and hooks.
+1. **One neutral home.** This repo (`agentic-sdk`) is the system. Installed
+   into a project, it owns a neutral `.agentic-sdk/` home: snapped-in masters
+   (skills, agents, hooks, spine, templates), the descriptor, the artifacts
+   tree, and the spine working dir. Two thin runtime adapters sit over it:
+   `.claude/` as symlink skills/agents/hooks plus a settings hook block;
+   `.opencode/` as generated agent projection plus config. Masters never live
+   under the adapters.
 2. **The deterministic spine is core, always present**, but its implementation
    is an interface with a migration path: today **Babashka + EDN**; a future
    static-binary task runtime (one static binary, zero deps) replaces bb, and a
@@ -58,7 +62,7 @@ flowchart TD
   SD["shared doctrine (§5): stack-agnostic<br/>orchestration · FC/IS · native-edge · dimensions · craft"]
   LC["language craft (§6): four adapters<br/>write-c · write-zig · write-clj · write-elixir · write-tests · write-ui · write-prose · write-commit · write-changelog"]
   SP["deterministic spine (§4): core, always present<br/>triage · integrate · run-status · compile-rules · lint · opencode-sync / opencode-check<br/>adapter today: Babashka + EDN; adapter future: future runtime + store"]
-  PD["project descriptor (§8): .claude/project.edn<br/>vcs · languages · architecture · lanes · dimensions · spine · adr · commit · hooks"]
+  PD["project descriptor (§8): .agentic-sdk/project.edn<br/>vcs · languages · architecture · lanes · dimensions · spine · adr · commit · hooks"]
   EP --> AG
   MS --> AG
   AG --> SD & LC
@@ -104,7 +108,7 @@ do not.
 | `run-status` | scope | directive EDN | compute next directive (run-stage / next-round / complete) plus staleness and gate arming |
 | `compile-rules` | decisions | lint rules and commit categories | decisions to enforced rules (one-way, deterministic) |
 | `lint` | source files | findings EDN | zero-token mechanical pre-pass (style regexes; the AI-tells catalog) |
-| `opencode-sync` | `.claude/agents` masters | `.opencode/agent/` derived | project masters into the OpenCode format |
+| `opencode-sync` | `.agentic-sdk/agents` masters | `.opencode/agent/` derived | project masters into the OpenCode format |
 | `opencode-check` | masters and derived | exit code | fail the lane when the derived form is stale |
 
 ### 4.2 The adapter today: Babashka and EDN
@@ -231,7 +235,7 @@ the sole source mutators in fix loops; verifier is bash-heavy, no judgment.
 
 ## 8. The project descriptor and meta-skills
 
-### 8.1 Descriptor: `.claude/project.edn`
+### 8.1 Descriptor: `.agentic-sdk/project.edn`
 
 ```edn
 {:vcs        :jj                        ; :git | :jj
@@ -250,7 +254,7 @@ the sole source mutators in fix loops; verifier is bash-heavy, no judgment.
  :spine
  {:runtime :babashka           ; :babashka | :thin | :none
   :store   :edn                ; :edn today, future store selectable later
-  :working-dir ".<project>/"}}
+   :working-dir ".agentic-sdk/.spine/"}}
  :adr        {:store "docs/adr/" :format :nygard}
  :commit     {:categories ["Build" "Tests" "Fix" "Refactor" "Docs" ...]
               :form "Category: Imperative subject"}
@@ -265,13 +269,30 @@ the sole source mutators in fix loops; verifier is bash-heavy, no judgment.
    `Makefile`/`*.h` (C); detect VCS (`.jj` vs `.git`); detect UI surface.
 2. **Elicit** the gaps the detector cannot decide (architecture pattern, native
    edge, module map), one batch, at most 3 questions.
-3. **Write** `.claude/project.edn`.
-4. **Materialize** the active `write-<lang>` recipes from the toolkit masters
-   into the project's `.claude/skills/` (only the ones in `:languages`).
-5. **Scaffold** `.claude/artifacts/`, `.claude/runs/`, the working dir, the
-   hooks in `:hooks`, and a project `CLAUDE.md` from the skeleton (§9).
-6. **Wire** the spine adapter for the detected level (full/thin/none) and the
-   runtime projections in `:runtimes` (§12).
+3. **Write** `.agentic-sdk/project.edn`.
+4. **Snap masters into `.agentic-sdk/`.** Copy the toolkit's `skills/`,
+   `agents/`, `hooks/`, the spine (`bb.edn` plus `src/`), and `templates/`
+   into `.agentic-sdk/`. The active `write-<lang>` subset is filtered from
+   `:languages`; the rest snaps verbatim. All re-installable by re-running
+   this step.
+5. **Symlink the Claude Code adapter.** Create `.claude/skills`,
+   `.claude/agents`, and `.claude/hooks` as symlinks into
+   `../.agentic-sdk/{skills,agents,hooks}` so Claude Code resolves the
+   masters under its expected paths. Write the `.claude/settings.json` hook
+   block (§9).
+6. **Generate the OpenCode adapter.** Run the `opencode-sync` spine task to
+   project masters into `.opencode/agent/`; write `.opencode/opencode.json`
+   (permission rules and formatter) from the armed hooks. Run
+   `opencode-check` to confirm the derived form is green.
+7. **Drop the root `CLAUDE.md`.** Copy `templates/CLAUDE.md` into the project
+   root and fill the `{{placeholders}}` from the descriptor.
+8. **Write the project `.gitignore`.** Drop `templates/gitignore` at the
+   project root. It commits only `.agentic-sdk/project.edn`,
+   `.agentic-sdk/artifacts/`, the root `CLAUDE.md`, `.claude/settings.json`,
+   and `.opencode/opencode.json`; everything else under `.agentic-sdk/`, the
+   `.claude/` symlinks, and generated `.opencode/` is gitignored.
+9. **Wire the spine adapter** for the detected level (full/thin/none) per the
+   descriptor's `:spine :runtime` and `:runtimes` (§12).
 
 ### 8.3 Meta-skills: extending the catalog
 
@@ -299,9 +320,9 @@ lands as one commit, category `Skills:`.
 ### 8.4 Promotion path
 
 A project-local addition authored by an `add-*` meta-skill is **project-local
-first**: it lives in the project's `.claude/skills/`, snapshotted, owned by the
-project. If it proves generally useful, it is promoted to a toolkit master via
-the same discipline that promotes captured guidance: `incorporate-feedback`
+first**: it lives in the project's `.agentic-sdk/skills/`, snapshotted, owned
+by the project. If it proves generally useful, it is promoted to a toolkit
+master via the same discipline that promotes captured guidance: `incorporate-feedback`
 classifies it, and a `Skills: Promote <name> to toolkit master` commit moves
 the refined version into the toolkit's curated set. This is the single reuse
 valve: every `add-*` output is a candidate for promotion, and promotion is
@@ -326,29 +347,44 @@ concrete eval/lane commands, operational gotchas, and a safety denylist.
 ## 10. Artifacts and run-state layout
 
 ```
-.claude/
-  project.edn                  # the descriptor (§8), committed
-  settings.local.json          # per-user (gitignored)
-  skills/                      # symlinked from toolkit OR materialized subset
-  agents/                      # symlinked from toolkit
-  hooks/                       # policy-as-hook scripts (§9)
-  runs/<slug>/                 # ephemeral campaign state (gitignored)
-    plan.edn · checkpoint.edn · decisions.edn
-  artifacts/                   # durable, committed
+.agentic-sdk/                        # neutral SDK master and state home
+  project.edn                        # the descriptor (§8). COMMITTED
+  artifacts/                         # durable. COMMITTED
     planning/   product-backlog.md · product-requirements.md ·
                 problem-description.md · risk-assumption-review.md ·
                 ux-design-guide.md · technical-design.md · tasks/plan-*.md
     decisions/  decision-log.md · open-questions.md
     project/    project-meta.md
     ops/        incident-*.md · rca-*.md · risk-*.md · issue-list-*.md
-    adr/        NN-slug.md      # if :adr/store configured (else docs/adr/)
-.opencode/                     # derived runtime projection (§12), generated
-  agent/                       # never hand-edited
-  ...
-.<project>/                    # spine working dir (gitignored), EDN today,
-                               # future store tomorrow
-  findings/ triage/ run.edn decisions.edn escalation.edn
+    adr/        NN-slug.md           # if :adr/store configured (else docs/adr/)
+  skills/                            # snapped-in masters (gitignored)
+  agents/                            # snapped-in masters (gitignored)
+  hooks/                             # snapped-in master scripts (gitignored)
+  spine/                             # the bb spine: bb.edn plus src/ (gitignored)
+  templates/                         # CLAUDE.md skeleton and gitignore (gitignored)
+  runs/<slug>/                       # ephemeral campaign state (gitignored)
+    plan.edn · checkpoint.edn · decisions.edn
+  .spine/                            # spine working dir (gitignored), EDN today,
+                                     # future store tomorrow
+    findings/ triage/ run.edn decisions.edn escalation.edn
+  settings.local.json                # per-user (gitignored)
+.claude/                             # thin Claude Code adapter
+  skills   ->  ../.agentic-sdk/skills        (symlink, gitignored)
+  agents   ->  ../.agentic-sdk/agents        (symlink, gitignored)
+  hooks    ->  ../.agentic-sdk/hooks         (symlink, gitignored)
+  settings.json                      # Claude Code hook wiring. COMMITTED
+.opencode/                           # OpenCode adapter
+  agent/                             # generated by opencode-sync (gitignored)
+  plugin/                            # e.g. require-tests-before-land.mjs (gitignored)
+  opencode.json                      # OpenCode config. COMMITTED
+CLAUDE.md                            # the project router. COMMITTED
 ```
+
+Commit policy: only `.agentic-sdk/{project.edn,artifacts/}`, the root
+`CLAUDE.md`, `.claude/settings.json`, and `.opencode/opencode.json` are
+tracked. Everything else is regenerable by re-running `bootstrap-project`;
+`templates/gitignore` is the canonical project `.gitignore` dropped at the
+project root.
 
 Resume model: the orchestrator reads `run-status` (not the transcript) after
 each phase; workers return pointer lines; sub-orchestrators return one line.
@@ -393,9 +429,10 @@ Two consequences worth stating:
   stays installable across all four language stacks. The descriptor records
   nothing extra: the port is always on for every runtime listed in `:runtimes`.
 - **Masters are never hand-edited in the derived form.** `.opencode/` is
-  generated and gitignored-or-regenerated; edits go to `.claude/agents/*.md`
-  (and the skill masters), then re-projected. This is the same "code never
-  parses its own rendered output" discipline applied to generated artifacts.
+  generated and gitignored-or-regenerated; edits go to the masters at
+  `.agentic-sdk/agents/*.md` and `.agentic-sdk/skills/`, then re-projected.
+  This is the same "code never parses its own rendered output" discipline
+  applied to generated artifacts.
 
 ## 13. Skill inventory and streamlining
 

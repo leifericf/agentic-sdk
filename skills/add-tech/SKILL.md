@@ -12,7 +12,7 @@ the matching artifact from its schema and wires it into the descriptor.
 
 ## Prerequisites
 
-`.claude/project.edn` exists (run bootstrap-project first). A real
+`.agentic-sdk/project.edn` exists (run bootstrap-project first). A real
 project need the curated config does not cover: a new build target, a
 deterministic clerical task the model does by hand, or a policy that
 belongs in a hook rather than a prompt.

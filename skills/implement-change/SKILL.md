@@ -11,7 +11,7 @@ review-clean linear stack on the tip, ready for the maintainer to land.
 
 ## Prerequisites
 
-`.claude/project.edn` exists with `:lanes` and `:vcs`. A spec (argument
+`.agentic-sdk/project.edn` exists with `:lanes` and `:vcs`. A spec (argument
 or conversation), or an approved feature plan to pick the next slice
 from.
 
@@ -37,7 +37,7 @@ whenever main lags the tip.
    and description, not a bookmark. Hold the one-paragraph change
    summary in context so the rest of the run cites it. A long run may
    keep a minimal, gitignored resume checkpoint under
-   `.claude/runs/<slug>/` recording what is done (units landed, rounds
+   `.agentic-sdk/runs/<slug>/` recording what is done (units landed, rounds
    completed, findings still open); it is never the hand-off medium and
    never committed.
 2. **Plan units.** First scan the decision index (the ADR store from the

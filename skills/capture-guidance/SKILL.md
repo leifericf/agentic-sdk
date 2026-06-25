@@ -20,8 +20,9 @@ profile every session reads.
      turn, ask-first versus decide-and-continue, probing depth, output
      style, hard red lines): route to the profile.
 2. **Correction route.** Append one entry to
-   `.claude/guidance/inbox.edn` (a vector; `[]` if missing; commit it
-   so all maintainers share one inbox):
+   `.agentic-sdk/guidance/inbox.edn` (a vector; `[]` if missing;
+   gitignored working state, consumed when incorporate-feedback
+   promotes the entry):
 
    ```edn
    {:date "YYYY-MM-DD"
@@ -43,7 +44,8 @@ profile every session reads.
    `incorporate-feedback` resolves it with the maintainer.
 
 3. **Preference route.** Upsert the preference into
-   `.claude/guidance/profile.edn` (a map; `{}` if missing; committed).
+   `.agentic-sdk/guidance/profile.edn` (a map; `{}` if missing;
+   gitignored).
    One key per preference, plain values:
 
    ```edn

@@ -1,6 +1,6 @@
 #!/bin/sh
 # PostToolUse hook: run the project formatter on the file just written.
-# Matcher: Write|Edit. Reads the formatter hint from .claude/project.edn
+# Matcher: Write|Edit. Reads the formatter hint from .agentic-sdk/project.edn
 # :lanes when present, else detects by extension. Fail soft: a missing
 # formatter or a bad parse never blocks; the hook warns on stderr and
 # exits 0.
@@ -31,7 +31,7 @@ EXT=$(ext "$FILE_PATH")
 [ -z "$EXT" ] && exit 0
 
 # Scan the descriptor's :lanes for a formatter name; descriptor wins.
-DESC=".claude/project.edn"
+DESC=".agentic-sdk/project.edn"
 LANES_FMT=""
 if [ -f "$DESC" ]; then
     if   grep -qE 'clang-format' "$DESC" 2>/dev/null; then LANES_FMT=clang-format

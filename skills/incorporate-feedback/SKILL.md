@@ -11,7 +11,7 @@ strongest home, conflicts resolved, the inbox emptied in one commit.
 
 ## Procedure
 
-Input: `.claude/guidance/inbox.edn`. Output: every entry promoted to
+Input: `.agentic-sdk/guidance/inbox.edn`. Output: every entry promoted to
 its durable home, the inbox emptied, one commit. Per entry, in inbox
 order:
 

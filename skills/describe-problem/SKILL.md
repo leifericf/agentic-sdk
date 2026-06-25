@@ -11,8 +11,8 @@ business terms. Define WHAT, not HOW.
 
 ## Procedure
 
-1. Read `.claude/artifacts/project/project-meta.md` and
-   `.claude/artifacts/decisions/open-questions.md`. If either is missing,
+1. Read `.agentic-sdk/artifacts/project/project-meta.md` and
+   `.agentic-sdk/artifacts/decisions/open-questions.md`. If either is missing,
    return `blocked: bootstrap the planning artifacts first`.
 2. Collect a single-paragraph problem statement from the dispatch prompt;
    accept rough notes or bullets.
@@ -25,7 +25,7 @@ business terms. Define WHAT, not HOW.
    Park unresolved questions in `open-questions.md` under `Open` as
    `- [ ] [Affects: problem-description.md] <question> (Answer: TBD)`; mark
    `[Blocking]` only if you cannot proceed.
-5. Write `.claude/artifacts/planning/problem-description.md` with these
+5. Write `.agentic-sdk/artifacts/planning/problem-description.md` with these
    sections: Metadata, Summary, Problem, Desired Outcomes, Stakeholders,
    Current Workflows, In Scope, Out of Scope, Constraints, Risks, Unknowns,
    Simplification Opportunities, References.

@@ -14,7 +14,7 @@ unattended.
 ## Prerequisites
 
 An approved feature plan from plan-system (a `planning/tasks/plan-*.md`
-file), or a named chunk the maintainer points at. `.claude/project.edn`
+file), or a named chunk the maintainer points at. `.agentic-sdk/project.edn`
 exists with `:lanes` and `:spine` set.
 
 ## Procedure
@@ -24,9 +24,9 @@ laws bind this skill: context is the budget, the work flows forward-only
 as a DAG, the stack stays linear on the tip, and agents decide and
 record rather than stall.
 
-1. **Check for a resume.** If `.claude/runs/<slug>/checkpoint.edn` exists
+1. **Check for a resume.** If `.agentic-sdk/runs/<slug>/checkpoint.edn` exists
    for this chunk, resume: read it and the plan at
-   `.claude/runs/<slug>/plan.edn`, skip landed phases, re-dispatch any
+   `.agentic-sdk/runs/<slug>/plan.edn`, skip landed phases, re-dispatch any
    in-flight phase, continue the open ones. Resume from the checkpoint
    and the plan, not from history.
 2. **Plan up front, in a sub-agent.** Dispatch one planner agent running
@@ -45,13 +45,13 @@ record rather than stall.
    effort. Each phase carries its own tests, its check-security pass
    where untrusted input is involved, and its verification lanes in its
    definition of done. The planner writes the full plan to the
-   gitignored `.claude/runs/<slug>/plan.edn` and returns a compact
+   gitignored `.agentic-sdk/runs/<slug>/plan.edn` and returns a compact
    summary: the phases, their dependency edges, any ADR conflict it
    found. Hold the summary, never the full plan.
 3. **Approve once.** Surface the plan summary to the maintainer: the
    phases, their order, the dependency rationale, any ADR conflict. This
    is the only up-front gate. On approval, write the initial checkpoint
-   and a campaign-context note (`.claude/runs/<slug>/context.md`,
+   and a campaign-context note (`.agentic-sdk/runs/<slug>/context.md`,
    gitignored) holding the invariants every phase shares: the base-on-tip
    rule and the base commit, the env contract, the commit and review
    policy. Each dispatch points to this note instead of retyping the
@@ -80,9 +80,9 @@ record rather than stall.
    Each change-runner's agents decide and record to unblock; the runner
    returns those decisions and any escalation in its line. Accumulate
    every returned decision (what was chosen, why, the rejected
-   alternative) into the gitignored `.claude/runs/<slug>/decisions.edn`,
+   alternative) into the gitignored `.agentic-sdk/runs/<slug>/decisions.edn`,
    and the phase progress (done, in flight, open) into
-   `.claude/runs/<slug>/checkpoint.edn`. These are the only things this
+   `.agentic-sdk/runs/<slug>/checkpoint.edn`. These are the only things this
    campaign writes to disk: ephemeral, gitignored, never committed,
    never the hand-off medium. A crash or token ceiling resumes from the
    checkpoint and the plan, not the history. The durable artifacts are

@@ -2,17 +2,20 @@
 
 Policy that lives in hooks, not in prompts, is far more reliable. These
 four scripts are the templates the descriptor's `:hooks` list selects.
-`bootstrap-project` copies the named subset into a project's
-`.claude/hooks/` and wires them into the host runtime.
+`bootstrap-project` snaps the named subset into a project's
+`.agentic-sdk/hooks/` and wires them into the host runtime via the
+`.claude/hooks` symlink.
 
-**Claude Code is the master form.** The scripts are authored against the
-Claude Code hook protocol and wired by a `.claude/settings.json` hooks
-block. OpenCode has no shell PreToolUse/PostToolUse hooks; the same
-policies are expressed there as `opencode.json` permission rules plus an
-optional plugin hook. When `:opencode` is in the descriptor's `:runtimes`,
-`bootstrap-project` writes the OpenCode permission rules into the
-project's `opencode.json` alongside the master `.claude/` wiring. One
-source of truth, two runtimes.
+**The master scripts live at `.agentic-sdk/hooks/`** and are authored
+against the Claude Code hook protocol. In an installed project, Claude
+Code sees them through a `.claude/hooks` symlink into
+`.agentic-sdk/hooks`, wired by a `.claude/settings.json` hooks block.
+OpenCode has no shell PreToolUse/PostToolUse hooks; the same policies
+are expressed there as `.opencode/opencode.json` permission rules plus
+an optional plugin hook. When `:opencode` is in the descriptor's
+`:runtimes`, `bootstrap-project` writes the OpenCode permission rules
+into `.opencode/opencode.json` alongside the Claude Code adapter
+wiring. One source of truth, two runtimes.
 
 ## Runtime contract
 
@@ -36,7 +39,7 @@ Runs the project formatter on the file an edit just touched, so
 `check-format` costs nothing at review time.
 
 - **Trigger:** PostToolUse on `Write|Edit`.
-- **Action:** reads the formatter hint from `.claude/project.edn`
+- **Action:** reads the formatter hint from `.agentic-sdk/project.edn`
   `:lanes` when present, else detects by extension (`clang-format` for
   C, `zig fmt` for Zig, `cljfmt` or `zprint` for Clojure, `mix format`
   for Elixir). Runs the fix form on the file.
@@ -107,8 +110,11 @@ only the entries for the hooks in `:hooks` land.
 ```
 
 The `$CLAUDE_PROJECT_DIR` variable resolves to the project root at hook
-fire time. Scripts must be executable (`chmod +x`); `bootstrap-project`
-preserves the executable bit when it copies them.
+fire time. The `.claude/hooks/` path in each command resolves through
+the symlink into `.agentic-sdk/hooks/`, so the same script master serves
+both the Claude Code wiring and any direct invocation against
+`.agentic-sdk/hooks/`. Scripts must be executable (`chmod +x`);
+`bootstrap-project` preserves the executable bit when it snaps them in.
 
 ## OpenCode equivalent
 
@@ -132,9 +138,9 @@ the project's `opencode.json` when `:opencode` is in `:runtimes`.
   is fail-safe: any error allows, so it can never block work.
 
 The OpenCode projection is generated and gitignored or regenerated; the
-master form under `.claude/` is the source of truth. The `opencode-sync`
-spine task keeps the projection green against the masters, and
-`opencode-check` fails the pre-land lane when it drifts.
+master form at `.agentic-sdk/hooks/` is the source of truth. The
+`opencode-sync` spine task keeps the projection green against the
+masters, and `opencode-check` fails the pre-land lane when it drifts.
 
 ## Adding a hook policy
 

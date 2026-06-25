@@ -12,8 +12,8 @@ implement-change.
 
 ## Prerequisites
 
-`.claude/project.edn` exists (run bootstrap-project first).
-`.claude/artifacts/` is scaffolded: project-meta, the decisions log, and
+`.agentic-sdk/project.edn` exists (run bootstrap-project first).
+`.agentic-sdk/artifacts/` is scaffolded: project-meta, the decisions log, and
 open-questions.
 
 ## Procedure

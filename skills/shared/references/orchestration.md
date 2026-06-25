@@ -157,7 +157,7 @@ why, and the alternative it rejected) to the run's decisions log as a
 mode to avoid.
 
 The decisions log lives in the ephemeral checkpoint
-(`.claude/runs/<slug>/decisions.edn`); each entry is one terse
+(`.agentic-sdk/runs/<slug>/decisions.edn`); each entry is one terse
 record. At the end of the session the entry-point skill presents the
 whole log for the maintainer's review, and a decision that proves
 architectural is promoted to an ADR via `record-decision`. A
@@ -198,7 +198,7 @@ maintainer steps away.
   each task names the planned commit and the specialist that will
   execute it (a `writer` with the relevant `write-<lang>` recipe or
   `write-tests`, a `reviewer`, and so on). The planner writes the
-  full plan to the gitignored `.claude/runs/<campaign>/plan.edn` and
+  full plan to the gitignored `.agentic-sdk/runs/<campaign>/plan.edn` and
   returns a compact summary. The big plan lives on disk, not in the
   campaign's context.
 - **Approve once.** Surface the plan summary to the maintainer: the
@@ -261,7 +261,7 @@ maintainer steps away.
   line alone.
 - **Checkpoint for resume.** Record progress (phases done, in flight,
   open) alongside the plan in the gitignored
-  `.claude/runs/<campaign>/` so a crash or a token ceiling does not
+  `.agentic-sdk/runs/<campaign>/` so a crash or a token ceiling does not
   lose the campaign. Resume reads the checkpoint and the plan, not
   the history.
 - **Autonomy.** After approval the campaign dispatches every phase
@@ -279,7 +279,7 @@ code, the tests, the commit log, the changelog, and any ADR it
 settles. Nothing agent-only is committed to the repo.
 
 A long run (a multi-round review, a many-unit change) may keep a
-minimal, gitignored checkpoint under `.claude/runs/<slug>/` for one
+minimal, gitignored checkpoint under `.agentic-sdk/runs/<slug>/` for one
 purpose: so a run interrupted by a crash or a token budget can pick
 up where it left off. It records what is done (units landed, rounds
 completed, findings still open), not the working data itself. It is
@@ -299,6 +299,6 @@ genuinely-uncovered half of its criterion (confirm the gap is real
 with a search first), never abandoned (a rewind) and never duplicated
 from coverage that already landed (test bloat).
 
-Guidance captured mid-task lives in `.claude/guidance/inbox.edn`
+Guidance captured mid-task lives in `.agentic-sdk/guidance/inbox.edn`
 (empty `[]` until the first capture). `incorporate-feedback` drains
 it into the durable standards: a reference doc, a skill, or an ADR.

@@ -22,7 +22,7 @@ architecture, timelines, or estimates.
    (Answer: TBD)`.
 4. Iterate until scope is crisp and confirmed. Shape requirements around the
    smallest valuable increments.
-5. Write `.claude/artifacts/planning/product-requirements.md` with: Metadata,
+5. Write `.agentic-sdk/artifacts/planning/product-requirements.md` with: Metadata,
    Problem Statement, Goals, Non-Goals, Users, Scope, Functional Requirements
    (each with priority and acceptance criteria), Non-Functional Requirements,
    Workflows, Success Criteria, Assumptions. Keep open questions out of the

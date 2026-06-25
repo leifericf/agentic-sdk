@@ -14,7 +14,7 @@ follow-up plan ready to enter the backlog.
 
 At least one of: a log excerpt or alert payload, a time window and
 environment, a reproduction, or an incident summary.
-`.claude/project.edn` and `.claude/artifacts/ops/` exist (run
+`.agentic-sdk/project.edn` and `.agentic-sdk/artifacts/ops/` exist (run
 bootstrap-project first).
 
 ## Procedure

@@ -14,12 +14,13 @@ bootstrap.
 - **Tests before implementations.** Write the failing test, then the
   code. Every assertion must be able to fail.
 - **Functional Core / Imperative Shell.** New code follows the house
-  pattern in `.claude/skills/shared/references/architecture.md`. Pure
+  pattern in `.agentic-sdk/skills/shared/references/architecture.md`. Pure
   data and pure functions in the core; effects and state in the shell;
   native edges stay at the boundary.
 - **Policy lives in hooks, not in prompts.** The armed hooks in
-  `.claude/hooks/` enforce format-on-write, secret denial, the green
-  lane gate before land, and (when armed) MCP-first reads. Do not work
+  `.agentic-sdk/hooks/` enforce format-on-write, secret denial, the green
+  lane gate before land, and (when armed) MCP-first reads. Claude Code
+  resolves them through the `.claude/hooks` symlink. Do not work
   around a hook denial; fix the underlying condition.
 - **One source of truth for the run.** The orchestrator reads
   `run-status` after each phase, not the transcript. Workers return one
@@ -29,7 +30,7 @@ bootstrap.
 
 | Surface | When to use | Notes |
 |---|---|---|
-| {{primary_language}} | default for new code | see `.claude/skills/write-{{primary_language}}/SKILL.md` |
+| {{primary_language}} | default for new code | see `.agentic-sdk/skills/write-{{primary_language}}/SKILL.md` |
 | {{secondary_language}} | {{secondary_language_when}} | native edge at {{native_edge_path}} |
 
 ## Domain guidelines
