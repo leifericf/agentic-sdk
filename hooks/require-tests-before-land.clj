@@ -9,8 +9,9 @@
 ;; The OpenCode plugin shim and the Claude Code shell hook both adapt their
 ;; runtime event shape to this normalized input, so the policy lives in one
 ;; place. A command is a "land" if it pushes or merges onto the trunk. A green
-;; marker is the spine working dir's lanes-green file, the per-repo working
-;; dir's lanes-green file, or a recorded VERDICT: PASS line in the transcript.
+;; marker is the lanes-green file in the spine working dir (default
+;; .agentic-sdk/.spine, or SPINE_WORK_DIR), or a recorded VERDICT: PASS line
+;; in the transcript.
 
 (require '[cheshire.core :as json]
          '[clojure.string :as str]
@@ -26,17 +27,10 @@
 (defn land? [cmd]
   (some #(re-matches % cmd) land-patterns))
 
-(defn repo-dir-name [cwd]
-  (let [base (if (empty? cwd) "." cwd)
-        trimmed (str/replace base #"/+$" "")]
-    (str "." (last (str/split trimmed #"/")))))
-
 (defn green? [{:keys [cwd transcript]}]
-  (let [work-dir (or (System/getenv "SPINE_WORK_DIR") ".spine")
-        base (if (empty? cwd) "." cwd)
-        repo-dir (repo-dir-name cwd)]
+  (let [work-dir (or (System/getenv "SPINE_WORK_DIR") ".agentic-sdk/.spine")
+        base (if (empty? cwd) "." cwd)]
     (or (.isFile (io/file base work-dir "lanes-green"))
-        (.isFile (io/file base repo-dir "lanes-green"))
         (when (and transcript (.isFile (io/file transcript)))
           (let [text (slurp (io/file transcript))]
             (boolean (re-find #"VERDICT: PASS" text)))))))

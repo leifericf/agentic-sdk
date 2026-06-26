@@ -85,12 +85,13 @@ runtime mapping are documented in `hooks/README.md`.
     runtime in `:runtimes`: run the `opencode-sync` spine task to project
     the masters into `.opencode/agent/`; write the OpenCode permission
     rules and formatter into `.opencode/opencode.json` (the deny list
-    from `deny-secrets`, the formatter config from `format-on-write`,
-    and the plugin module path for `require-tests-before-land`); run
-    `opencode-check` to confirm the derived form is green against the
-    masters. For the detected spine level (`:babashka`, `:thin`,
-    `:none`), wire the spine adapter so the task names in `spine.md`
-    answer.
+    from `deny-secrets`, the formatter config from `format-on-write`);
+    drop the `require-tests-before-land` plugin into
+    `.opencode/plugins/` (auto-loaded, enforces via `tool.execute.before`,
+    no permission rule needed); run `opencode-check` to confirm the
+    derived form is green against the masters. For the detected spine
+    level (`:babashka`, `:thin`, `:none`), wire the spine adapter so the
+    task names in `spine.md` answer.
 
 ## Boundaries
 

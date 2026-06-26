@@ -29,13 +29,11 @@ is_land () {
 
 is_land "$CMD" || exit 0
 
-WORK_DIR="${SPINE_WORK_DIR:-.spine}"
+WORK_DIR="${SPINE_WORK_DIR:-.agentic-sdk/.spine}"
 TRANSCRIPT=$(printf '%s' "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null) || true
 
 green () {
     [ -f "$WORK_DIR/lanes-green" ] && return 0
-    repo_dir=".$(basename "$PWD")"
-    [ -f "$repo_dir/lanes-green" ] && return 0
     if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         grep -qE 'VERDICT: PASS' "$TRANSCRIPT" 2>/dev/null && return 0
     fi

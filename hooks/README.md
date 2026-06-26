@@ -134,11 +134,14 @@ the project's `opencode.json` when `:opencode` is in `:runtimes`.
   permission rules alone cannot capture. The policy lives in
   `hooks/require-tests-before-land.clj` (Babashka, shared with the Claude Code
   shell hook); an OpenCode adapter at
-  `.opencode/plugin/require-tests-before-land.mjs` shells out to it from a
-  `permission.ask` hook. `bootstrap-project` arms it by writing a `bash`
-  permission rule that turns push and merge into `ask` (the trigger) and
-  registering the plugin module under `plugin` in `opencode.json`. The plugin
-  is fail-safe: any error allows, so it can never block work.
+  `.opencode/plugins/require-tests-before-land.mjs` shells out to it from a
+  `tool.execute.before` hook. OpenCode has no hook that resolves a permission
+  `ask` programmatically (`permission.asked` and `permission.replied` only
+  notify), so the plugin watches bash calls directly and throws to block a land
+  op that lacks a green marker. `bootstrap-project` drops the file in
+  `.opencode/plugins/`, where OpenCode auto-loads it; no `opencode.json` entry
+  or `bash` permission rule is needed. The plugin is fail-safe: any plumbing
+  error allows, so only an explicit deny from the policy ever blocks work.
 
 The OpenCode projection is generated and gitignored or regenerated; the
 master form at `.agentic-sdk/hooks/` is the source of truth. The
