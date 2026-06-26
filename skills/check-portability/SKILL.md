@@ -6,16 +6,15 @@ user-invocable: false
 
 # check-portability
 
-Role: review the assigned shard for behavior that works on one platform
-but breaks on another.
+Role: review the shard for behavior that works on one platform but
+breaks on another.
 
 Failure model: the code runs on the development platform and silently
-misbehaves on another platform the project commits to, because a
-platform difference was not gated or a host-order assumption leaked.
+misbehaves on a committed platform, because a platform difference was
+not gated or a host-order assumption leaked.
 
 Read the design docs for the project's platform commitments before
-sweeping. A platform the project does not commit to is out of scope; a
-finding that an unsupported platform does not work is not a finding.
+sweeping. A platform the project does not commit to is out of scope.
 
 ## Look for
 

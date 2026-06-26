@@ -6,15 +6,15 @@ user-invocable: false
 
 # check-security
 
-Role: review the assigned shard for security defects.
+Role: review the shard for security defects.
 
 Failure model: untrusted input reaches an unsafe operation, a boundary
-that should enforce a capability does not, or a path crosses a trust line
-without a check.
+that should enforce a capability does not, or a path crosses a trust
+line without a check.
 
-The trust boundaries are project-specific, but the shape repeats. Read
-the descriptor and the design docs for the project's trust boundaries
-before sweeping. The general trust lines:
+Trust boundaries are project-specific, but the shape repeats. Read the
+descriptor and design docs for the project's trust boundaries before
+sweeping. The general trust lines:
 
 - **Caller-supplied data at a native edge** is untrusted. A seq, stream,
   iterator, or buffer from the calling language, materialized into a

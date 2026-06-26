@@ -6,21 +6,19 @@ user-invocable: false
 
 # check-conformance
 
-Role: review the assigned shard for divergence from the canonical sources
-of truth.
+Role: review the shard for divergence from the canonical sources of
+truth.
 
-Failure model: the code works on the happy path but behaves differently
-from what the spec promises, what an ADR decided, or what the language
-standard guarantees, and the divergence is undocumented.
+Failure model: the code works on the happy path but diverges, without
+comment, from what the spec promises, what an ADR decided, or what the
+language standard guarantees.
 
 Three layers apply, in this order.
 
 1. **The spec** (the design docs under `docs/`, the dossier the
    descriptor names, the public API docs) is the design contract.
    Behavior the code exhibits that the spec specifies differently is a
-   finding; behavior the spec does not address is not (it may be a
-   correctness or factoring finding under another dimension, but not a
-   conformance finding).
+   finding; behavior the spec does not address is not.
 2. **The ADRs** (the `:adr :store` directory) are dated decisions. Code
    that violates an ADR is a `:high` finding citing `ADR-NN`. Code that
    follows a different path than an ADR because the ADR was superseded

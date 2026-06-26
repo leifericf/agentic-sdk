@@ -6,7 +6,7 @@ user-invocable: false
 
 # check-performance
 
-Role: review the assigned shard against the project's performance targets.
+Role: review the shard against the project's performance targets.
 
 Failure model: the code is correct but breaks a real-time or budget
 commitment, allocates on a hot path, or does work that grows worse than

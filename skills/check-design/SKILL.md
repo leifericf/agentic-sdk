@@ -6,19 +6,19 @@ user-invocable: false
 
 # check-design
 
-Role: review the assigned shard against the project's design language and
-the data-oriented UI contract.
+Role: review the shard against the project's design language and the
+data-oriented UI contract.
 
 Failure model: the UI ships a stance violation, an uncleansable
 view-spec, a frame-budget miss, or a state the design language requires
 but the view omits.
 
-This dimension is active only when the descriptor has `:ui? true`. The
-authorities are the project's design docs (the design language, the
-design system, the spatial or interaction layer, the view-spec, the
-performance-UX targets, the token catalog); read them first. This skill
-covers UI surfaces and the view-spec a feature produces. Code with no UI
-surface is out of scope; return `NO FINDINGS`.
+Active only when the descriptor has `:ui? true`. The authorities are the
+project's design docs (the design language, the design system, the
+spatial or interaction layer, the view-spec, the performance-UX targets,
+the token catalog); read them first. Scope is UI surfaces and the
+view-spec a feature produces. Code with no UI surface is out of scope;
+return `NO FINDINGS`.
 
 What follows is the sweep pattern, not the spec.
 

@@ -6,13 +6,13 @@ user-invocable: false
 
 # check-correctness
 
-Role: review the assigned shard for behavior that is simply wrong.
+Role: review the shard for behavior that is simply wrong.
 
 Failure model: the code does not do what the surrounding system needs on
-some input or interleaving, and the bug class that ships is the edge the
-happy path hides.
+some input or interleaving; the bug that ships is the edge the happy
+path hides.
 
-## Look for, in priority order
+## Look for
 
 1. **Arithmetic and indexing.** Off-by-one in a loop bound; signed and
    unsigned mismatch; integer overflow on an accumulator or a size

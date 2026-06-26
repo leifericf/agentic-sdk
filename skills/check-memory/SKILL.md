@@ -10,11 +10,11 @@ Role: review the assigned C or Zig module for memory defects.
 
 Failure model: an allocation outlives its owner, a borrow outlives its
 backing memory, or a GC-visible pointer is held across an allocation
-point without a guard, and the bug class that ships is the path that
-skips a free or the scanner happens to hide.
+point without a guard; the bug that ships is the path that skips a free
+or the scanner happens to hide.
 
-This dimension is active only when the descriptor's `:languages`
-includes `:c` or `:zig`. Read the ownership rules in
+Active only when the descriptor's `:languages` includes `:c` or `:zig`.
+Read the ownership rules in
 `skills/shared/references/architecture.md` (the C and Zig sections) and
 any project-specific known-pitfalls note before sweeping.
 

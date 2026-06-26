@@ -6,7 +6,7 @@ user-invocable: false
 
 # check-style
 
-Role: review the assigned shard against the codified standards.
+Role: review the shard against the codified standards.
 
 Failure model: the code reads differently from its surroundings in a way
 that costs a future reader, or carries an AI tell or process scaffolding
@@ -25,10 +25,9 @@ The standards are cited, not duplicated:
 Those files are the checklist, but apply them for judgment, not for
 what a lane already gates. An em dash, a prose arrow, a decorative
 banner, or a process ID is the `lint` spine task's job; a format nit is
-the formatter's; an unused binding is the language linter's. Do not
-spend a finding re-surfacing what a deterministic lane catches. That is
-the nit tax this dimension rejects. Flag only the style judgment no lane
-can make.
+the formatter's; an unused binding is the language linter's. This is the
+nit tax the dimension rejects: flag only the style judgment no lane can
+make.
 
 ## Look for
 
@@ -64,9 +63,9 @@ can make.
 
 When the shard includes prose, the standard is `prose-style.md`. Apply
 it the same way: the AI-tells catalog, the no-em-dash and no-arrow
-rules, the no-process-ID rule, and the succinctness canons. The
-deterministic `lint` pre-pass already catches the mechanical tells in
-prose; this pass catches the judgment calls a regex cannot.
+rules, the no-process-ID rule, and the succinctness canons. The `lint`
+pre-pass catches the mechanical tells; this pass catches the judgment
+calls a regex cannot.
 
 ## Ignore here
 

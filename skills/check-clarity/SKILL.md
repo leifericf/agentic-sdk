@@ -6,20 +6,19 @@ user-invocable: false
 
 # check-clarity
 
-Role: review the assigned prose shard for the reader's experience.
+Role: review the prose shard for the reader's experience.
 
 Failure model: a reader in the intended audience cannot follow the text
-on the first read, because the structure buries the point, the jargon
-excludes, or the pacing stalls.
+on the first read: the structure buries the point, the jargon excludes,
+or the pacing stalls.
 
-This dimension covers prose written for humans: design docs, ADRs,
-reference material, docstrings surfaced as docs, READMEs, guides. Code
-is out of scope. When the shard is code, return `NO FINDINGS`. The prose
-standard is `skills/shared/references/prose-style.md`, backed by
-`skills/shared/references/style-foundations.md`; the deterministic
-`lint` spine task already catches the mechanical tells (the em dash, the
-prose arrow, the process ID, the banner line). This pass catches the
-clarity judgment a regex cannot.
+Scope is prose written for humans: design docs, ADRs, reference
+material, docstrings surfaced as docs, READMEs, guides. Code is out of
+scope; when the shard is code, return `NO FINDINGS`. The standard is
+`skills/shared/references/prose-style.md`, backed by
+`skills/shared/references/style-foundations.md`. The `lint` spine task
+catches the mechanical tells; this pass catches the clarity judgment a
+regex cannot.
 
 ## Look for
 
@@ -69,8 +68,7 @@ Factoring of the codebase the docs describe (check-factoring).
 
 ## Level
 
-`:style`. Clarity findings land in the style wave, alongside the other
-prose-judgment findings.
+`:style`. Clarity findings land in the style wave.
 
 ## Boundaries
 

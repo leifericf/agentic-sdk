@@ -6,7 +6,7 @@ user-invocable: false
 
 # check-factoring
 
-Role: review the assigned shard's structure.
+Role: review the shard's structure.
 
 Failure model: the code is correct but lives in the wrong place, so a
 branch cannot reach it, a boundary leaks, or two copies drift apart.
