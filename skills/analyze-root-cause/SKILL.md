@@ -21,8 +21,8 @@ mode.
 5. Trace the causal chain backward from failure to root trigger; number each
    step.
 6. Apply Five Whys if the chain has not reached a systemic root.
-7. Technical deep dive: the components involved, the data shapes, the exact
-   breakage, and why tests, monitoring, and process did not catch it.
+7. Technical deep dive: components involved, data shapes, the exact breakage,
+   and why tests, monitoring, and process did not catch it.
 8. Document reproduction: preconditions, steps, expected versus actual.
 9. Summarize the fix applied and the follow-up hardening needed.
 10. Define preventative controls, each with type (test, monitoring, process,

@@ -16,7 +16,7 @@ criteria. Translate risks into testable questions and mitigations.
    `blocked: <which artifact>`.
 2. Surface any `[Blocking]` items affecting `risk-assumption-review.md` and
    resolve them first.
-3. Pull likely risks and assumptions from the artifacts rather than asking the
+3. Pull likely risks and assumptions from the artifacts rather than ask the
    user to enumerate them. Look for missing requirements, contradictions,
    scope-creep signals, over-engineering traps, dangerous assumptions, and
    organizational risks.

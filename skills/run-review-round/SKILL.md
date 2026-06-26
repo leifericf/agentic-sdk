@@ -11,14 +11,14 @@ round's findings fixed and verified. Run by the `review-round-runner`
 agent.
 
 The round's clerical work is owned by the deterministic spine; the
-skill calls the spine tasks by name and they answer at the project's
+skill calls the spine tasks by name, which answer at the project's
 spine-presence level (full, thin, or none, per `references/spine.md`).
-At full spine the tasks fold the working dir deterministically; at thin
-or none the round-runner folds the same data by return value, keeping
-the discipline intact. Sub-agent dispatch follows the runtime
-adaptation rule in `references/orchestration.md`: fan out where the
-Task tool exists, else load the named recipe (`check-*`,
-`apply-findings`, `verify-lanes`) inline.
+At full spine they fold the working dir deterministically; at thin or
+none the round-runner folds the same data by return value, keeping the
+discipline intact. Sub-agent dispatch follows the runtime adaptation
+rule in `references/orchestration.md`: fan out where the Task tool
+exists, else load the named recipe (`check-*`, `apply-findings`,
+`verify-lanes`) inline.
 
 Inputs from the dispatch: the stack (referenced by its head's change
 id, a stack head not a branch), the scope (module shards), the round
@@ -29,25 +29,25 @@ number, and the run slug if the run keeps a resume checkpoint.
 The round carries its working state in the spine working dir
 (`.<project>/`, per `references/spine.md`) at full spine, and in your
 context at thin or none: the reviewer findings written to the
-`findings/` pool; the punch list the `triage` task produces; the
-editor returns (`LANDED`, `needs-cross-module`, `FAILED`) and changelog
-lines you collect; the escalations list, started empty and grown by a
-double `FAILED` on one finding; for `audit-code`, the out-of-scope
-items set aside. A long run may keep a minimal gitignored resume
-checkpoint under `.agentic-sdk/runs/<slug>/` recording only what is done; it
-is never committed and never the hand-off medium.
+`findings/` pool; the punch list the `triage` task produces; the editor
+returns (`LANDED`, `needs-cross-module`, `FAILED`) and changelog lines
+you collect; the escalations list, started empty and grown by a double
+`FAILED` on one finding; for `audit-code`, the out-of-scope items set
+aside. A long run may keep a minimal gitignored resume checkpoint under
+`.agentic-sdk/runs/<slug>/` recording only what is done; never
+committed, never the hand-off medium.
 
 ## Batching
 
 Fan out in module-batches, not one giant wave. A batch is one module's
-worth of dispatches, run in parallel; you wait for the batch, collect
-the returns, then dispatch the next. Reviewers: one batch per shard,
-one reviewer per applicable dimension (typically 3 to 7 concurrent).
+worth of dispatches, run in parallel; wait for the batch, collect the
+returns, then dispatch the next. Reviewers: one batch per shard, one
+reviewer per applicable dimension (typically 3 to 7 concurrent).
 Editors: one batch per level and wave, one editor per module with
 findings at that level (typically 1 to 5 concurrent). Keep concurrency
-modest, around 5 to 7 per batch; split a larger batch sequentially. The
-point is two-sided: bounded concurrency and bounded orchestrator
-context (you process N compact returns per batch, not 50 at once).
+modest, around 5 to 7 per batch; split a larger batch sequentially.
+This bounds both concurrency and orchestrator context (N compact
+returns per batch, not 50 at once).
 
 ## Procedure
 
@@ -100,8 +100,8 @@ context (you process N compact returns per batch, not 50 at once).
      until this level's module waves finish, then dispatch one editor
      with the union on its own change.
    - Hold each editor's `CHANGELOG:` lines into the round's changelog
-     set. The runner does this, not the editors, not a spine. Never
-     edit `CHANGELOG.md` mid-round; the run merges the set at its land
+     set. The runner does this, not the editors or a spine. Never edit
+     `CHANGELOG.md` mid-round; the run merges the set at its land
      step.
    - Escalations: a `FAILED` return retries once; a second failure on
      the same finding adds an escalation entry and stops work on that
@@ -123,12 +123,12 @@ context (you process N compact returns per batch, not 50 at once).
    twice before recording an escalation and stopping the round.
 7. **Found-new flag.** True iff triage produced one or more items this
    round, regardless of how many were fixed.
-8. **Advance.** Run the `run` spine task (`bb run status`
-   today) to mark the round complete and compute the next directive
-   (`:next-round` when this round found new findings and the cap is not
-   hit, else `:complete`). If the run keeps a resume checkpoint, mark
-   the round done in it. Compose and return the round summary. The
-   round's changelog lines merge into `CHANGELOG.md` only when the
+8. **Advance.** Run the `run` spine task (`bb run status` today) to
+   mark the round complete and compute the next directive
+   (`:next-round` when this round found new findings and the cap is
+   not hit, else `:complete`). If the run keeps a resume checkpoint,
+   mark the round done in it. Compose and return the round summary.
+   The round's changelog lines merge into `CHANGELOG.md` only when the
    whole run lands, not here.
 
 The finding shape (dimension, severity, level, file, evidence,

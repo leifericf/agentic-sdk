@@ -7,12 +7,11 @@ user-invocable: false
 # vertical-slice-postmortem
 
 A review round fixes the symptom; this skill fixes the cause. After a
-landed slice, it asks why each class of defect was written in the first
-place, hardens the recipe that should have prevented it and the test
-that should have caught it, and asks where the slice spent more tokens
-or wall-clock than its quality required. Run once per major slice so
-the system compounds quality and efficiency instead of relearning the
-same lesson.
+landed slice, it asks why each class of defect was written, hardens the
+recipe that should have prevented it and the test that should have
+caught it, and asks where the slice spent more tokens or wall-clock
+than its quality required. Run once per major slice so the system
+compounds quality and efficiency instead of relearning the same lesson.
 
 ## The four goals in tension
 
@@ -33,9 +32,9 @@ native edge, a query compiler, a security seam, a cross-module change),
 and economize where the unit is small and pure (a mechanical scaffold,
 a test-only phase, a single-module refactor). The lean default, the
 earned-second-round rule, and security-shifts-left are this principle
-already at work. This retrospective is where the balance is re-tuned
-each slice. A finding that the slice was correctly balanced is a valid
-result; do not invent waste or invent risk to act on.
+at work. This retrospective is where the balance is re-tuned each
+slice. A finding that the slice was correctly balanced is a valid
+result; do not invent waste or risk to act on.
 
 ## Stance: root cause, not symptom; prevention, not patch
 
@@ -55,22 +54,22 @@ result; do not invent waste or invent risk to act on.
 - Be honest about the uncatchable. Some defects only a runtime or an
   interactive run can surface. Say so; do not pretend a lane covers
   what it cannot.
-- Cost is evidence too. Wasted tokens and wasted wall-clock are defects
-  in the orchestration, not the code. A verbose return the caller had
-  to hold, an invariant repeated in every dispatch, an expensive lane
-  run per phase instead of per deliverable, a heavy model on a
-  mechanical phase: each is a recurring tax the next slice pays again.
-  Cut it at the source like any other class, and only where the
-  evidence shows the rigor survives the cut.
+- Cost is evidence too. Wasted tokens and wall-clock are defects in
+  the orchestration, not the code. A verbose return the caller had to
+  hold, an invariant repeated in every dispatch, an expensive lane run
+  per phase instead of per deliverable, a heavy model on a mechanical
+  phase: each is a recurring tax the next slice pays. Cut it at the
+  source like any other class, and only where the evidence shows the
+  rigor survives the cut.
 
 ## When it runs
 
 Once per major slice, automatically, as the campaign's last action
 after the deliverable is placed and the session-end report is written.
 `advance-plan` and `implement-change` fire it; the maintainer may also
-run it on demand. Do not run it mid-slice, and do not run it more than
-once for the same slice; if a slice lands in pieces, run it once over
-the whole landed deliverable.
+run it on demand. Do not run it mid-slice, or more than once for the
+same slice; if a slice lands in pieces, run it once over the whole
+landed deliverable.
 
 ## Procedure
 
@@ -79,7 +78,7 @@ the whole landed deliverable.
    slice's fix commits (the commits that landed in review rounds, after
    the initial write). Each fix is a defect that slipped past the
    write-time recipe and the verification lanes.
-2. **Cluster by root cause.** Group the defects into classes by shared
+2. **Cluster by root cause.** Group defects into classes by shared
    cause, not surface. Name each class in terms a future writer will
    recognize before making the mistake (for example "native resource
    lifetime: acquire, use, release ordering across the boundary", not
@@ -98,7 +97,7 @@ the whole landed deliverable.
    `incorporate-feedback`. Commit on the tip, one improvement per
    commit (`Skills: ...`), per `write-commit`.
 5. **Evaluate the slice's cost.** Read the campaign's token spend and
-   the verification wall-clock the same way you read the fix commits.
+   verification wall-clock the same way you read the fix commits.
    Cluster the waste by cause and trace each to its orchestration skill
    (`advance-plan`, `implement-change` and `orchestration.md`, the
    change-runner dispatch, `verify-lanes`):

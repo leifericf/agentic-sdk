@@ -24,15 +24,15 @@ The discipline, in order. Do not skip steps.
    through the failing path. No fix lands without a confirmed
    reproducer. "Cannot reproduce" goes back to the reporter with what
    you tried. Keep reproducer fixtures under the project's test fixtures
-   path and cite the path in the regression test.
+   path and cite it in the regression test.
 2. **Failing test first.** Write the regression test in the right
    surface via write-tests: pure core to the core test namespace, a
    native edge to a round-trip integration test, persistence to a
    scratch store. Run it; watch it fail for the expected reason. Commit
    it first (`Tests: ...`) so history proves fail then pass.
-3. **Find the cause, not the symptom.** First check the decision index
-   (the ADR store from the descriptor) and the design docs. Behavior
-   that matches an existing ADR or a documented design choice is not a
+3. **Find the cause, not the symptom.** Check the decision index (the
+   ADR store from the descriptor) and the design docs first. Behavior
+   that matches an existing ADR or documented design choice is not a
    bug; report that back instead of fixing it. Then fix at the source:
    the pure core function, the native body, the persistence transaction,
    or the shell wiring. Never a caller-side special case, never a test
@@ -40,15 +40,16 @@ The discipline, in order. Do not skip steps.
    platform difference (document at the site), or harness debt (fix the
    harness).
 4. **Fix smallest-sufficient.** If the cause is in another module than
-   expected, follow it and say so. A factoring finding is a valid fix-bug
-   outcome: open it as a forward task, do not silently refactor here.
+   expected, follow it and say so. A factoring finding is a valid
+   fix-bug outcome: open it as a forward task, do not silently refactor
+   here.
 5. **Verify.** Dispatch one verifier running verify-lanes against the
    project's lanes (from the descriptor): the cheap tier always. When
    the fix touched a native edge (any native body or the boundary
    itself), also a round-trip test that compiles and calls the real
-   native code, and the native formatter on any changed source. When the
+   native code, and the native formatter on changed source. When the
    fix touched persistence, a transaction-history test. When the fix
-   touched a computation with tolerance, an assertion that the returned
+   touched a computation with tolerance, an assertion that returned
    values are within tolerance on a known-good fixture.
 6. **Commit.** One commit via write-commit: `Category: Imperative
    subject`, single line. The regression test and the fix land as the

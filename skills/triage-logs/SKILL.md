@@ -12,8 +12,8 @@ smallest useful packet, not a full data dump.
 
 ## Procedure
 
-1. Gather context, at most three questions, preferring binary and pick-one to
-   narrow scope: a log excerpt or alert payload, the time window and
+1. Gather context, at most three questions, preferring binary and pick-one: a
+   log excerpt or alert payload, the time window and
    environment, and any recent deploys, flag flips, or config changes.
 2. Separate user-visible symptoms from operator-visible signals.
 3. Assess impact: user impact, business impact, blast radius.

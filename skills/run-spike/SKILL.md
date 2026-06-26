@@ -6,18 +6,18 @@ user-invocable: false
 
 # run-spike
 
-A spike buys knowledge, not a feature. You run one when a load-bearing
+A spike buys knowledge, not a feature. Run one when a load-bearing
 unknown sits in front of real work and you cannot plan past it
-honestly. Front-load the biggest unknowns, the ones that live at the
-seams: the native edge (a C ABI, NIF, or foreign-function boundary that
-may leak or crash under churn), a real-time budget a renderer or audio
-path must hit, a concurrency model the single-threaded path hides.
+honestly. Front-load the biggest unknowns, the ones at the seams: the
+native edge (a C ABI, NIF, or foreign-function boundary that may leak
+or crash under churn), a real-time budget a renderer or audio path
+must hit, a concurrency model the single-threaded path hides.
 
-A spike learns; a feature ships. This skill is for learning. When the
-answer is known and the work is to build the planned thing, that is
-`implement-change`. When the work is to break existing code, that is
-`adversarial-test`. A spike has no user; its deliverable is a decision
-plus, sometimes, a harness worth keeping.
+A spike learns; a feature ships. When the answer is known and the work
+is to build the planned thing, that is `implement-change`. When the
+work is to break existing code, that is `adversarial-test`. A spike has
+no user; its deliverable is a decision plus, sometimes, a harness worth
+keeping.
 
 ## Procedure
 
@@ -51,12 +51,12 @@ feature because the harness started to look real.
 ### 3. Build a standalone, throwaway harness
 
 The harness is scaffolding, not product. Build it to be discarded (step
-7 decides if any of it earns a place). Keep it isolated: its own
-namespace, module, or file under a spike path, no edits to the modules
-it probes, scratch state under a tmp dir.
+7 decides if any earns a place). Keep it isolated: its own namespace,
+module, or file under a spike path, no edits to the modules it probes,
+scratch state under a tmp dir.
 
 Exercise the seam at and beyond expected load. The point is to find the
-wall, not to confirm the happy path.
+wall, not confirm the happy path.
 
 - **Lifetime under load.** Create and free a native handle N times in a
   tight loop, N past any realistic use. Watch for the wall: a slowdown,
@@ -75,15 +75,15 @@ wall, not to confirm the happy path.
   the number is meaningless without them. Turn the load past the target
   until the budget breaks, and report where.
 
-Where an API does not exist yet, state the contract you are coding
-against (the boundary contract in `references/architecture.md`, the
-handle lifecycle) and build the harness to it. Never invent an API and
-present it as real; if the spike has to stub the seam, say so, and say
-what the stub assumes.
+Where an API does not exist yet, state the contract you code against
+(the boundary contract in `references/architecture.md`, the handle
+lifecycle) and build the harness to it. Never invent an API and present
+it as real; if the spike must stub the seam, say so, and say what the
+stub assumes.
 
 ### 4. Document failure modes, limits, and workarounds
 
-As the harness finds walls, write each one down plainly:
+As the harness finds walls, write each down plainly:
 
 - The failure mode: what broke, the smallest sequence that broke it,
   the observed symptom (crash, leak count, frame time, validation
@@ -101,14 +101,14 @@ This catalog is the spike's evidence. The decision rests on it.
 Turn the evidence into one call:
 
 - **Go.** The seam carries the load. The planned work proceeds as
-  written. Record what "carries the load" meant, the limits you proved,
-  so a later regression has a baseline.
+  written. Record what "carries the load" meant and the limits you
+  proved, so a later regression has a baseline.
 - **No-go.** The seam does not carry the load and there is no
   acceptable workaround. The plan changes. Name the alternative the
   project now takes.
 - **Mitigate.** The seam carries the load only with a workaround. Spell
-  out the workaround as a constraint the downstream code must honor,
-  and route it (step 6) so the constraint is not lost.
+  out the workaround as a constraint downstream code must honor, and
+  route it (step 6) so the constraint is not lost.
 
 ### 6. Feed the outcome forward
 
