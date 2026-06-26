@@ -1,17 +1,16 @@
 # Clojure style: the checkable standard
 
-Applies to everything written in Clojure for this project: the pure
-core, the imperative shell, the native wrappers, the test suite, and any
-build or tooling scripts. `check-style` applies this file; `write-clj`
-writes to it. The design spec is the project's design docs and ADRs;
-this file is the coding standard. It is normative: when a general
-Clojure source disagrees, follow this file.
+Applies to all Clojure in this project: the pure core, the imperative
+shell, the native wrappers, tests, and build or tooling scripts.
+`check-style` applies this file; `write-clj` writes to it. This is the
+normative coding standard; where a general Clojure source disagrees,
+follow this file.
 
 ## What the standard optimizes for
 
 - **Simple over easy.** Simple means unbraided: one concern, reasoned
   about on its own. Easy means familiar or near at hand. Prefer the
-  simple artifact even when it is less familiar to write.
+  simple artifact even when less familiar to write.
 - **No complecting.** Do not interleave concerns that could stand apart:
   state with time, data with behavior, logic with effects, the domain
   with its storage or rendering. Code that braids them cannot be
@@ -27,8 +26,6 @@ Clojure source disagrees, follow this file.
 
 ## Core vocabulary
 
-Use these terms with the meanings below.
-
 - **Simple / easy:** unbraided and objective, versus familiar and
   relative to a person. Choose simple.
 - **Complect:** to interleave distinct concerns so they no longer
@@ -38,8 +35,7 @@ Use these terms with the meanings below.
   explicit by producing new values.
 - **Description, not instruction.** Declare what an entity, a spec, or
   an operation chain contains; the pure functions decide how to apply
-  it. Do not write code that instructs the system step by step when a
-  data description would suffice.
+  it. Do not instruct step by step when a data description suffices.
 - **Functional core, imperative shell:** the load-bearing split. The
   contract lives in `skills/shared/references/architecture.md`.
   Deciding is pure data transformation; doing is the shell that adapts
@@ -48,8 +44,7 @@ Use these terms with the meanings below.
 ## The spec is JVM Clojure
 
 - Canonical JVM Clojure defines correct behavior. Follow the community
-  Clojure style guide where a norm exists; do not invent house style
-  where one already does.
+  Clojure style guide where a norm exists; do not invent house style.
 - A public surface is ordinary Clojure: functions return Clojure values
   and redefining a function changes its behavior at the REPL. Match that
   expectation; surprising semantics at the public surface are findings.
@@ -59,10 +54,9 @@ Use these terms with the meanings below.
 
 ## Functional core, imperative shell, native wrappers
 
-The spine separates deciding from doing, and adds a native edge for the
-parts that have to run on the metal. This is the project's load-bearing
-structure, not a preference (see
-`skills/shared/references/architecture.md`).
+The spine separates deciding from doing, with a native edge for what
+must run on the metal. This is load-bearing structure, not a preference
+(see `skills/shared/references/architecture.md`).
 
 - **Pure core.** Namespaces that take data and return data, do no IO,
   never shell out, never transact, never hold a clock, thread, or atom.
@@ -76,11 +70,11 @@ structure, not a preference (see
   data in, marshal data out, pass handles back and forth. No domain
   logic; the pure core decides what to call.
 
-Most tests target the core directly, with data in and data out; shell
-tests are fewer and integration-style (a real scratch store, a real
-scratch cache). A shell branch a test wants to reach is a decision that
-belongs in the core: move it, do not mock the shell. Do not push an
-effect into the core because a library makes it easy.
+Most tests target the core directly: data in, data out. Shell tests are
+fewer and integration-style (a real scratch store, a real scratch
+cache). A shell branch a test wants to reach is a decision that belongs
+in the core: move it, do not mock the shell. Do not push an effect into
+the core because a library makes it easy.
 
 ## Persistence-specific rules
 

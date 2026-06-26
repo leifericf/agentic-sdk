@@ -1,12 +1,10 @@
 # Elixir style: the checkable standard
 
-Applies to everything written in Elixir for this project: the pure
-core (plain modules of functions), the imperative shell (GenServer,
-Agent, Task, Supervisor, Application), the NIF wrappers, and the test
-suite. `check-style` applies this file; `write-elixir` writes to it. The
-design spec is the project's design docs and ADRs; this file is the
-coding standard. It is normative: when a general Elixir source
-disagrees, follow this file.
+Applies to all Elixir in this project: the pure core (plain modules of
+functions), the imperative shell (GenServer, Agent, Task, Supervisor,
+Application), the NIF wrappers, and tests. `check-style` applies this
+file; `write-elixir` writes to it. This is the normative coding
+standard; where a general Elixir source disagrees, follow this file.
 
 ## What the standard optimizes for
 
@@ -53,8 +51,8 @@ disagrees, follow this file.
 
 ## Functional core, imperative shell, native wrappers
 
-The spine separates deciding from doing, and adds a native edge for the
-parts that have to run on the metal.
+The spine separates deciding from doing, with a native edge for what
+must run on the metal.
 
 - **Pure core.** Modules of functions that take data and return data, do
   no IO, send no messages, hold no state. A standalone library module is
@@ -68,9 +66,9 @@ parts that have to run on the metal.
   Marshal data in, marshal data out, pass opaque handles back and forth.
   No domain logic on either side of the boundary.
 
-Most tests target the core directly, with data in and data out. Shell
-tests start a supervised process tree, exercise it, and let ExUnit tear
-it down. A shell branch a test wants to reach is a decision that belongs
+Most tests target the core directly: data in, data out. Shell tests
+start a supervised process tree, exercise it, and let ExUnit tear it
+down. A shell branch a test wants to reach is a decision that belongs
 in the core: move it, do not mock the process.
 
 ## Naming

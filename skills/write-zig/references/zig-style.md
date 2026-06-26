@@ -1,18 +1,17 @@
 # Zig style: the checkable standard
 
 The checkable Zig standard for this project, grounded in the official
-language reference, the Zig standard library, and conventions from
-major Zig codebases (TigerBeetle, Bun, Mach, the std lib).
-`check-style` applies this file; `write-zig` writes to it.
+language reference, the standard library, and conventions from major
+Zig codebases (TigerBeetle, Bun, Mach). `check-style` applies this
+file; `write-zig` writes to it.
 
-Sources of truth that override this file when they disagree: `zig build`
-(errors on unused locals and shadowing, the floor), `zig fmt --check`,
-and the native boundary contract in
-`skills/shared/references/architecture.md`. When a tool and this file
-disagree, the tool wins; fix this file.
+Sources of truth that override this file: `zig build` (errors on unused
+locals and shadowing, the floor), `zig fmt --check`, and the native
+boundary contract in `skills/shared/references/architecture.md`. When
+a tool and this file disagree, the tool wins; fix this file.
 
-Run `zig fmt` on changed Zig before it lands; it owns indentation, brace
-placement, and trailing commas, so most of this guide covers what
+Run `zig fmt` on changed Zig before it lands; it owns indentation,
+brace placement, and trailing commas, so this guide covers what
 `zig fmt` cannot.
 
 ## 1. Naming
@@ -75,21 +74,20 @@ judgment; the compiler catches only some needless `var`.
 
 ### Diagnostics at the boundary
 
-Zig errors carry no payload. When a body or a wrapper fails to compile,
-or when a runtime error returns across a language boundary, the failure
+Zig errors carry no payload. When a body or wrapper fails to compile,
+or a runtime error returns across a language boundary, the failure
 surfaces through the structured diagnostic the host shell renders: the
 function and signature first, then the source path, then the compiler's
-stderr mapped under a stderr key. The Zig side does not print; it fails,
-and the shell renders. A diagnostic message names the failing operation,
-never a bare error.
+stderr under a stderr key. The Zig side does not print; it fails, and
+the shell renders. A diagnostic names the failing operation, never a
+bare error.
 
 ## 6. Memory and the boundary
 
 Zig has no hidden allocations; every allocation is explicit and paired
-with a free. At the native boundary the lifetime rules are conservative
+with a free. Lifetime rules at the native boundary are conservative
 (the contract lives in
-`skills/shared/references/architecture.md`) and the body must honor
-them:
+`skills/shared/references/architecture.md`); the body must honor them:
 
 - Scalars are copied across the boundary.
 - A slice handed in from the host is valid only for the duration of the
