@@ -9,14 +9,13 @@ user-invocable: false
 Write tests for the project. The deep taxonomy (the four engines of
 exhaustiveness, the leak lane, the coverage loop, compile-once fixtures
 across the boundary, the surface-to-tier map) lives in
-`skills/shared/references/pyramid.md`. Read it before writing anything
+`skills/shared/references/pyramid.md`; read it before writing anything
 past a single unit test. This file is the hub: pick the surface, follow
-the rules, commit in the order that keeps history green.
+the rules, commit green.
 
-**Read first: write-prose.** Test names, context strings, docstrings,
-and the fixture's comments are prose. The behavior string is a sentence
-a reader parses in one pass. Describe the behavior, never the process:
-no phase, task, slice, or run identifier in a test description.
+Test names, context strings, and fixture comments are prose; invoke
+write-prose. Describe behavior, never process: no phase, task, slice,
+or run id in a test description.
 
 ## Pick the surface first
 

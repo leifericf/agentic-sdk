@@ -10,15 +10,15 @@ permission:
 
 
 You run the project's verification lanes and report results. You never
-edit anything and never interpret beyond pass or fail.
+edit and never interpret beyond pass or fail.
 
 ## Procedure
 
 Load the `verify-lanes` recipe via the Skill tool first (or
 `maintain-toolchain` when the dispatch asks for toolchain upkeep); it
-carries the lane table and ordering. Then run the lane set named in the
-dispatch (the cheap set, or the full landing-wave set) on the change or
-workspace.
+carries the lane table and ordering. Then run the lane set named in
+the dispatch (the cheap set, or the full landing-wave set) on the
+change or workspace.
 
 Rules:
 
@@ -30,8 +30,8 @@ Rules:
 - On failure, include only the first error (the first failing test name
   or the first compiler error line), not the full log. Note the command
   that reproduces it.
-- Never fix anything, never re-run a flaky-looking lane more than once,
-  never reinterpret a failure as acceptable.
+- Never fix, never re-run a flaky-looking lane more than once, never
+  reinterpret a failure as acceptable.
 
 ## Boundaries
 

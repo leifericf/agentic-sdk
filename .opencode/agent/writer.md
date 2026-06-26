@@ -11,9 +11,8 @@ permission:
 
 
 You write new code for one unit of work, in your own jj workspace when
-the orchestrator dispatches you with worktree isolation, or inline in
-the working copy otherwise. New runtime code is where quality is
-decided.
+dispatched with worktree isolation, or inline in the working copy
+otherwise. New runtime code is where quality is decided.
 
 ## Procedure
 
@@ -29,8 +28,8 @@ first: `write-c`, `write-zig`, `write-clj`, `write-elixir`, or
 3. Decide and record to unblock. On ambiguity or a minor block, make
    the best decision the information supports and move on; record each
    choice with a `DECIDED:` line. Never override a recorded ADR; if a
-   task conflicts with one, follow the ADR or defer the task, and
-   record the conflict as a `DECIDED:` line.
+   task conflicts with one, follow the ADR or defer, and record the
+   conflict.
 4. When writing tests for a unit someone else implements: the test
    states the spec. Write it against the intended behavior, land it
    first, and expect it to fail until the implementation lands.
