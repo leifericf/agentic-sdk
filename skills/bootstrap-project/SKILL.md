@@ -61,23 +61,21 @@ runtime mapping are documented in `hooks/README.md`.
    `.claude/agents`, and `.claude/hooks` as symlinks pointing to
    `../.agentic-sdk/{skills,agents,hooks}` so Claude Code resolves the
    masters under its expected paths.
-7. **Drop the root CLAUDE.md.** Copy `templates/CLAUDE.md` (now snapped
-   at `.agentic-sdk/templates/CLAUDE.md`) into the project root as
-   `CLAUDE.md`. Fill the `{{placeholders}}` from the descriptor: project
-   name, primary and secondary languages, the domain guidelines path,
-   the cheap, wave, and pre-land lane commands, the eval command, the
-   spine working dir, and the operational gotchas. The project owns
-   this file after bootstrap.
+7. **Drop the root CLAUDE.md.** Symlink the project root `CLAUDE.md` to
+   `.agentic-sdk/templates/CLAUDE.md`. The router is standard and identical
+   across projects; it carries no per-project content (the descriptor and
+   `artifacts/` hold the specifics), so it is regenerated, not committed.
 8. **Write the project `.gitignore`.** Copy `templates/gitignore` (now
    snapped at `.agentic-sdk/templates/gitignore`) to the project root
-   as `.gitignore`. It commits only `.agentic-sdk/project.edn`,
-   `.agentic-sdk/artifacts/`, the root `CLAUDE.md`,
-   `.claude/settings.json`, and `.opencode/opencode.json`; everything
-   else under `.agentic-sdk/`, the `.claude/` symlinks, and generated
-   `.opencode/` is gitignored.
-9. **Wire the Claude Code hook block.** Write the `.claude/settings.json`
-   hooks block that maps each armed hook to its matcher event per
-   `hooks/README.md`. Scripts resolve under
+   as `.gitignore`. Invariant: the repo commits no agent machinery, only
+   `.agentic-sdk/project.edn` and `.agentic-sdk/artifacts/`. Everything
+   else (`.claude/`, `.opencode/`, the root `CLAUDE.md` symlink, the
+   masters/spine/state under `.agentic-sdk/`) is regenerated and
+   gitignored.
+9. **Wire `.claude/settings.json`.** Write the hooks block (each armed
+   hook mapped to its matcher event per `hooks/README.md`) and the
+   permission allow-list (from `:permissions`) into
+   `.claude/settings.json`. Hook scripts resolve under
    `$CLAUDE_PROJECT_DIR/.claude/hooks/` through the symlink into
    `.agentic-sdk/hooks/`.
 10. **Generate the OpenCode adapter and wire the spine.** For every

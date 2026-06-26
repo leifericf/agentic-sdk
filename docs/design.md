@@ -257,7 +257,8 @@ the sole source mutators in fix loops; verifier is bash-heavy, no judgment.
  :commit     {:categories ["Build" "Tests" "Fix" "Refactor" "Docs" ...]
               :form "Category: Imperative subject"}
  :hooks      [:format-on-write :deny-secrets]   ; §9
- :runtimes   [:claude-code :opencode]}          ; §12, both on by default
+ :permissions {:bash ["git *" "clojure -M:test:*" "zig build:*"]} ; allow-list
+ :runtimes   [:claude-code :opencode]}          ; §12, both on default
 ```
 
 ### 8.2 `bootstrap-project` procedure
@@ -276,19 +277,23 @@ the sole source mutators in fix loops; verifier is bash-heavy, no judgment.
 5. **Symlink the Claude Code adapter.** Create `.claude/skills`,
    `.claude/agents`, and `.claude/hooks` as symlinks into
    `../.agentic-sdk/{skills,agents,hooks}` so Claude Code resolves the
-   masters under its expected paths. Write the `.claude/settings.json` hook
-   block (§9).
+   masters under its expected paths. Write `.claude/settings.json` from the
+   descriptor: the hook block from `:hooks` (§9) and the permission
+   allow-list from `:permissions`.
 6. **Generate the OpenCode adapter.** Run the `opencode-sync` spine task to
    project masters into `.opencode/agent/`; write `.opencode/opencode.json`
    (permission rules and formatter) from the armed hooks. Run
    `opencode-check` to confirm the derived form is green.
-7. **Drop the root `CLAUDE.md`.** Copy `templates/CLAUDE.md` into the project
-   root and fill the `{{placeholders}}` from the descriptor.
+7. **Drop the root `CLAUDE.md`.** Symlink the project root `CLAUDE.md` to
+   `.agentic-sdk/templates/CLAUDE.md`. The router is standard, identical
+   across projects, with no per-project content; it points at
+   `.agentic-sdk/project.edn` and `artifacts/` for the project's specifics.
 8. **Write the project `.gitignore`.** Drop `templates/gitignore` at the
-   project root. It commits only `.agentic-sdk/project.edn`,
-   `.agentic-sdk/artifacts/`, the root `CLAUDE.md`, `.claude/settings.json`,
-   and `.opencode/opencode.json`; everything else under `.agentic-sdk/`, the
-   `.claude/` symlinks, and generated `.opencode/` is gitignored.
+   project root. The invariant: the repo commits no agent machinery, only
+   `.agentic-sdk/project.edn` and `.agentic-sdk/artifacts/` (durable,
+   project-specific state). Everything else the SDK touches is regenerated
+   by `bootstrap-project` and gitignored: `.claude/`, `.opencode/`, the
+   root `CLAUDE.md` symlink, and the masters/spine/state under `.agentic-sdk/`.
 9. **Wire the spine adapter** for the detected level (full/thin/none) per the
    descriptor's `:spine :runtime` and `:runtimes` (§12).
 
@@ -326,7 +331,7 @@ the refined version into the toolkit's curated set. This is the single reuse
 valve: every `add-*` output is a candidate for promotion, and promotion is
 deliberate, never automatic.
 
-## 9. Policy-as-hooks and the CLAUDE.md skeleton
+## 9. Policy-as-hooks and the standard router
 
 Policy that lives in **hooks**, not in prompts, is far more reliable. The
 toolkit ships hook **templates** activated by the descriptor:
@@ -338,9 +343,11 @@ toolkit ships hook **templates** activated by the descriptor:
 - **`require-tests-before-land`** (PreToolUse on commit/merge): gates land on a
   green lane run.
 
-`bootstrap-project` also drops a **CLAUDE.md skeleton** into the project: a
-hard-rule-first router, then a tool/MCP table, normative domain guidelines,
-concrete eval/lane commands, operational gotchas, and a safety denylist.
+`bootstrap-project` symlinks the project root `CLAUDE.md` to
+`.agentic-sdk/templates/CLAUDE.md`: a standard, hard-rule-first router
+identical across projects. It carries no per-project content (the
+descriptor and `artifacts/` hold the specifics), so it is regenerated, not
+committed.
 
 ## 10. Artifacts and run-state layout
 
@@ -360,28 +367,28 @@ concrete eval/lane commands, operational gotchas, and a safety denylist.
   hooks/                             # snapped-in master scripts (gitignored)
   bb.edn                             # the bb spine entry point (gitignored)
   src/spine/                         # the spine namespaces (gitignored)
-  templates/                         # CLAUDE.md skeleton and gitignore (gitignored)
+  templates/                         # standard router and gitignore (gitignored)
   runs/<slug>/                       # ephemeral campaign state (gitignored)
     plan.edn · checkpoint.edn · decisions.edn
   state/                             # spine working dir (gitignored), EDN today,
                                      # future store tomorrow
     findings/ triage/ run.edn decisions.edn escalation.edn
   settings.local.json                # per-user (gitignored)
-.claude/                             # thin Claude Code adapter
-  skills   ->  ../.agentic-sdk/skills        (symlink, gitignored)
-  agents   ->  ../.agentic-sdk/agents        (symlink, gitignored)
-  hooks    ->  ../.agentic-sdk/hooks         (symlink, gitignored)
-  settings.json                      # Claude Code hook wiring. COMMITTED
-.opencode/                           # OpenCode adapter
-  agent/                             # generated by opencode-sync (gitignored)
-  plugins/                           # e.g. require-tests-before-land.mjs (gitignored)
-  opencode.json                      # OpenCode config. COMMITTED
-CLAUDE.md                            # the project router. COMMITTED
+.claude/                             # Claude Code adapter (regenerated, gitignored)
+  skills   ->  ../.agentic-sdk/skills        (symlink)
+  agents   ->  ../.agentic-sdk/agents        (symlink)
+  hooks    ->  ../.agentic-sdk/hooks         (symlink)
+  settings.json                      # from :hooks + :permissions
+.opencode/                           # OpenCode adapter (regenerated, gitignored)
+  agent/                             # generated by opencode-sync
+  plugins/                           # e.g. require-tests-before-land.mjs
+  opencode.json                      # OpenCode config
+CLAUDE.md  ->  .agentic-sdk/templates/CLAUDE.md   # standard router (symlink, gitignored)
 ```
 
-Commit policy: only `.agentic-sdk/{project.edn,artifacts/}`, the root
-`CLAUDE.md`, `.claude/settings.json`, and `.opencode/opencode.json` are
-tracked. Everything else regenerates by re-running `bootstrap-project`;
+Commit policy: an installed repo commits no agent machinery, only
+`.agentic-sdk/{project.edn,artifacts/}` (durable, project-specific state).
+Everything else regenerates by re-running `bootstrap-project`;
 `templates/gitignore` is the canonical project `.gitignore` at the root.
 
 Resume model: the orchestrator reads `run` (not the transcript) after

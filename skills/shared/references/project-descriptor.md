@@ -278,6 +278,19 @@ A map of two keys.
 - **reads:** the host runtime hook loader, `bootstrap-project`.
 - **origin:** ELICIT, default applied.
 
+### `:permissions`
+
+- **type:** map of tool keyword to a vector of allow patterns (strings).
+- **values:** today `:bash` carries the bash allow-list, for example
+  `["git status:*" "clojure -M:test:*" "zig fmt:*"]`.
+- **default:** `{}` (no extra allowances; the host runtime defaults apply).
+- **configures:** the permission allow-list `bootstrap-project` writes into
+  `.claude/settings.json` and `.opencode/opencode.json`. It is the source of
+  truth for the allow-list, so those adapter files are regenerated and
+  gitignored rather than committed.
+- **reads:** `bootstrap-project`.
+- **origin:** ELICIT (one batch) or DETECT from `:lanes`.
+
 ### `:runtimes`
 
 - **type:** vector of keywords.
@@ -318,6 +331,7 @@ A map of two keys.
  :commit     {:categories ["Build" "Tests" "Fix" "Refactor" "Docs" "CI" "Skills"]
               :form      "Category: Imperative subject"}
  :hooks      [:format-on-write :deny-secrets :require-tests-before-land]
+ :permissions {:bash ["git *" "clojure -M:test:*" "zig build:*"]}
  :runtimes   [:claude-code :opencode]}
 ```
 
@@ -347,6 +361,7 @@ detector cannot decide:
 | `:adr :store`, `:adr :format` | confirm defaults |
 | `:commit :categories`, `:commit :form` | confirm defaults |
 | `:hooks` | which policies to arm |
+| `:permissions` | the bash allow-list (or DETECT from `:lanes`) |
 | `:runtimes` | confirm both on |
 
 ## Closing note
