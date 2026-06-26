@@ -30,11 +30,11 @@ All tasks take a target root (default `.`) and are Babashka-runnable via
 
 ## Working-dir format
 
-Default `<root>/.spine/` (overridable via the descriptor key
+Default `<root>/.agentic-sdk/state/` (overridable via the descriptor key
 `:spine :working-dir`). Created on first write; never assumed on read.
 
 ```
-.spine/
+.agentic-sdk/state/
   findings/            reviewers and lint write *.edn here (the only producers)
     *.edn
   triage/

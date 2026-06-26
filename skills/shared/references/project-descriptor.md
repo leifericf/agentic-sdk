@@ -203,12 +203,12 @@ A map of three keys.
 
 - **type:** string path.
 - **values:** any path relative to the project root. Convention:
-  `.agentic-sdk/.spine/`.
-- **default:** `.agentic-sdk/.spine/`.
+  `.agentic-sdk/state/`.
+- **default:** `.agentic-sdk/state/`.
 - **configures:** where the spine writes proposals, scans, findings, triage
   output, run state, and escalations. Gitignored.
 - **reads:** every spine task (each resolves this once and prefixes all paths).
-- **origin:** DETECT, fixed to the canonical `.agentic-sdk/.spine/` home.
+- **origin:** DETECT, fixed to the canonical `.agentic-sdk/state/` home.
 
 ### `:adr`
 
@@ -314,7 +314,7 @@ A map of two keys.
  :spine
   {:runtime     :babashka                          ; :babashka | :thin | :none
    :store       :edn                               ; :edn | :future (the future store, not selectable yet)
-    :working-dir ".agentic-sdk/.spine/"}
+    :working-dir ".agentic-sdk/state/"}
  :adr        {:store "docs/adr/" :format :nygard}
  :commit     {:categories ["Build" "Tests" "Fix" "Refactor" "Docs" "CI" "Skills"]
               :form      "Category: Imperative subject"}
@@ -333,7 +333,7 @@ A map of two keys.
 | `:ui?` | frontend surface markers (heuristic) |
 | `:spine :runtime` | `bb` on PATH |
 | `:spine :store` | always `:edn` today |
-| `:spine :working-dir` | canonical `.agentic-sdk/.spine/` |
+| `:spine :working-dir` | canonical `.agentic-sdk/state/` |
 | `:lanes` | per-language template, then author refines |
 | `:dimensions-active` | per-stack floor, then author refines |
 

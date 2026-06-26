@@ -10,7 +10,7 @@
 ;; runtime event shape to this normalized input, so the policy lives in one
 ;; place. A command is a "land" if it pushes or merges onto the trunk. A green
 ;; marker is the lanes-green file in the spine working dir (default
-;; .agentic-sdk/.spine, or SPINE_WORK_DIR), or a recorded VERDICT: PASS line
+;; .agentic-sdk/state, or SPINE_WORK_DIR), or a recorded VERDICT: PASS line
 ;; in the transcript.
 
 (require '[cheshire.core :as json]
@@ -28,7 +28,7 @@
   (some #(re-matches % cmd) land-patterns))
 
 (defn green? [{:keys [cwd transcript]}]
-  (let [work-dir (or (System/getenv "SPINE_WORK_DIR") ".agentic-sdk/.spine")
+  (let [work-dir (or (System/getenv "SPINE_WORK_DIR") ".agentic-sdk/state")
         base (if (empty? cwd) "." cwd)]
     (or (.isFile (io/file base work-dir "lanes-green"))
         (when (and transcript (.isFile (io/file transcript)))

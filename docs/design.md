@@ -254,7 +254,7 @@ the sole source mutators in fix loops; verifier is bash-heavy, no judgment.
  :spine
  {:runtime :babashka           ; :babashka | :thin | :none
   :store   :edn                ; :edn today, future store selectable later
-   :working-dir ".agentic-sdk/.spine/"}}
+   :working-dir ".agentic-sdk/state/"}}
  :adr        {:store "docs/adr/" :format :nygard}
  :commit     {:categories ["Build" "Tests" "Fix" "Refactor" "Docs" ...]
               :form "Category: Imperative subject"}
@@ -360,11 +360,12 @@ concrete eval/lane commands, operational gotchas, and a safety denylist.
   skills/                            # snapped-in masters (gitignored)
   agents/                            # snapped-in masters (gitignored)
   hooks/                             # snapped-in master scripts (gitignored)
-  spine/                             # the bb spine: bb.edn plus src/ (gitignored)
+  bb.edn                             # the bb spine entry point (gitignored)
+  src/spine/                         # the spine namespaces (gitignored)
   templates/                         # CLAUDE.md skeleton and gitignore (gitignored)
   runs/<slug>/                       # ephemeral campaign state (gitignored)
     plan.edn · checkpoint.edn · decisions.edn
-  .spine/                            # spine working dir (gitignored), EDN today,
+  state/                             # spine working dir (gitignored), EDN today,
                                      # future store tomorrow
     findings/ triage/ run.edn decisions.edn escalation.edn
   settings.local.json                # per-user (gitignored)

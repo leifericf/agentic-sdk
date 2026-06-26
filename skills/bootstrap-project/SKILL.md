@@ -34,7 +34,7 @@ runtime mapping are documented in `hooks/README.md`.
    (frontend markers). Detect the spine level from `bb` presence on
    PATH: `:babashka` when present, else `:thin` (the level for C, Zig,
    or Elixir without bb), else `:none` when the project opts out.
-   Derive the working dir as `.agentic-sdk/.spine/`.
+   Derive the working dir as `.agentic-sdk/state/`.
 2. **Elicit the gaps.** Ask one batch of at most three questions for
    what the detector cannot decide: the architecture pattern (confirm
    Functional Core / Imperative Shell or name a divergence), the native
@@ -56,7 +56,7 @@ runtime mapping are documented in `hooks/README.md`.
    `.agentic-sdk/artifacts/` (planning, decisions, project, ops, and
    adr per the descriptor's `:adr :store`) and `.agentic-sdk/runs/`
    (ephemeral, gitignored). The spine working dir
-   (`:spine :working-dir`, default `.agentic-sdk/.spine/`) is created
+   (`:spine :working-dir`, default `.agentic-sdk/state/`) is created
    on first spine task run.
 6. **Symlink the Claude Code adapter.** Create `.claude/skills`,
    `.claude/agents`, and `.claude/hooks` as symlinks pointing to

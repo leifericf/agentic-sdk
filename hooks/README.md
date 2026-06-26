@@ -67,11 +67,10 @@ Gates land on a green lane run recorded this session.
   land-shaped: `git push`, `jj git push`, `jj bookmark move main` or
   `jj bookmark set main`, and `git merge`.
 - **Action:** looks for a green marker.
-- **Deny condition:** no marker found. A marker is
-  `$SPINE_WORK_DIR/lanes-green` (default `.spine/lanes-green`), the
-  per-repo working dir's `lanes-green` (for example
-  `.<repo-name>/lanes-green`), or a recorded `VERDICT: PASS` line in the
-  session transcript. The verifier writes the marker after a green
+- **Deny condition:** no marker found. A marker is the spine working
+  dir's `lanes-green` file (`$SPINE_WORK_DIR/lanes-green`, default
+  `.agentic-sdk/state/lanes-green`), or a recorded `VERDICT: PASS` line
+  in the session transcript. The verifier writes the marker after a green
   pre-land run.
 
 ## Claude Code wiring

@@ -37,7 +37,7 @@
     (contains? #{"md" "mdx" "txt"} ext)))
 
 (defn- skip-dir? [parts]
-  (some #(#{".git" ".jj" ".spine" ".opencode" "node_modules" "target" "_build"
+  (some #(#{".git" ".jj" "state" ".opencode" "node_modules" "target" "_build"
             ".build"} (str %)) parts))
 
 (defn- default-files

@@ -29,7 +29,7 @@ is_land () {
 
 is_land "$CMD" || exit 0
 
-WORK_DIR="${SPINE_WORK_DIR:-.agentic-sdk/.spine}"
+WORK_DIR="${SPINE_WORK_DIR:-.agentic-sdk/state}"
 TRANSCRIPT=$(printf '%s' "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null) || true
 
 green () {

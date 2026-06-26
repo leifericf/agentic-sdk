@@ -80,7 +80,7 @@ VERDICT: PASS|FAIL
 When the run includes the `:pre-land` tier and the verdict is `PASS`, write
 the green marker the `require-tests-before-land` hook arms on: an empty file
 named `lanes-green` in the spine working dir (the descriptor's
-`:spine :working-dir`, or the default `.agentic-sdk/.spine`). A `FAIL` on the
+`:spine :working-dir`, or the default `.agentic-sdk/state`). A `FAIL` on the
 `:pre-land` tier removes any existing marker; a run that does not include
 `:pre-land` leaves it untouched.
 

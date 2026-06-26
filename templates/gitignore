@@ -20,7 +20,7 @@
 .agentic-sdk/spine/
 .agentic-sdk/templates/
 .agentic-sdk/runs/
-.agentic-sdk/.spine/
+.agentic-sdk/state/
 .agentic-sdk/settings.local.json
 
 # .claude/ is the thin Claude Code adapter. The skills, agents, and

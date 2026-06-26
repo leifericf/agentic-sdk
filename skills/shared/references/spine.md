@@ -30,16 +30,16 @@ Seven tasks. Each entry fixes: the **invocation** (name and arguments), what it
 
 Arguments use `[ROOT]` for the project root, defaulting to `.`. Paths inside the
 working dir are relative to `:spine :working-dir` (shown here as
-`.agentic-sdk/.spine/`).
+`.agentic-sdk/state/`).
 
 ### `triage`
 
 - **invocation:** `triage [ROOT]`.
-- **reads:** every `.agentic-sdk/.spine/findings/*.edn` (each a finding map or a vector of
+- **reads:** every `.agentic-sdk/state/findings/*.edn` (each a finding map or a vector of
   finding maps, sorted by filename for deterministic order);
-  `.agentic-sdk/.spine/protected-idioms.edn` (a vector of idiom strings) when present.
-- **writes:** `.agentic-sdk/.spine/triage/punch-list.edn` and
-  `.agentic-sdk/.spine/triage/punch-list.md`.
+  `.agentic-sdk/state/protected-idioms.edn` (a vector of idiom strings) when present.
+- **writes:** `.agentic-sdk/state/triage/punch-list.edn` and
+  `.agentic-sdk/state/triage/punch-list.md`.
 - **invariant:** dedupe on `[file evidence rule]`, drop rule-less opinions (they
   become queries), drop findings whose evidence contains a protected idiom, order
   by editing level then severity then file order, renumber as `FINDING-1`,
@@ -59,7 +59,7 @@ triage normalizes those to `:high`/`:medium`/`:low` before ordering.
 - **invocation:** `integrate [ROOT]`. Opts (passed by the orchestrator, not on
   the command line): `:working-branch`, `:prefix`, `:delete-branches?`.
 - **reads:** the working branch (default the current HEAD); every fix branch
-  under the prefix (default `.agentic-sdk/.spine/fix/`),
+  under the prefix (default `.agentic-sdk/state/fix/`),
   sorted oldest first; the commits ahead of working on each.
 - **writes:** the landed commits cherry-picked onto the working branch; deletes
   the consumed fix branches when `:delete-branches?` is true (the default).
@@ -79,7 +79,7 @@ Resumption state. Three subforms, all under one task name.
   `:campaign`), `:round-cap`
   (default `3`), `:units` (default every unit).
 - **reads:** the plan and the descriptor (the unit list and statuses).
-- **writes:** `.agentic-sdk/.spine/run.edn`.
+- **writes:** `.agentic-sdk/state/run.edn`.
 - **invariant:** seeds a minimal checkpoint: scope, the stage map (every stage
   `:pending`), round `0`, per-unit status, and the sha256 of the gate-arming
   inputs (the plan and the descriptor). Not a state engine; the orchestrator
@@ -88,8 +88,8 @@ Resumption state. Three subforms, all under one task name.
 #### `run status`
 
 - **invocation:** `run status [ROOT]`.
-- **reads:** `.agentic-sdk/.spine/run.edn`, the plan,
-  `.agentic-sdk/.spine/escalation.edn`,
+- **reads:** `.agentic-sdk/state/run.edn`, the plan,
+  `.agentic-sdk/state/escalation.edn`,
   and the current hash of the gate-arming inputs.
 - **writes:** nothing. Prints the directive map.
 - **invariant:** compute the single next directive (run the first pending stage,
@@ -101,8 +101,8 @@ Resumption state. Three subforms, all under one task name.
 #### `run advance`
 
 - **invocation:** `run advance [ROOT] [EDN]`. The EDN is a partial update map.
-- **reads:** `.agentic-sdk/.spine/run.edn`.
-- **writes:** `.agentic-sdk/.spine/run.edn`, deep-merged. Maps merge one level (so
+- **reads:** `.agentic-sdk/state/run.edn`.
+- **writes:** `.agentic-sdk/state/run.edn`, deep-merged. Maps merge one level (so
   `{:stages {:lint :done}}` updates only that stage); other values replace.
 - **invariant:** the orchestrator advances the checkpoint after each phase and
   reads `status` to learn the next directive, never the transcript.
@@ -115,7 +115,7 @@ usage.
 
 - **invocation:** `compile-rules [ROOT] [STYLES-DIR]`. The styles dir defaults
   to the working dir's `rules/`.
-- **reads:** `.agentic-sdk/.spine/decisions.edn` (banned categories, naming rulings,
+- **reads:** `.agentic-sdk/state/decisions.edn` (banned categories, naming rulings,
   commit categories).
 - **writes:** under `STYLES-DIR`: `lint-rules.edn` (the banned-pattern list as
   rule maps) and `commit-categories.edn` (the allowlist).
@@ -171,13 +171,13 @@ separate; `compile-rules` owns only the project's house rules.
 
 ## Working-directory format
 
-The gitignored `.agentic-sdk/.spine/` dir (path from `:spine :working-dir`,
-default `.agentic-sdk/.spine/`). Every path below is relative to it. The store
+The gitignored `.agentic-sdk/state/` dir (path from `:spine :working-dir`,
+default `.agentic-sdk/state/`). Every path below is relative to it. The store
 is EDN today, a future immutable-fact store tomorrow; the path layout and the
 EDN shapes are the contract the future store schema must preserve.
 
 ```
-.agentic-sdk/.spine/
+.agentic-sdk/state/
   findings/             ; one .edn per reviewer/lint finding batch (triage consumes)
   triage/
     punch-list.edn      ; the ordered, deduped, numbered findings (triage writes)

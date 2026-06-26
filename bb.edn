@@ -3,7 +3,7 @@
  ;; Deterministic spine for the agentic-sdk toolkit. Ported and generalized
  ;; from a prior prose-production system's Babashka spine. Babashka tasks
  ;; own the clerical work; agents write EDN to a working dir (default
- ;; .agentic-sdk/.spine/ under the target root); tasks fold deterministically; collisions
+ ;; .agentic-sdk/state/ under the target root); tasks fold deterministically; collisions
  ;; escalate, never guess; code never parses its own rendered output.
  ;; Namespaces live under spine. The software task set is triage, integrate,
  ;; run, compile-rules, lint, opencode-sync, opencode-check.
