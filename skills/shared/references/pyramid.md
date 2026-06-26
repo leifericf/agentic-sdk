@@ -11,8 +11,8 @@ end-to-end set covers full verticals.
 
 Where an input space is enumerable, enumerate it as data and drive
 every case through the pipeline. Each case is a real input a user or
-caller could produce. The four engines below are how a surface is
-proven, not sampled.
+caller could produce. The four engines below prove a surface, not
+sample it.
 
 ### 1. Bounded-exhaustive structural matrix
 
@@ -131,7 +131,7 @@ The resources whose balance the lane proves, by surface:
 - A session-scoped resource created on open, freed on close.
 
 A non-zero counter after a sequence is a leak, not a tolerance
-question. The leak lane uses exact integer equality with zero. A test
+question. The lane uses exact integer equality with zero. A test
 using the system's leak-checking allocator (or equivalent) that
 reports a leak fails the test.
 
@@ -181,11 +181,11 @@ scenarios.
 | Shell (persistence, platform, app, scripting) | Integration and lifecycle, model-based stateful sequences, history assertions where a history-bearing store applies. Allowlisted for coverage. |
 | Full vertical | End-to-end over the fixture set. Fewest tests; the slowest; the behavior unit and property tests cannot reach. |
 
-The boundary fuzz tier deserves its own note: the language-to-native
+The boundary fuzz tier earns its own note: the language-to-native
 edge is where malformed input crashes or corrupts state. It gets
 dedicated fuzz, random and adversarial inputs to the native functions
 (malformed bytes, huge buffers, edge-case results, concurrent calls),
-with no mocks. The most subtle bugs live here, so it sits just below
+no mocks. The most subtle bugs live here, so it sits just below
 integration in the pyramid, above negative-space enumeration.
 
 ## Per-change mapping

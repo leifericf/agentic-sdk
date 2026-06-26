@@ -1,8 +1,8 @@
 # Architecture: Functional Core / Imperative Shell
 
-This is the house architecture doctrine. Every `write-<lang>` recipe cites it
-instead of restating the shape. It owns the WHAT: how the code is factored.
-The HOW work flows across that shape, and the order it lands in, live in
+House architecture doctrine. Every `write-<lang>` recipe cites it instead of
+restating the shape. It owns the WHAT: how the code is factored. The HOW work
+flows across that shape, and the order it lands in, live in
 `orchestration.md` (dispatch, fan-out, escalation) and `worktree-model.md`
 (topology, integration order, conflict law).
 

@@ -1,8 +1,8 @@
 # Review model
 
-This is the review doctrine. It owns the HOW we judge code and prose. The
-WHAT we are reviewing, the architecture shape, lives in `architecture.md`.
-The fan-out, escalation, and dispatch mechanics live in `orchestration.md`.
+Review doctrine. It owns the HOW we judge code and prose. The WHAT under
+review, the architecture shape, lives in `architecture.md`. Fan-out,
+escalation, and dispatch mechanics live in `orchestration.md`.
 
 ## 1. One dimension per reviewer
 
@@ -41,11 +41,10 @@ level. A project's `:dimensions-active` selects the subset.
 | `check-design` | design language, view-spec cleanliness | UI projects only |
 | `check-clarity` | reader experience, jargon, pacing | prose and docs only |
 
-The mechanism, proven on memory-unsafe language projects that swap
-`check-memory` in, is that the reviewer agent's dimension allowlist is the
-floor per module type and the descriptor tunes it. A C/Zig project
-activates `:memory`; a UI project activates `:design`; a library project
-may run `:style` alone.
+The reviewer agent's dimension allowlist is the floor per module type and
+the descriptor tunes it, proven on memory-unsafe language projects that
+swap `check-memory` in. A C/Zig project activates `:memory`; a UI project
+activates `:design`; a library project may run `:style` alone.
 
 ## 3. The level discipline (software)
 
@@ -129,13 +128,13 @@ delivery.
 
 Low and style-only findings do not buy a third round. They become forward
 tasks: a row in the backlog, addressed in a later phase, not a reason to
-extend this one. The round cap exists to keep phases finishing.
+extend this one.
 
 ## 7. The tool split as a review concern
 
 The tool split (reviewers read-only, editor the sole mutator, verifier
-bash-heavy) is laid out in `orchestration.md`. Restated here because it is
-what makes the level discipline enforceable.
+bash-heavy) is in `orchestration.md`. Restated here because it makes the
+level discipline enforceable.
 
 - **The reviewer is read-only.** No Edit, no Bash, no Write. A reviewer that
   can edit is a reviewer that will edit, and an edit during review is a

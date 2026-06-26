@@ -1,16 +1,15 @@
 # Project descriptor: `.agentic-sdk/project.edn`
 
-Status: **Authoritative schema.** The descriptor is the single tuning valve for
-a project. Recipes read it to pick a language recipe; the spine reads it to pick
-a runtime and a store; hooks read it to know which policies to arm; orchestrators
-read it to know which lanes to run and which dimensions to fan out. Nothing
-downstream hardcodes a stack. `bootstrap-project` writes it once; the `add-*`
-meta-skills amend it.
+Status: **Authoritative schema.** The descriptor is the single tuning valve for a
+project. Recipes read it to pick a language recipe; the spine reads it to pick a
+runtime and a store; hooks read it to arm policies; orchestrators read it to know
+which lanes to run and which dimensions to fan out. Nothing downstream hardcodes
+a stack. `bootstrap-project` writes it once; the `add-*` meta-skills amend it.
 
 The file lives at `.agentic-sdk/project.edn`, committed (not gitignored). EDN, a
 single map, no code execution. Every field has a default, so a minimal descriptor
-is `{}`. Every field is optional in the sense that the system degrades to a sane
-default, but a production project states the ones that matter.
+is `{}`. Every field is optional in that the system degrades to a sane default,
+but a production project states the ones that matter.
 
 Each field below carries: **type**, allowed **values**, **default**, what it
 **configures**, who **reads** it (skill, agent, hook, or spine task), and its
@@ -352,7 +351,6 @@ detector cannot decide:
 
 ## Closing note
 
-The descriptor is the single tuning valve. Recipes and the spine read it;
-nothing hardcodes a stack. A field change here is the only place a project
+The single tuning valve. A field change here is the only place a project
 retunes the system: add a language, drop a dimension, arm a hook, downgrade the
 spine. Every `add-*` meta-skill amends this file and only this file.

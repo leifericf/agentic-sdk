@@ -1,9 +1,9 @@
 # Worktree model
 
-This is the topology, ordering, and conflict law for parallel writer
-and editor agents in `implement-change` and `audit-code`. Most runs do
-not need it: read the "When to inline" section and use inline mode
-unless worktree mode clearly earns its complexity.
+Topology, ordering, and conflict law for parallel writer and editor
+agents in `implement-change` and `audit-code`. Most runs skip it: read
+"When to inline" and use inline mode unless worktree mode earns its
+complexity.
 
 ## Topology
 
@@ -51,10 +51,10 @@ the maintainer.
 - Two writers in different modules do not conflict (that is the point
   of the module-shard split).
 - Two writers in the same module MUST be serialized (dispatch in
-  sequence, not in parallel). If you find yourself wanting two writers
-  in the same module, your units were not split by module.
+  sequence, not parallel). Wanting two writers in the same module
+  means the units were not split by module.
 - A leaf module with zero dependencies on other modules is a special
-  case: any change to it can land first and in parallel with any other
+  case: any change to it can land first and parallel to any other
   module's work.
 - Editors in a review round never conflict with each other on source
   (they edit different modules), but they may conflict on test files
@@ -93,14 +93,13 @@ Worktree mode dispatch:
 
 Where the runtime supports it, the orchestrator dispatches the agent
 with workspace isolation, and the runtime gives that subagent its own
-workspace on the stack head automatically. The orchestrator does not
-hand-run workspace creation in the common path. The agent commits its
-work in that workspace and returns its result (its
-`LANDED <change-id>` line and any `CHANGELOG:` lines) in its final
-message; the orchestrator then folds the change into the stack (amend
-into the task commit) or restacks it onto the stack head.
-Alternatively, run the writer inline in the current change when a
-separate workspace is not worth it.
+workspace on the stack head. The orchestrator does not create
+workspaces by hand in the common path. The agent commits in that
+workspace and returns its result (its `LANDED <change-id>` line and
+any `CHANGELOG:` lines) in its final message; the orchestrator folds
+the change into the stack (amend into the task commit) or restacks it
+onto the stack head. Run the writer inline in the current change when
+a separate workspace is not worth it.
 
 The dispatch prompt carries the unit's complete spec and module brief,
 so the writer never needs this session's context; the return is the
@@ -108,13 +107,13 @@ hand-off back.
 
 ## Resume after crash
 
-The hand-off between agents is return values held in the
-orchestrator's context, never files. The only optional disk state is a
-minimal, gitignored resume checkpoint under `.agentic-sdk/runs/<slug>/`:
-what is done (units landed, rounds completed, findings still open), so
-a crash or token-exhausted run can pick up. It is never committed and
-never the hand-off medium; a clean run can delete it. Do not create
-findings, proposals, or context subdirs.
+The hand-off between agents is return values held in the orchestrator's
+context, never files. The only optional disk state is a minimal,
+gitignored resume checkpoint under `.agentic-sdk/runs/<slug>/`: what is
+done (units landed, rounds completed, findings still open), so a crash
+or token-exhausted run can pick up. It is never committed, never the
+hand-off medium; a clean run can delete it. Do not create findings,
+proposals, or context subdirs.
 
 On resume:
 
