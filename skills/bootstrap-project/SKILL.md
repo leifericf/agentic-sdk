@@ -50,8 +50,7 @@ runtime mapping are documented in `hooks/README.md`.
    (the shared doctrine verbatim; the write-<lang> recipes filtered to
    the `:languages` subset), `agents/`, `hooks/` (filtered to `:hooks`),
    the spine (`bb.edn` plus `src/spine/`), and `templates/` into
-   `.agentic-sdk/`. Preserve the executable bit on hook scripts. All
-   re-installable by re-running this step.
+   `.agentic-sdk/`. All re-installable by re-running this step.
 5. **Scaffold the artifact and run-state directories.** Create
    `.agentic-sdk/artifacts/` (planning, decisions, project, ops, and
    adr per the descriptor's `:adr :store`) and `.agentic-sdk/runs/`
