@@ -6,16 +6,13 @@ user-invocable: false
 
 # assess-risk
 
-Pre-deployment risk assessment for a release or change. Produce a concrete
-go/no-go framework with rollout, monitoring, and rollback plans. The
-release-risk recipe under ship, not a planning dimension, despite the name.
+Pre-deployment risk assessment for a release or change. Ship's release-risk
+recipe, not a planning dimension, despite the name.
 
 ## Procedure
 
 1. Read the dispatched inputs: a PR or diff summary, release notes or change
-   description, feature-flag or config change, and any prior incidents or SLOs
-   for the area. Start from a plain-language description of the change and the
-   user-visible behavior it affects.
+   description, feature-flag or config change, and prior incidents or SLOs.
 2. Gather context, at most three questions, preferring pick-one (rollout
    strategy, blast radius) and binary (confirm non-negotiables).
 3. Summarize the change: what changes, what systems are touched, any

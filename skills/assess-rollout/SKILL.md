@@ -6,15 +6,15 @@ user-invocable: false
 
 # assess-rollout
 
-Define the rollout strategy and verification for a feature. Declarative and
+Define the rollout strategy and verification. Declarative and
 stack-agnostic; match strategy to risk; verify from the user perspective.
 
 ## Procedure
 
-1. Read the dispatched inputs: the Gherkin specification, the feature scope,
-   and the technical context (deployment environment, risk level).
+1. Read the dispatched inputs: the Gherkin spec, feature scope, and
+   technical context (deployment environment, risk level).
 2. Determine applicability. Required when the feature deploys to real users,
-   changes core flows, or has significant blast radius. N/A when it is purely
+   changes core flows, or has significant blast radius. N/A when purely
    internal or tooling, has no production deployment, or is plumbing with no
    user impact.
 3. If Required, choose a strategy (feature flag for high-risk or toggleable

@@ -12,15 +12,15 @@ secrets or PII.
 
 ## Procedure
 
-1. Read the dispatched inputs: the Gherkin specification, the feature scope,
-   and the technical context (systems touched, data flows).
+1. Read the dispatched inputs: the Gherkin spec, feature scope, and
+   technical context (systems touched, data flows).
 2. Determine applicability. Required when the feature touches money or
-   payments, authn or authz or access control, permissions or account state,
+   payments, authn, authz, or access control, permissions or account state,
    irreversible actions, PII or sensitive data, data-loss or corruption risk,
-   integration boundaries, or scheduled and async flows. N/A when it is purely
+   integration boundaries, or scheduled and async flows. N/A when purely
    visual, a no-behavior-change refactor, docs, or low-risk internal tooling.
 3. If Required, define three to six user-visible failure modes and how each
-   should degrade. Define structured log events at boundaries (name, level,
+   degrades. Define structured log events at boundaries (name, level,
    key fields; confirm no secrets or PII). Define at least one signal per
    critical flow (counter, gauge, or histogram) with healthy and broken
    thresholds.

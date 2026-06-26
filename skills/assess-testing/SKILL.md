@@ -6,13 +6,13 @@ user-invocable: false
 
 # assess-testing
 
-Define the testing strategy (Tier 0/1/2) for a feature. Declarative (what to
-test, not which framework); fast feedback first; right-sized, not maximal.
+Define the testing strategy (Tier 0/1/2). Declarative (what to test, not
+which framework); fast feedback first; right-sized, not maximal.
 
 ## Procedure
 
-1. Read the dispatched inputs: the Gherkin specification, the feature scope,
-   and the technical context (architecture, integrations, data flows).
+1. Read the dispatched inputs: the Gherkin spec, feature scope, and
+   technical context (architecture, integrations, data flows).
 2. Tier 0 (required for all user-visible changes): unit tests for core logic,
    deterministic fakes or mocks for dependencies, contract tests at API
    boundaries; fast and isolated, seconds.

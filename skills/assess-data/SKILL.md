@@ -6,17 +6,16 @@ user-invocable: false
 
 # assess-data
 
-Plan data migrations, backfills, and rollback strategy for a feature.
-Declarative and stack-agnostic; prefer reversible changes; be explicit when a
-rollback is fragile.
+Plan data migrations, backfills, and rollback strategy. Declarative and
+stack-agnostic; prefer reversible changes; flag fragile rollbacks.
 
 ## Procedure
 
-1. Read the dispatched inputs: the Gherkin specification, the feature scope,
-   and the technical context (current data model, store type).
+1. Read the dispatched inputs: the Gherkin spec, feature scope, and
+   technical context (data model, store type).
 2. Determine applicability. Required when the feature adds, modifies, or
    removes columns or tables, changes data formats, requires backfilling, or
-   introduces new entities or relationships. N/A when it is purely visual,
+   introduces new entities or relationships. N/A when purely visual,
    behavior-only logic with no data impact, or read-only over existing data.
 3. If Required, name the migration type (schema-only, backfill,
    expand/contract) and why. Define the up migration (DDL or DML, breaking
