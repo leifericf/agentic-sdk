@@ -169,11 +169,9 @@ on the data you produce. Hold each principle as you author a view-spec:
   interaction state and passes it in; the widget carries the focus flag
   and the renderer draws the indicator.
 
-Apple's Human Interface Guidelines (clarity, deference, depth) and
-Material Design 3 (elevation, meaningful motion, accessible contrast)
-are loose inspiration for the level of polish and discipline, not a
-visual template. Borrow the discipline and express it as the project's
-own language.
+Apple's HIG and Material Design 3 are loose inspiration for the level
+of polish and discipline, not a visual template. Borrow the discipline;
+express it as the project's own language.
 
 ## Always
 
@@ -222,14 +220,6 @@ surface; write-prose owns the prose standard.
 
 ## Comments and public text
 
-Terse and sparse; comment the why, never the what. Comment only what the
-code cannot say: an invariant the layout relies on, why a branch is
-unreachable, a non-obvious diff or rendering decision. No decorative
-banners, no commented-out code, no change narration. A comment block
-longer than a few lines, or comments outweighing the code they sit in,
-is itself a finding.
-
-Public-facing text rule: never describe code as hand-written or
-hand-rolled in docs, docstrings, or changelog lines, and never carry an
-internal process identifier (a phase, task, slice, or run label) into a
-comment or commit. See write-prose.
+Comments and public text follow write-prose: comment the why, never the
+what; no banners, no commented-out code, no change narration; never
+"hand-written"; no process id in a comment or commit.

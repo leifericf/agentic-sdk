@@ -6,9 +6,9 @@ user-invocable: false
 
 # pick-feature
 
-Select the best next feature to implement from the backlog, and triage the
-inbox as part of selection. Optimize for the smallest user-visible value with
-low risk and clear acceptance criteria.
+Select the best next feature from the backlog and triage the inbox as part of
+selection. Optimize for the smallest user-visible value with low risk and
+clear acceptance criteria.
 
 ## Procedure
 
@@ -18,11 +18,11 @@ low risk and clear acceptance criteria.
 2. Surface and resolve any `[Blocking]` item affecting backlog selection
    before proceeding.
 3. Triage the inbox: promote zero to two clearly apt items into `Now / Next`,
-   move clearly lower-priority items to `Later`, and leave vague items.
-   Rewrite unclear titles into plain user-facing language. Keep `Now / Next`
-   short and ordered; `In product (shipped)` stays plain capability names.
+   move clearly lower-priority items to `Later`, leave vague items. Rewrite
+   unclear titles into plain user-facing language. Keep `Now / Next` short
+   and ordered; `In product (shipped)` stays plain capability names.
 4. Ask a short batch of prioritization questions, at most three, tailored to
-   the actual backlog items: the outcome to optimize for, sequencing and
+   the backlog items: the outcome to optimize for, sequencing and
    prerequisite constraints (not timelines), and the preferred shape of the
    first increment (thin vertical slice versus foundation-first). Where you
    can derive three to five mutually exclusive options from the backlog,

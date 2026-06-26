@@ -6,18 +6,18 @@ user-invocable: false
 
 # plan-feature
 
-Turn a selected backlog item into a dependency-ordered implementation plan with
-a Gherkin acceptance gate and parallel quality-dimension assessments. Runs in
-two modes: plan (default) and review (revise an existing plan).
+Turn a selected backlog item into a dependency-ordered plan with a Gherkin
+acceptance gate and parallel quality-dimension assessments. Two modes: plan
+(default) and review (revise an existing plan).
 
 ## Procedure
 
 1. Read `product-backlog.md`, `product-requirements.md`, `decision-log.md`,
    and `open-questions.md`. In review mode, read the existing
    `.agentic-sdk/artifacts/planning/tasks/plan-<slug>.md` instead and treat its
-   Functional Snapshot and Gherkin as the source of truth. Surface and resolve
+   Functional Snapshot and Gherkin as source of truth. Surface and resolve
    any `[Blocking]` item affecting this feature first.
-2. Functional elicitation gate. Read the backlog item and the relevant
+2. Functional elicitation gate. Read the backlog item and relevant
    requirements; fold in resolved open-question answers. If requirements are
    missing or ambiguous, ask in this order, at most two batches of three
    questions: problem and intent; success criteria (observable); user outcomes
@@ -30,7 +30,7 @@ two modes: plan (default) and review (revise an existing plan).
    cases, the business rules, the integrations and their failure behavior, the
    MVI, and what is deferred. If any blocker remains, add a `[Blocking]` open
    question and return `blocked`.
-3. Write the Gherkin specification. Treat it as the source of truth for
+3. Write the Gherkin specification. Treat it as source of truth for
    feature-level acceptance: business language and user-observable outcomes,
    not UI mechanics. Three to seven scenarios for the MVI, deterministic, each
    asserting externally visible state. Include at least one happy path, one

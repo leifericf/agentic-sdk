@@ -1,15 +1,15 @@
 ---
 name: record-decision
-description: Write an ADR when an architecture decision is made, in conversation or when work settles a real choice between alternatives.
+description: Write an ADR when an architecture decision is made or work settles a real choice between alternatives
 user-invocable: false
 ---
 
 # record-decision
 
 Architecture decisions are ADRs, written when the decision happens, not
-reconstructed later. The store and format come from the descriptor
-(`:adr`; default `docs/adr/`, nygard). The fields and voice are fixed
-in the "Decision records" section of `references/prose-style.md`.
+reconstructed later. Store and format come from the descriptor (`:adr`;
+default `docs/adr/`, nygard). Fields and voice are fixed in the "Decision
+records" section of `references/prose-style.md`.
 
 ## Procedure
 
