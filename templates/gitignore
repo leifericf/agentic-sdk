@@ -17,7 +17,8 @@
 .agentic-sdk/skills/
 .agentic-sdk/agents/
 .agentic-sdk/hooks/
-.agentic-sdk/spine/
+.agentic-sdk/src/
+.agentic-sdk/bb.edn
 .agentic-sdk/templates/
 .agentic-sdk/runs/
 .agentic-sdk/state/

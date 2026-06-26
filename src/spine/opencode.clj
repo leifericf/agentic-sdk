@@ -19,12 +19,16 @@
 
 (defn- masters-dir
   "First existing masters dir: .agentic-sdk/agents (deployed), .claude/agents
-  (legacy symlink), then agents (this repo)."
+  (legacy symlink), then agents (this repo). Canonicalizes the path so glob
+  descends when the masters are a symlink (a dev install links them)."
   [root]
   (let [candidates [(fs/path root ".agentic-sdk" "agents")
                     (fs/path root ".claude" "agents")
                     (fs/path root "agents")]]
-    (first (filter #(fs/exists? %) candidates))))
+    (->> candidates
+         (filter #(fs/exists? %))
+         first
+         (#(some-> % fs/canonicalize str)))))
 
 (defn- derived-dir [root] (fs/path root ".opencode" "agent"))
 

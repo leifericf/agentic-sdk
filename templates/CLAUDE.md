@@ -18,7 +18,7 @@ place; the project owns it after bootstrap.
   native edges stay at the boundary.
 - **Policy lives in hooks, not in prompts.** The armed hooks in
   `.agentic-sdk/hooks/` enforce format-on-write, secret denial, the green
-  lane gate before land, and (when armed) MCP-first reads. Claude Code
+  lane gate before land. Claude Code
   resolves them through the `.claude/hooks` symlink. Do not work
   around a hook denial; fix the underlying condition.
 - **One source of truth for the run.** The orchestrator reads
