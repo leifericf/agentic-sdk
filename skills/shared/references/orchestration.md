@@ -2,22 +2,19 @@
 
 How an entry-point skill (`implement-change`, `audit-code`,
 `advance-plan`) fans work across sub-agents and keeps its own context
-lean. The project router points here; this file holds the detail. The
-companion `worktree-model.md` covers the change-graph topology and
-conflict law. `review-model.md` covers the review-round mechanics, the
-level discipline, and the finding shape.
+lean. `worktree-model.md` covers the change-graph topology and conflict
+law; `review-model.md` the round mechanics, level discipline, and
+finding shape.
 
 ## Context is the budget
 
 An agent cannot compact its own context. Every line an orchestrator
 reads stays until the run ends, so a bloated orchestrator runs out of
-room and stops. The discipline is absolute: an orchestrator reads
-only the one-line returns of the sub-agents it dispatches, never a
-diff, a file body, a findings dump, or a sub-agent's reasoning. The
-heavy reading and writing happens in sub-agent contexts that are
-thrown away the moment they return their line. This is what lets a
-run go long and unattended without exhausting the token budget or the
-context window. Push the work down; keep only summaries up.
+room and stops. The discipline is absolute: read only the one-line
+returns of the sub-agents you dispatch, never a diff, a file body, a
+findings dump, or a sub-agent's reasoning. The heavy reading and
+writing happens in sub-agent contexts, thrown away the moment they
+return their line. Push the work down; keep only summaries up.
 
 ## Default to lean
 
@@ -30,24 +27,21 @@ slice, not a language layer: a change crossing a language boundary
 round-trip test, and its resource-leak assertion) is one unit owned
 end to end by one writer. Slice by feature, never by language.
 
-The lean default has teeth at the review step too. A per-phase change
-runs ONE review round by default. A second round is earned, not
-automatic, when EITHER: a high- or medium-severity correctness or
-security finding remains OPEN after the round's editor waves; or the
-round fixed such a finding by a non-trivial in-round change to
-untrusted-input handling, a security boundary, or a compiler or
-codegen path, because that fix is itself unreviewed and the
-highest-risk seams do not get one unreviewed pass. A finding merely
-found and cleanly fixed in-round, on a low-risk seam, does NOT by
-itself earn a second round. (The phase touching three or more
-modules, a language boundary, or untrusted input still earns one.)
-Two rounds is the hard cap for per-phase change work. A round that
-would raise only low-severity or style findings does not justify
-another round; record those as forward tasks in the decisions log and
-pick them up later. (A full audit under `audit-code` is the
-exception: it keeps running while a round still finds high- or
-medium-severity findings, since finding everything is the point. See
-that skill, and `review-model.md` for the round cap.)
+The lean default has teeth at review. A per-phase change runs ONE
+review round by default. A second round is earned, not automatic, when
+EITHER a high- or medium-severity correctness or security finding
+remains OPEN after the editor waves, or the round fixed such a finding
+by a non-trivial in-round change to untrusted-input handling, a
+security boundary, or a compiler or codegen path: that fix is itself
+unreviewed, and the highest-risk seams do not get one unreviewed pass.
+A finding merely found and cleanly fixed in-round on a low-risk seam
+does NOT earn a second round. The phase touching three or more modules,
+a language boundary, or untrusted input still earns one. Two rounds is
+the hard cap. A round that would raise only low-severity or style
+findings does not justify another; record those as forward tasks in the
+decisions log. A full audit under `audit-code` is the exception: it
+keeps running while a round still finds high- or medium-severity
+findings. See `review-model.md` for the round cap.
 
 ## Forward-only: a DAG, not a loop
 
@@ -290,12 +284,10 @@ cleanly can delete it.
 resume.** When a run resumes after an interruption (a crash, a token
 ceiling), the working-copy commit it left mid-task carries no proof
 it passed verify and review: the checkpoint records intent, not a
-clean result. Never mark its phase done from the draft alone. Re-run
-the verify lanes and review it critically before trusting it. This
-has caught a real HIGH correctness defect that surfaced only because
-the resume re-verified instead of assuming the phase landed. An EMPTY
-described commit left by an interruption is filled forward with the
-genuinely-uncovered half of its criterion (confirm the gap is real
+clean result. Never mark its phase done from the draft alone. Re-run the verify lanes and review it critically before trusting it;
+assuming the phase landed has hidden real HIGH correctness defects. An
+EMPTY described commit left by an interruption is filled forward with
+the genuinely-uncovered half of its criterion (confirm the gap is real
 with a search first), never abandoned (a rewind) and never duplicated
 from coverage that already landed (test bloat).
 
