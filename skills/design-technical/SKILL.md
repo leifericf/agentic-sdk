@@ -24,8 +24,8 @@ languages (C, Zig, Clojure, Elixir).
    integrations and their failure behavior, operational posture, team
    constraints, and repo conventions.
 4. Set project-wide defaults (not per-feature): observability (logging,
-   metrics, tracing) and testing posture (unit, integration, e2e). These are
-   starting points refined per feature.
+   metrics, tracing) and testing posture (unit, integration, e2e). Starting
+   points, refined per feature.
 5. Record decisions in `decision-log.md` with date, decision, rationale,
    tradeoff.
 6. Write `.agentic-sdk/artifacts/planning/technical-design.md` with: Metadata,

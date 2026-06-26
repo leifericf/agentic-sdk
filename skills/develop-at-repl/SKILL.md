@@ -7,26 +7,24 @@ user-invocable: false
 # develop-at-repl
 
 The interactive eval loop is the primary development rhythm, not a
-debugging aside. You write a form, evaluate it, read the value it
-returns, and adjust: data in, data out, no setup ceremony. Batch test
-runs are the exception, reached for at landing boundaries (see "When to
-leave the loop"), not the rhythm of the work.
+debugging aside. Write a form, evaluate it, read the returned value,
+adjust: data in, data out, no setup ceremony. Batch test runs are the
+exception, reached for at landing boundaries (see "When to leave the
+loop"), not the rhythm.
 
-The loop's host depends on the language: nREPL for Clojure, IEx for
-Elixir. C and Zig have no eval loop; their fast inner cycle is a small
-throwaway harness built and run in seconds (see `run-spike` for the
-discipline). The standard for code produced here is the relevant
-`write-<lang>` recipe; the boundary contract is
-`references/architecture.md`; the module layout and dev loop live in
-the descriptor's module map. This skill is the loop those recipes run
-inside.
+The host depends on the language: nREPL for Clojure, IEx for Elixir.
+C and Zig have no eval loop; their fast inner cycle is a small
+throwaway harness built and run in seconds (see `run-spike`). The code
+standard is the relevant `write-<lang>` recipe; the boundary contract
+is `references/architecture.md`; the module layout and dev loop live
+in the descriptor's module map.
 
 ## Connect once
 
-Start the loop's host (nREPL, IEx) and attach the editor's client. One
-long-lived session; you do not restart it per change. The running image
-is the unit of work. Require the namespace you are shaping; reload it
-(`:reload`, or IEx `recompile`, or a fresh harness run) after edits to a
+Start the host (nREPL, IEx) and attach the editor's client. One
+long-lived session; do not restart it per change. The running image is
+the unit of work. Require the namespace you are shaping; reload it
+(`:reload`, IEx `recompile`, or a fresh harness run) after edits to a
 dependency.
 
 If the project has no live host yet (a C or Zig unit, or a Clojure or
@@ -54,14 +52,14 @@ determines the output and the value at the prompt is the whole truth.
 
 ## The scratch surface
 
-Keep the exploration in the source, not in a transient buffer. A
-comment block at the foot of the namespace (Clojure `(comment ...)`,
+Keep exploration in the source, not a transient buffer. A comment block
+at the foot of the namespace (Clojure `(comment ...)`,
 Elixir a `## dev` section, C or Zig a guarded `SELF` main) holds the
 forms you evaluated to shape the code. The block does not load at
-compile time, so it is free to carry half-formed forms; it is a living
-record of how the module is meant to be driven. Keep it honest: prune
-dead forms before landing, leave the ones that document intended use. A
-block that has rotted into noise is a style finding (`check-style`).
+compile time, so it can carry half-formed forms; it is a living record
+of how the module is meant to be driven. Keep it honest: prune dead
+forms before landing, leave the ones that document intended use. A
+block rotted into noise is a style finding (`check-style`).
 
 ## The native edge, live
 
@@ -74,14 +72,14 @@ the native image that produced it.
 
 - **Never hold a handle across a recompile.** Re-evaluating the native
   form, or anything that reloads the library, invalidates every handle
-  it minted. Re-acquire: call the constructor again for a fresh handle,
-  do not reuse the one bound before the recompile.
+   it minted. Re-acquire: call the constructor again for a fresh handle;
+   do not reuse the one bound before the recompile.
 - **Re-acquire after any body change.** Treat a bound handle as dead
   the moment you touch the body that minted it. Bind it fresh, use it,
   free it within the same uninterrupted stretch.
 - **A failed compile keeps the last good definition.** If the edited
-  body does not compile, the host surfaces a structured diagnostic and
-  the previously loaded definition stays live. The loop does not break;
+   body does not compile, the host surfaces a structured diagnostic and
+   the previous definition stays live. The loop does not break;
   read the diagnostic, fix the body, re-evaluate. Do not assume a green
   call means the latest edit compiled; confirm the eval reported
   success.
@@ -117,14 +115,13 @@ native bake stay byte-identical." Run `verify-lanes` when:
 - you are about to land a change (the cheap set: owning tests, format,
   lint, build);
 - you changed a native body and need the bake lane to confirm the
-  content-addressed artifact regenerates as expected;
+  content-addressed artifact regenerates;
 - you touched a public API, the persistence schema, a native routine,
-  or the renderer, each of which has a conditional lane the loop cannot
-  stand in for;
+  or the renderer, each with a conditional lane the loop cannot stand
+  in for;
 - you are landing on `main` (the pre-land set).
 
-Iterate in the loop, verify with the lanes. A green form is necessary,
-not sufficient.
+A green form is necessary, not sufficient.
 
 ## Boundaries
 

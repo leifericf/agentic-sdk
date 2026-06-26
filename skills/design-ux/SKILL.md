@@ -37,8 +37,8 @@ reusable rules. UI only.
 ## Boundaries
 
 Owns interaction and visual guardrails. design-technical owns system
-architecture and the stack; only runs when a user-facing surface exists.
-Reached by plan-system.
+architecture and the stack. Runs only when a user-facing surface
+exists. Reached by plan-system.
 
 ## Return
 

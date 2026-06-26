@@ -6,16 +6,15 @@ disable-model-invocation: true
 
 # add-language
 
-Role: the language meta-skill. Generates a draft write-<lang> recipe
+Role: the language meta-skill. Generate a draft write-<lang> recipe
 from the skeleton for a language outside the curated set (C, Zig,
-Clojure, Elixir), and wires it into the descriptor.
+Clojure, Elixir), and wire it into the descriptor.
 
 ## Prerequisites
 
 `.agentic-sdk/project.edn` exists (run bootstrap-project first). The new
-language is outside the curated four: the curated masters cover C, Zig,
-Clojure, and Elixir. A real project need for the language, not
-speculative.
+language is outside the curated four (C, Zig, Clojure, Elixir). A real
+project need for the language, not speculative.
 
 ## Procedure
 
@@ -62,9 +61,9 @@ against the skeleton, wire into the descriptor, validate.
 Produces one project-local recipe under `.agentic-sdk/skills/`, snapshotted
 and owned by the project. The recipe is a candidate for promotion to a
 toolkit master via incorporate-feedback; promotion is deliberate, never
-automatic. It does not modify the curated four. It amends only the
+automatic. Does not modify the curated four. Amends only the
 descriptor and adds only the one recipe file. Atoms referenced: the
-write-<lang> skeleton (in `docs/design.md` section 6),
+write-<lang> skeleton (`docs/design.md` section 6),
 `skills/shared/references/architecture.md`,
 `skills/shared/references/prose-style.md`, the project descriptor.
 Validation dispatches a writer (loading the new recipe) and a reviewer

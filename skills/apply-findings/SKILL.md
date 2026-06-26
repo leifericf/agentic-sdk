@@ -22,9 +22,9 @@ Per finding:
 2. **Smallest sufficient edit.** Fix exactly the defect. At the
    `:correctness` level do not also rename or refactor; that is the
    factoring wave's job and it makes the diff unreviewable. At
-   `:factoring` or `:style` the finding itself defines the scope.
+   `:factoring` or `:style` the finding defines the scope.
 3. **Stay in bounds.** Your module directory plus its own test
-   namespace. If the real fix lives in another module or in the public
+   namespace. If the real fix lives in another module or the public
    surface (a public API, the native boundary contract in
    `references/architecture.md`), return `needs-cross-module <id>`; do
    not write the tempting local workaround. That is exactly the fix the

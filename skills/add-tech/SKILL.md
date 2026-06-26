@@ -6,9 +6,9 @@ disable-model-invocation: true
 
 # add-tech
 
-Role: the tech meta-skill. Adds a non-language concern the descriptor
-does not cover: a lane entry, a spine task, or a hook policy. Generates
-the matching artifact from its schema and wires it into the descriptor.
+Role: the tech meta-skill. Add a non-language concern the descriptor
+does not cover: a lane entry, a spine task, or a hook policy. Generate
+the matching artifact from its schema and wire it into the descriptor.
 
 ## Prerequisites
 
@@ -69,8 +69,8 @@ kind depends on the gap.
 Produces one project-local artifact (a spine task, a hook template) or
 one descriptor amendment (a lane entry). The artifact is a candidate
 for promotion to a toolkit master via incorporate-feedback; promotion
-is deliberate, never automatic. It does not add a language (that is
-add-language) or a review dimension (that is add-dimension). It amends
+is deliberate, never automatic. Does not add a language (that is
+add-language) or a review dimension (that is add-dimension). Amends
 only the descriptor and adds only the artifact file. Atoms referenced:
 `skills/shared/references/spine.md` for the spine task interface,
 `docs/design.md` section 9 for the hook templates, the project

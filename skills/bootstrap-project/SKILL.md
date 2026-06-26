@@ -6,12 +6,12 @@ disable-model-invocation: true
 
 # bootstrap-project
 
-Role: the one-time setup. Detects the stack, writes
-`.agentic-sdk/project.edn`, snaps the masters (skills, agents, hooks,
-spine, templates) into `.agentic-sdk/`, symlinks the `.claude/` adapter
-over it, generates the `.opencode/` projection, drops the root
-`CLAUDE.md` and project `.gitignore`, and wires the spine adapter and
-the runtime projections.
+Role: the one-time setup. Detect the stack, write
+`.agentic-sdk/project.edn`, snap the masters (skills, agents, hooks,
+spine, templates) into `.agentic-sdk/`, symlink the `.claude/` adapter
+over it, generate the `.opencode/` projection, drop the root
+`CLAUDE.md` and project `.gitignore`, and wire the spine adapter and
+runtime projections.
 
 ## Prerequisites
 
@@ -31,9 +31,9 @@ runtime mapping are documented in `hooks/README.md`.
    `mix.exs` (Elixir), `CMakeLists.txt` or `Makefile` or `*.h`
    alongside `*.c` (C). Detect the VCS (`.jj` resolves to `:jj`, else
    `.git` to `:git`); jj-first is the default. Detect the UI surface
-   (frontend markers). Detect the spine level from `bb` presence on
-   PATH: `:babashka` when present, else `:thin` (the level for C, Zig,
-   or Elixir without bb), else `:none` when the project opts out.
+   (frontend markers). Detect the spine level from `bb` on
+   PATH: `:babashka` when present, else `:thin` (C, Zig, or Elixir
+   without bb), else `:none` when the project opts out.
    Derive the working dir as `.agentic-sdk/state/`.
 2. **Elicit the gaps.** Ask one batch of at most three questions for
    what the detector cannot decide: the architecture pattern (confirm
@@ -94,19 +94,18 @@ runtime mapping are documented in `hooks/README.md`.
 
 ## Boundaries
 
-Run once per project (or after a stack change). It writes only the
-descriptor at `.agentic-sdk/project.edn`, the snapped masters and
-scaffolded directories under `.agentic-sdk/`, the `.claude/` symlinks
-and the `.claude/settings.json` hook block, the root `CLAUDE.md`, the
-project `.gitignore`, the spine wiring, and the runtime projections
-under `.opencode/` and `.opencode/opencode.json`. It does not write
-project code, does not pick a feature, does not plan. It is the one
-setup valve; every later retune goes through the add-* meta-skills,
-which amend the descriptor. Atoms dispatched: the `opencode-sync` and
-`opencode-check` spine tasks for the runtime projections. The hook
-templates in `hooks/`, the CLAUDE.md skeleton in `templates/`, the
-`templates/gitignore` skeleton, and the write-<lang> masters are
-sources this skill copies from.
+Run once per project (or after a stack change). Writes only: the
+descriptor at `.agentic-sdk/project.edn`; the snapped masters and
+scaffolded directories under `.agentic-sdk/`; the `.claude/` symlinks
+and the `.claude/settings.json` hook block; the root `CLAUDE.md`; the
+project `.gitignore`; the spine wiring; and the runtime projections
+under `.opencode/` and `.opencode/opencode.json`. Does not write
+project code, pick a feature, or plan. It is the one setup valve;
+every later retune goes through the add-* meta-skills, which amend the
+descriptor. Atoms dispatched: the `opencode-sync` and `opencode-check`
+spine tasks. Sources copied from: the hook templates in `hooks/`, the
+CLAUDE.md and `gitignore` skeletons in `templates/`, and the
+write-<lang> masters.
 
 ## Return
 

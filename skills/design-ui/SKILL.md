@@ -1,16 +1,16 @@
 ---
 name: design-ui
-description: Recipe for designing a UI surface before it is implemented, the four-layer procedure (intent, information architecture, interaction, presentation) chosen from tokens, and the full set of states. Invoked before write-ui when a new or changed UI surface needs a design.
+description: Design a UI surface before it is implemented, the four-layer procedure (intent, information architecture, interaction, presentation) chosen from tokens, plus the full set of states. Invoked before write-ui when a new or changed UI surface needs a design.
 user-invocable: false
 ---
 
 # design-ui
 
 Design a UI surface before it is built. This recipe produces a design
-spec: the surface's intent, its information architecture, its
-interactions, and its presentation chosen from the tokens. It precedes
-write-ui, which implements the spec. Design first, then implement; do
-not decide the design inside the implementation.
+spec: the surface's intent, information architecture, interactions,
+and presentation chosen from tokens. It precedes write-ui, which
+implements the spec. Design first, then implement; do not decide the
+design inside the implementation.
 
 The design spec is the deliverable. It can be a short doc, a section in
 a feature's notes, or an annotated view-spec sketch. It is data and
@@ -18,8 +18,8 @@ prose, never running code.
 
 Read first:
 
-- the project's design-language reference: the principles, the layered
-  model, the token system, the component template, state design, and the
+- the project's design-language reference: principles, the layered
+  model, the token system, the component template, state design, the
   design-review checklist.
 - the project's view-spec reference: the widget vocabulary the design
   composes.
@@ -42,9 +42,7 @@ Work the four layers in order. Never start with visuals.
    view, panel).
 3. **Interaction.** For each thing the user does, name the intent, the
    action, and the binding: the action keyword and the click or key that
-   triggers it. Cover selection, navigation, and editing. Keep these
-   familiar; the novelty budget is spent on presentation, not on how to
-   select.
+   triggers it. Cover selection, navigation, and editing.
 4. **Presentation.** Only now choose the visuals, all from tokens:
    - The widgets from the vocabulary; reach for an existing type before
      proposing a new one.

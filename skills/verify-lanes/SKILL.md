@@ -35,8 +35,8 @@ repro command, then stop the tier (unless dispatched with "run all").
 
 ## Keep the cheap tier fast
 
-The cheap tier runs many times per slice; its wall-clock is paid over
-and over, so it carries only what must gate each landing, never the
+The cheap tier runs many times per slice; its wall-clock is paid
+repeatedly, so it carries only what must gate each landing, never the
 expensive checks a wave or pre-land boundary can carry once.
 
 - **Owned tests, not the full suite, in the cheap tier.** Scope the test

@@ -6,9 +6,9 @@ disable-model-invocation: true
 
 # add-dimension
 
-Role: the dimension meta-skill. Generates a draft check-<dimension>
+Role: the dimension meta-skill. Generate a draft check-<dimension>
 recipe from the dimension shape for a bug class the active dimensions
-miss, and wires it into the descriptor.
+miss, and wire it into the descriptor.
 
 ## Prerequisites
 
@@ -61,11 +61,11 @@ against the skeleton, wire into the descriptor, validate.
 Produces one project-local recipe under `.agentic-sdk/skills/`, snapshotted
 and owned by the project. The recipe is a candidate for promotion to a
 toolkit master via incorporate-feedback; promotion is deliberate, never
-automatic. It does not modify the curated catalog. It amends only the
+automatic. Does not modify the curated catalog. Amends only the
 descriptor and adds only the one recipe file. `check-` is reserved for
 review dimensions only (model judgment, read-only reviewer);
 deterministic gates are verify-lanes, never check-. Atoms referenced:
-the dimension shape (in `docs/design.md` section 11),
+the dimension shape (`docs/design.md` section 11),
 `skills/shared/references/review-model.md` for the finding shape, the
 project descriptor. Validation dispatches a reviewer (loading the new
 recipe).

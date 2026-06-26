@@ -35,8 +35,8 @@ profile every session reads.
    `:applies-to` reflects the project's surfaces: the four languages;
    `:native-edge` for any C ABI, NIF, or foreign-function boundary;
    `:persistence` for the shell's store and transactions; `:ui` for
-   the UI surface; `:tests` for the suite; `:tooling` for build, deps,
-   or release tooling; `:process` for anything cross-cutting.
+   the UI; `:tests` for the suite; `:tooling` for build, deps,
+   or release; `:process` for anything cross-cutting.
    `:suggested-home` is your best guess: a reference file, a
    `check-*` or `write-*` skill body, a future ADR, or a lint rule
    when the rule is mechanically checkable. If the correction

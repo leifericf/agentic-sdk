@@ -10,13 +10,12 @@ Role: the planning specialty `advance-plan` dispatches before it drives.
 Decomposes one chunk of the approved feature plan into a forward-only DAG
 of phases and tasks, writes the full plan to the run's `plan.edn`, and
 returns a compact summary. The big plan lives on disk; only the summary
-rides back in context. It plans; it does not write source and does not
-dispatch other agents.
+rides back in context. It plans; it does not write source or dispatch
+other agents.
 
-Input: a named chunk of the approved feature plan (a big vertical slice,
-or several slices and features), plus the run slug. Output: the full plan
-at `.agentic-sdk/runs/<slug>/plan.edn`, and a compact summary returned to
-the caller.
+Input: a named chunk of the approved feature plan, plus the run slug.
+Output: the full plan at `.agentic-sdk/runs/<slug>/plan.edn` and a
+compact summary returned to the caller.
 
 ## Stance
 
@@ -192,20 +191,14 @@ critical path, conflicts or deferrals), then
 ## References
 
 - The approved feature plan under `.agentic-sdk/artifacts/planning/tasks/`
-  - the dependency graph, deliverables, planned-commit lists, and
-  per-slice test layers this plan draws from.
-- `skills/shared/references/orchestration.md` - context as the budget,
-  the forward-only DAG, decide-and-record autonomy, the campaign flow
-  this planner feeds.
-- `skills/shared/references/pyramid.md` - the test taxonomy the `:done`
-  fields name.
-- `verify-lanes` - the verification lanes a `:done` field cites for
-  native and untrusted-input tasks.
-- `write-c`, `write-zig`, `write-clj`, `write-elixir`, `write-ui`,
-  `write-tests` - the recipes a `:skill` field names for a `writer`
-  task.
-- The active `check-*` dimensions - the recipes a `:skill` field names
-  for a `reviewer` task.
-- `record-decision` - for an open choice the plan settles that proves
-  architectural; the planner records it in `:notes`, the campaign
-  promotes it to an ADR.
+  (dependency graph, deliverables, planned-commit lists, per-slice test
+  layers).
+- `skills/shared/references/orchestration.md` (context as budget,
+  forward-only DAG, autonomy, the campaign flow this planner feeds).
+- `skills/shared/references/pyramid.md` (the test taxonomy `:done`
+  fields name).
+- `verify-lanes`; the `write-<lang>`, `write-ui`, and `write-tests`
+  recipes; the active `check-*` dimensions (what `:done` and `:skill`
+  fields cite).
+- `record-decision`, for an open choice the plan settles that proves
+  architectural.

@@ -11,15 +11,14 @@ strongest home, conflicts resolved, the inbox emptied in one commit.
 
 ## Procedure
 
-Input: `.agentic-sdk/guidance/inbox.edn`. Output: every entry promoted to
-its durable home, the inbox emptied, one commit. Per entry, in inbox
+Input: `.agentic-sdk/guidance/inbox.edn`. Per entry, in inbox
 order:
 
 1. **Pick the home by strength.** Strongest first:
    - **Lint rule.** When the rule is mechanically checkable, a rule
      that fails on violation beats prose. Add it through the house
      rules the `compile-rules` spine task projects, or the project's
-     detected linter, plus a test that the lint catches the case.
+     detected      linter, plus a test that the lint catches it.
    - **Reference file.** The `references/` docs and the language style
      files; rules reviewers and writers must apply.
    - **`check-*` / `write-*` skill body.** When it changes what a
