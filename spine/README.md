@@ -1,15 +1,13 @@
 # Spine
 
-The deterministic spine for the agentic-sdk toolkit. Ported and generalized
+The deterministic spine for the agentic-sdk toolkit, ported and generalized
 from a prior prose-production system's Babashka spine. The model: Babashka
 tasks own the clerical work; agents write EDN to a working dir; tasks fold
-deterministically; collisions escalate, never guess; code never parses its
-own rendered output. Prose-only tasks are out of scope for this software
-spine.
+deterministically; collisions escalate, never guess; code never parses its own
+rendered output. Prose-only tasks are out of scope.
 
-For the human-facing reference that the doctrine owner maintains, see
-`skills/shared/references/spine.md` (authored separately; this file is the
-task interface).
+For the human-facing reference, see `skills/shared/references/spine.md`
+(authored separately; this file is the task interface).
 
 ## Tasks
 

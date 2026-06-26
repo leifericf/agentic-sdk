@@ -1,10 +1,9 @@
 # {{project_name}}
 
-This file is the project router. It is read on every session start, so
-it leads with the hard rules, then the surface map, then the operational
-detail. `bootstrap-project` drops it from the toolkit template and fills
-the `{{placeholders}}`. Edit it in place; the project owns it after
-bootstrap.
+The project router. Read on every session start, so it leads with the hard
+rules, then the surface map, then operational detail. `bootstrap-project`
+drops it from the toolkit template and fills the `{{placeholders}}`. Edit in
+place; the project owns it after bootstrap.
 
 ## Hard rules (read first)
 

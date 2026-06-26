@@ -1,7 +1,7 @@
 # agentic-sdk
 
-The architecture of the skill system: a runtime-agnostic set of skills, agents,
-and a deterministic spine for software development across a bounded stack.
+Architecture of the skill system: runtime-agnostic skills, agents, and a
+deterministic spine for software development across a bounded stack.
 
 ## 1. Goal and constraints
 
@@ -21,16 +21,16 @@ Hard constraints:
 2. **The deterministic spine is core, always present**, but its implementation
    is an interface with a migration path: today **Babashka + EDN**; a future
    static-binary task runtime (one static binary, zero deps) replaces bb, and a
-   future immutable-fact store replaces EDN files as the store. The skill/agent
-   layer talks to the spine through **stable task names + a stable working-dir
-   format**, never to bb or EDN directly, so the swap is localized.
-3. **Descriptor + generated recipes.** A `bootstrap-project` meta-skill detects
-   the stack, writes a project descriptor, and materializes concrete `write-<lang>`
-   recipes from templates. Maintenance = skeleton + 4 curated recipes + detector,
-   not N copies.
+   future immutable-fact store replaces EDN files. The skill/agent layer talks
+   to the spine through **stable task names + a stable working-dir format**,
+   never to bb or EDN directly, so the swap is localized.
+3. **Descriptor + generated recipes.** `bootstrap-project` detects the stack,
+   writes a project descriptor, and materializes concrete `write-<lang>`
+   recipes from templates. Maintenance = skeleton + 4 curated recipes +
+   detector, not N copies.
 4. **Full lifecycle**, but the **human-invoked surface is a handful of deep
-   orchestrators** that run big pieces of work autonomously between approval
-   gates. Everything else is model-invoked.
+   orchestrators** that run big work autonomously between approval gates.
+   Everything else is model-invoked.
 
 Design principles:
 
@@ -75,10 +75,10 @@ run-state (§10), and the runtime port (§12).
 
 ## 3. The human-invoked surface: few and deep
 
-A small number of deep orchestrators do big pieces of work autonomously between
-approval gates. Everything else is model-invoked (recipes, primitives), reached
-by these seven entry points. Meta-skills (section 8.3) are a separate class
-that retunes the system itself and are not entry points.
+A small number of deep orchestrators do big work autonomously between approval
+gates. Everything else is model-invoked (recipes, primitives), reached through
+these seven entry points. Meta-skills (section 8.3) retune the system itself
+and are not entry points.
 
 | Entry point | What it does | Approval gates |
 |---|---|---|
@@ -92,9 +92,9 @@ that retunes the system itself and are not entry points.
 
 ## 4. The deterministic spine
 
-**Core, always present.** The clerical work the model used to do by hand
-(triage ordering, parallel-fix integration, resumption state, rule projection)
-is owned by deterministic tasks. The model is left to judgment.
+**Core, always present.** Deterministic tasks own the clerical work the model
+used to do by hand (triage ordering, parallel-fix integration, resumption
+state, rule projection). The model keeps judgment.
 
 ### 4.1 The interface (stable; what the skill/agent layer calls)
 
@@ -119,12 +119,11 @@ structured escalation on the ambiguous ones (escalate-don't-guess).
 
 ### 4.3 The adapter future: the future runtime and store
 
-A future static-binary task runtime (a dependency-free, pure-native,
-static-binary executable) replaces bb as the task runtime, eliminating the
-JVM/bb install burden for C/Zig/Elixir projects. A future immutable-fact store
-replaces EDN files as the store: run-state, findings, decisions become datoms.
-**Same task names, same working-dir semantics, different runtime.** The
-skill/agent layer is unaware.
+A future static-binary task runtime (one dependency-free native executable)
+replaces bb, eliminating the JVM/bb install burden for C/Zig/Elixir projects.
+A future immutable-fact store replaces EDN files: run-state, findings, and
+decisions become datoms. **Same task names, same working-dir semantics,
+different runtime.** The skill/agent layer is unaware.
 
 Because the future runtime ships as one static binary with zero dependencies,
 the spine becomes installable into **any** of the four language stacks
@@ -170,11 +169,11 @@ Written once, stack-agnostic, the bulk of the system. Lives under
   "every assertion must be able to fail."
 
 **Authoring discipline.** Every `SKILL.md`, agent `.md`, and reference in this
-toolkit is authored under the prose standard (`references/prose-style.md`): no
-em-dashes, no AI tells, no process IDs, terse humanized prose. `write-prose` is
-invoked for any prose the system produces and `check-style` enforces it. This
-doc is no exception. The public repo never names predecessor or private
-projects, and carries none of their domain framing.
+toolkit follows the prose standard (`references/prose-style.md`): no em-dashes,
+no AI tells, no process IDs, terse humanized prose. `write-prose` handles any
+prose the system produces; `check-style` enforces it. This doc is no exception.
+The public repo never names predecessor or private projects and carries none
+of their domain framing.
 
 ## 6. The language craft layer
 
@@ -199,13 +198,12 @@ Four thin adapters, each a `write-<lang>` recipe that says "implement FC/IS the
 Supporting craft recipes (shared, not per-language): `write-tests`, `write-ui`,
 `write-prose`, `write-commit`, `write-changelog`. Native-edge doctrine
 (C ABI, NIF, a JVM-to-Zig foreign-function edge) lives in
-`references/architecture.md` and is cited by whichever `write-<lang>` touches
-the boundary.
+`references/architecture.md`, cited by whichever `write-<lang>` touches the
+boundary.
 
-`bootstrap-project` **materializes** the active `write-<lang>` recipes into the
-project from templates, parameterized by the descriptor's `:languages`. The
-toolkit ships the four curated masters; the meta-skill copies in only the ones
-the project uses.
+`bootstrap-project` materializes the active `write-<lang>` recipes from
+templates, parameterized by `:languages`. The toolkit ships the four curated
+masters; the meta-skill copies in only those the project uses.
 
 ## 7. The agent fleet
 
@@ -383,9 +381,8 @@ CLAUDE.md                            # the project router. COMMITTED
 
 Commit policy: only `.agentic-sdk/{project.edn,artifacts/}`, the root
 `CLAUDE.md`, `.claude/settings.json`, and `.opencode/opencode.json` are
-tracked. Everything else is regenerable by re-running `bootstrap-project`;
-`templates/gitignore` is the canonical project `.gitignore` dropped at the
-project root.
+tracked. Everything else regenerates by re-running `bootstrap-project`;
+`templates/gitignore` is the canonical project `.gitignore` at the root.
 
 Resume model: the orchestrator reads `run` (not the transcript) after
 each phase; workers return pointer lines; sub-orchestrators return one line.
@@ -416,21 +413,21 @@ descriptor tunes it. A C/Zig project activates `:memory`; a UI project activates
 
 ## 12. Portability across runtimes (Claude Code and OpenCode)
 
-**Claude Code is the master format.** A spine build task, `opencode-sync`,
-projects the masters (agents first, and the skill index) into the OpenCode
-format under `.opencode/`, so one system drives both runtimes. A verify lane,
-`opencode-check`, fails the pre-land lane if the derived artifacts are stale
-against the masters; running `opencode-sync` fixes it. One source of truth, two
-runtimes, no manual double-editing.
+**Claude Code is the master format.** The spine task `opencode-sync` projects
+the masters (agents first, then the skill index) into `.opencode/`, so one
+system drives both runtimes. The verify lane `opencode-check` fails pre-land
+if the derived artifacts are stale against the masters; running
+`opencode-sync` fixes it. One source of truth, two runtimes, no manual
+double-editing.
 
-Two consequences worth stating:
+Two consequences:
 
 - **The port is a spine task, not a skill.** It runs in whatever runtime the
-  project's spine adapter selects (bb today, the future runtime tomorrow), so it
-  stays installable across all four language stacks. The descriptor records
-  nothing extra: the port is always on for every runtime listed in `:runtimes`.
+  spine adapter selects (bb today, the future runtime tomorrow), so it stays
+  installable across all four language stacks. The descriptor records nothing
+  extra: the port is always on for every runtime in `:runtimes`.
 - **Masters are never hand-edited in the derived form.** `.opencode/` is
-  generated and gitignored-or-regenerated; edits go to the masters at
+  generated and gitignored or regenerated; edits go to the masters at
   `.agentic-sdk/agents/*.md` and `.agentic-sdk/skills/`, then re-projected.
   This is the same "code never parses its own rendered output" discipline
   applied to generated artifacts.
