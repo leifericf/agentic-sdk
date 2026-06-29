@@ -12,7 +12,7 @@ stack to land.
 
 ## Prerequisites
 
-`.agentic-sdk/project.edn` exists with `:lanes`, `:dimensions-active`,
+`~/.agentic-sdk/<project>/project.edn` exists with `:lanes`, `:dimensions-active`,
 and `:spine`. At least one module has landed; there is code to audit.
 
 ## Procedure
@@ -26,7 +26,7 @@ around it. The topology and conflict rules are in
    -m "Refactor: Audit <scope>"`. Hold the scope (a module, a list of
    modules, or a theme) in context; the rest of the run cites it. A
    long audit may keep a minimal, gitignored resume checkpoint under
-   `.agentic-sdk/runs/<slug>/` recording what is done (rounds
+   `~/.agentic-sdk/<project>/runs/<slug>/` recording what is done (rounds
    completed, findings still open); never committed, never the
    hand-off medium.
 2. **Shard the scope** by module ownership: one shard is one module

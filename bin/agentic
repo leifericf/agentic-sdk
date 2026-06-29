@@ -1,0 +1,248 @@
+#!/usr/bin/env mino
+;; agentic - the agentic-sdk CLI.
+;;
+;; Three user-facing commands (setup, status, teardown) plus internal
+;; spine task dispatchers invoked by the skill system via Bash.
+
+(require '[clojure.string :as str])
+
+(defn- parent-dir [p]
+  (let [idx (str/last-index-of p "/")]
+    (when (and idx (> idx 0)) (subs p 0 idx))))
+
+(def sdk-src
+  (or (System/getenv "AGENTIC_SDK_SRC")
+      (parent-dir (parent-dir (realpath *file*)))))
+
+(add-load-path! (str sdk-src "/src"))
+
+(require '[spine.host :as host]
+          '[spine.repo :as repo]
+          '[spine.triage :as triage]
+          '[spine.integrate :as integrate]
+          '[spine.run :as run]
+          '[spine.rules :as rules]
+          '[spine.lint :as lint]
+          '[spine.opencode :as oc]
+          '[clojure.edn :as edn])
+
+;; --- helpers --------------------------------------------------------------
+
+(defn- prn-err [& msgs]
+  (binding [*out* *err*]
+    (apply println msgs)))
+
+(defn- symlink!
+  "Create or refresh a symlink: target exists at link-path."
+  [target link-path]
+  (host/shell "ln" "-sfn" target link-path))
+
+(defn- copy!
+  "Copy a file from src to dst."
+  [src dst]
+  (host/shell "cp" src dst))
+
+(defn- home-path [& segments]
+  (apply host/path (repo/project-home) segments))
+
+(defn- sdk-path [& segments]
+  (apply host/path sdk-src segments))
+
+;; --- setup ---------------------------------------------------------------
+
+(def ^:private hook-config
+  "Maps descriptor hook key to Claude Code matcher + script name."
+  {:format-on-write
+   {:event "PostToolUse" :matcher "Write|Edit"}
+   :deny-secrets
+   {:event "PreToolUse" :matcher "Read|Edit|Write"}
+   :require-tests-before-land
+   {:event "PreToolUse" :matcher "Bash"}})
+
+(defn- generate-settings-json [hooks-list]
+  (let [groups (for [[key cfg] (sort-by key hook-config)
+                     :when (contains? (set hooks-list) key)
+                     :let [{:keys [event matcher]} cfg
+                           name (name key)
+                           script (str name ".clj")]]
+                 [event
+                  {:matcher matcher
+                   :hooks [{:type "command"
+                            :command (str "mino $CLAUDE_PROJECT_DIR/.claude/hooks/" script)}]}])
+        by-event (reduce (fn [m [event entry]]
+                           (update m event (fnil conj []) entry))
+                         {} groups)]
+    (host/json-encode {:hooks by-event})))
+
+(defn- write-git-exclude [cwd]
+  (let [exclude (host/path cwd ".git" "info" "exclude")
+        entries ["/.claude" "/.opencode" "/CLAUDE.md"]
+        current (when (host/exists? exclude)
+                  (slurp (host/path-str exclude)))
+        existing-lines (when current (set (str/split-lines current)))
+        missing (remove #(contains? existing-lines %) entries)]
+    (when (seq missing)
+      (host/create-dirs (host/parent exclude))
+      (spit (host/path-str exclude)
+            (str (when current (str current
+                                    (when-not (str/ends-with? current "\n") "\n")))
+                 (str/join "\n" missing) "\n")))))
+
+(defn setup []
+  (let [home (repo/project-home)
+        proj-name (repo/project-name)
+        cwd (host/canonicalize ".")]
+    (host/create-dirs home)
+    (host/create-dirs (home-path "state"))
+    (host/create-dirs (home-path "artifacts"))
+    ;; Descriptor: write minimal if none exists
+    (let [desc-path (host/path home "project.edn")]
+      (when-not (host/exists? desc-path)
+        (spit (host/path-str desc-path) "{}")))
+    ;; Read descriptor for hooks list
+    (let [desc (edn/read-string (slurp (host/path-str (host/path home "project.edn"))))
+          hooks-list (or (:hooks desc) [:format-on-write :deny-secrets])]
+      ;; Create .claude adapter
+      (host/create-dirs (home-path ".claude" "skills"))
+      (host/create-dirs (home-path ".claude" "agents"))
+      (host/create-dirs (home-path ".claude" "hooks"))
+      ;; Symlink skills
+      (let [skills-src (sdk-path "skills")]
+        (when (host/exists? skills-src)
+          (doseq [d (host/glob skills-src "*")]
+            (let [nm (host/file-name d)]
+              (symlink! (host/path-str (host/canonicalize d))
+                        (host/path-str (home-path ".claude" "skills" nm)))))))
+      ;; Symlink agents
+      (let [agents-src (sdk-path "agents")]
+        (when (host/exists? agents-src)
+          (doseq [f (host/glob agents-src "*.md")]
+            (let [nm (host/file-name f)]
+              (symlink! (host/path-str (host/canonicalize f))
+                        (host/path-str (home-path ".claude" "agents" nm)))))))
+      ;; Copy hooks (filtered to the armed subset)
+      (doseq [key hooks-list
+              :let [nm (str (name key) ".clj")
+                    src (sdk-path "hooks" nm)]
+              :when (host/exists? src)]
+        (copy! (host/path-str src)
+               (host/path-str (home-path ".claude" "hooks" nm))))
+      ;; Write settings.json
+      (spit (host/path-str (home-path ".claude" "settings.json"))
+            (generate-settings-json hooks-list))
+      ;; Copy CLAUDE.md
+      (copy! (host/path-str (sdk-path "templates" "CLAUDE.md"))
+             (host/path-str (home-path "CLAUDE.md")))
+      ;; Run opencode-sync
+      (let [{:keys [wrote]} (oc/sync! home)]
+        (prn-err (format "opencode-sync: wrote %d agents" (count wrote))))
+      ;; Create project-root symlinks
+      (symlink! (host/path-str (home-path ".claude"))
+                (host/path-str (host/path cwd ".claude")))
+      (symlink! (host/path-str (home-path ".opencode"))
+                (host/path-str (host/path cwd ".opencode")))
+      (symlink! (host/path-str (home-path "CLAUDE.md"))
+                (host/path-str (host/path cwd "CLAUDE.md")))
+      ;; Write .git/info/exclude
+      (write-git-exclude cwd)
+      ;; Summary
+      (println (format "setup: %s at %s (%d hooks, %d agents)"
+                       proj-name (host/path-str home)
+                       (count hooks-list)
+                       (count (host/glob (sdk-path "agents") "*.md")))))))
+
+;; --- status --------------------------------------------------------------
+
+(defn status []
+  (let [home (repo/project-home)
+        name (repo/project-name)
+        desc-path (host/path home "project.edn")
+        desc (when (host/exists? desc-path)
+               (edn/read-string (slurp (host/path-str desc-path))))]
+    (println (format "project: %s" name))
+    (println (format "home: %s" (host/path-str home)))
+    (println (format "sdk: %s" sdk-src))
+    (println (format "descriptor: %s"
+                     (if desc (host/path-str desc-path) "(none)")))
+    (when desc
+      (println (format "  languages: %s" (str (:languages desc))))
+      (println (format "  spine runtime: %s" (get-in desc [:spine :runtime] :mino)))
+      (println (format "  hooks: %s" (str (:hooks desc)))))
+    (let [claude-link (host/path (host/canonicalize ".") ".claude")]
+      (println (format "claude adapter: %s"
+                       (if (host/exists? claude-link) "linked" "missing"))))
+    (let [opencode-link (host/path (host/canonicalize ".") ".opencode")]
+      (println (format "opencode adapter: %s"
+                       (if (host/exists? opencode-link) "linked" "missing"))))))
+
+;; --- teardown ------------------------------------------------------------
+
+(defn teardown []
+  (let [cwd (host/canonicalize ".")]
+    (doseq [nm [".claude" ".opencode" "CLAUDE.md"]]
+      (let [p (host/path cwd nm)]
+        (when (host/exists? p) (host/delete p))))
+    (prn-err "teardown: removed project symlinks")
+    (prn-err (format "project home preserved at %s" (host/path-str (repo/project-home))))))
+
+;; --- dispatch ------------------------------------------------------------
+
+(let [[cmd & args] *command-line-args*]
+  (case cmd
+    "setup" (setup)
+    "status" (status)
+    "teardown" (teardown)
+    "triage"
+    (let [home (repo/project-home)]
+      (repo/init! home)
+      (let [summary (triage/triage! home)]
+        (repo/close!)
+        (println (format "triage: %d findings, %d queries"
+                         (:total summary) (:queries summary)))
+        (System/exit (if (pos? (:total summary)) 1 0))))
+    "integrate"
+    (let [{:keys [landed conflicts]} (integrate/integrate! "." {})]
+      (println (format "integrate: %d landed, %d conflicts"
+                       (count landed) (count conflicts)))
+      (System/exit (if (seq conflicts) 1 0)))
+    "lint"
+    (apply lint/-main args)
+    "seal"
+    (let [run-id (first args)]
+      (println (repo/seal! (repo/project-home) run-id)))
+    "rules"
+    (case (first args)
+      "compile" (apply rules/-main (rest args))
+      (do (prn-err "usage: agentic rules compile [ROOT] [DIR]")
+          (System/exit 2)))
+    "agents"
+    (let [home (repo/project-home)]
+      (case (first args)
+        "sync" (let [{:keys [wrote]} (oc/sync! home)]
+                 (println (format "opencode-sync: wrote %d agents" (count wrote)))
+                 (doseq [n wrote] (println "  " n)))
+        "check" (let [{:keys [stale ok?]} (oc/check home)]
+                  (if ok?
+                    (println "opencode-check: all derived agents in sync")
+                    (do (prn-err "opencode-check: stale derived agents:")
+                        (doseq [n stale] (prn-err "  " n))
+                        (System/exit 1))))
+        (do (prn-err "usage: agentic agents sync|check")
+            (System/exit 2))))
+    "resume"
+    (let [home (repo/project-home)]
+      (case (first args)
+        "init" (do (run/init! home (when (second args)
+                                     (edn/read-string (second args))))
+                   (println "run: initialized"))
+        "status" (let [s (run/status home)]
+                   (println (pr-str s))
+                   (System/exit (if (= :complete (:action (:directive s))) 0 1)))
+        "advance" (do (run/advance! home
+                                   (edn/read-string (or (second args) "{}")))
+                      (println "run: advanced"))
+        (do (prn-err "usage: agentic resume init|status|advance [EDN]")
+            (System/exit 2))))
+    (do (prn-err "usage: agentic <command> [args...]")
+        (prn-err "commands: setup status teardown triage integrate lint seal rules agents resume")
+        (System/exit 2))))

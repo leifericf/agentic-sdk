@@ -29,7 +29,7 @@ reusable rules. UI only.
    modalities, offline and latency constraints. Do not assume UI toolkits
    unless already decided.
 6. Record new decisions in `decision-log.md`.
-7. Write `.agentic-sdk/artifacts/planning/ux-design-guide.md` with: Metadata,
+7. Write `~/.agentic-sdk/<project>/artifacts/planning/ux-design-guide.md` with: Metadata,
    Visual References, Design Principles, Interface Surfaces, Accessibility,
    Typography, Color System, Layout Rules, Components, CLI/TUI Conventions
    (if applicable), Interaction Patterns, Content Style, UI Definition of Done.

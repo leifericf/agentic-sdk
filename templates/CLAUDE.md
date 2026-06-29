@@ -2,9 +2,10 @@
 
 The standard project router for an agentic-sdk project. Identical across
 projects; it carries no per-project content. The project's own config is the
-single source of truth at `.agentic-sdk/project.edn`; the skill catalog and
-shared doctrine live under `.agentic-sdk/skills/`; project design, ADRs, and
-operational notes live in `docs/` and `.agentic-sdk/artifacts/`.
+single source of truth at `~/.agentic-sdk/<project>/project.edn`; the skill
+catalog and shared doctrine live under `$AGENTIC_SDK_SRC/skills/`; project
+design, ADRs, and operational notes live in `docs/` and
+`~/.agentic-sdk/<project>/artifacts/`.
 
 ## Hard rules (read first)
 
@@ -12,23 +13,23 @@ operational notes live in `docs/` and `.agentic-sdk/artifacts/`.
   adapter detects jj or git. Commits are single line, category first
   (`Category: Imperative subject`), imperative, no trailing period, within 70
   characters, effect not diff, no body, no attribution, no version numbers, no
-  em dashes. See `write-commit`.
+  em dash characters. See `write-commit`.
 - **Tests before implementations.** Write the failing test, then the code.
   Every assertion must be able to fail.
 - **Functional Core / Imperative Shell.** Pure data and functions in the
   core; effects and state in the shell; native edges at the boundary. See
-  `.agentic-sdk/skills/shared/references/architecture.md`.
+  `$AGENTIC_SDK_SRC/skills/shared/references/architecture.md`.
 - **Policy lives in hooks, not prompts.** The armed hooks in
-  `.agentic-sdk/hooks/` enforce format-on-write, secret denial, and the
-  green-lane gate before land. Do not work around a hook denial; fix the
-  condition.
+  `~/.agentic-sdk/<project>/.claude/hooks/` enforce format-on-write, secret
+  denial, and the green-lane gate before land. Do not work around a hook
+  denial; fix the condition.
 - **One source of truth for the run.** The orchestrator reads `run` after
   each phase, not the transcript. Workers return one contracted line.
 
 ## Skills and entry points
 
-The catalog is under `.agentic-sdk/skills/` (shared doctrine in
-`.agentic-sdk/skills/shared/references/`). Human-invoked entry points:
+The catalog is under `$AGENTIC_SDK_SRC/skills/` (shared doctrine in
+`$AGENTIC_SDK_SRC/skills/shared/references/`). Human-invoked entry points:
 `plan-system`, `advance-plan`, `implement-change`, `audit-code`,
 `investigate`, `fix-bug`, `ship`. Authoring: `write-<lang>`, `write-tests`,
 `write-ui`, `write-prose`, `write-commit`, `write-changelog`. Reviewing: the
@@ -38,19 +39,20 @@ The catalog is under `.agentic-sdk/skills/` (shared doctrine in
 
 ## Lanes, modules, and permissions
 
-All in `.agentic-sdk/project.edn`: `:lanes` (the cheap, wave, and pre-land
-commands), `:architecture :modules`, and `:permissions`. The verifier records
-`VERDICT: PASS` and writes a `lanes-green` marker into the spine working dir
-after a green pre-land run; the `require-tests-before-land` hook arms on it.
+All in `~/.agentic-sdk/<project>/project.edn`: `:lanes` (the cheap, wave, and
+pre-land commands), `:architecture :modules`, and `:permissions`. The verifier
+records `VERDICT: PASS` and writes a `lanes-green` marker into the spine
+working dir after a green pre-land run; the `require-tests-before-land` hook
+arms on it.
 
 ## Project specifics
 
 This file is standard. For what is unique to this project, read:
-- `.agentic-sdk/project.edn` for the stack, lanes, modules, permissions, and
-  the ADR store path;
-- `docs/` and `.agentic-sdk/artifacts/` for the design, the ADRs, and the
-  operational notes. When a project doc and a generic recipe disagree, the
-  project doc wins; record the divergence via `record-decision`.
+- `~/.agentic-sdk/<project>/project.edn` for the stack, lanes, modules,
+  permissions, and the ADR store path;
+- `docs/` and `~/.agentic-sdk/<project>/artifacts/` for the design, the ADRs,
+  and the operational notes. When a project doc and a generic recipe disagree,
+  the project doc wins; record the divergence via `record-decision`.
 
 ## Safety denylist
 

@@ -28,7 +28,7 @@ languages (C, Zig, Clojure, Elixir).
    points, refined per feature.
 5. Record decisions in `decision-log.md` with date, decision, rationale,
    tradeoff.
-6. Write `.agentic-sdk/artifacts/planning/technical-design.md` with: Metadata,
+6. Write `~/.agentic-sdk/<project>/artifacts/planning/technical-design.md` with: Metadata,
    System Shape, Domain Boundaries, Components, Key Flows, Data Model,
    Integrity Strategy, Audit and Compliance, Integrations, Technology Stack
    (backend, frontend if applicable, data, infrastructure, observability,

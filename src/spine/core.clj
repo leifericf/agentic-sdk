@@ -1,52 +1,10 @@
 (ns spine.core
-  "Shared spine helpers: EDN read/write, the canonical finding shape, the
-  escalate-don't-guess writer, and a small jj-or-git VCS adapter (prefer
-  jj). Software-only; no prose-production logic. Babashka-runnable, deps
-  via bb.edn."
-  (:require [babashka.fs :as fs]
-            [babashka.process :as p]
-            [clojure.edn :as edn]
-            [clojure.pprint :as pprint]
+  "Shared spine helpers: the canonical finding shape and the jj-or-git
+  VCS adapter (prefer jj). Software-only; no prose-production logic.
+  Babashka-runnable. Fact storage lives in spine.repo; host access
+  lives in spine.host."
+  (:require [spine.host :as host]
             [clojure.string :as str]))
-
-;; --- working dir ---------------------------------------------------------
-
-(defn working-dir
-  "The spine working dir under root. Honors the project descriptor's
-  :spine :working-dir when present, else defaults to .agentic-sdk/state.
-  Created on first write, never assumed to exist on read."
-  [root]
-  (let [desc (some (fn [rel]
-                     (let [f (fs/path root rel)]
-                       (when (fs/exists? f)
-                         (edn/read-string (slurp (str f))))))
-                   [".agentic-sdk/project.edn" "project.edn"])]
-    (fs/path root (or (get-in desc [:spine :working-dir])
-                      ".agentic-sdk/state"))))
-
-;; --- EDN read/write ------------------------------------------------------
-
-(defn read-edn
-  "Parse an EDN file, nil if it does not exist. The single parser for the
-  spine: code never parses its own rendered output, only these EDN files."
-  [path]
-  (let [p (fs/path path)]
-    (when (fs/exists? p)
-      (edn/read-string (slurp (str p))))))
-
-(defn write-edn!
-  "Write value as pretty-printed EDN to path, creating parent dirs. Stable
-  shape for deterministic folds: same inputs, same bytes."
-  [path value]
-  (let [p (fs/path path)]
-    (fs/create-dirs (fs/parent p))
-    (spit (str p) (with-out-str (pprint/pprint value)))
-    value))
-
-(defn read-edn-in
-  "Read an EDN file located by joining segments under root."
-  [root & segments]
-  (read-edn (apply str (fs/path root (map str segments)))))
 
 ;; --- canonical finding shape ---------------------------------------------
 
@@ -66,36 +24,10 @@
        (:file m)
        (not (str/blank? (str (:evidence m))))))
 
-;; --- escalate, don't guess -----------------------------------------------
-
-(defn- read-escalations [esc-path]
-  (if (fs/exists? esc-path)
-    (let [data (edn/read-string (slurp (str esc-path)))]
-      (if (map? data) data {:escalations (vec data)}))
-    {:escalations []}))
-
-(defn escalate!
-  "Append an entry to <working-dir>/escalation.edn instead of guessing.
-  entry is a map describing the collision (e.g. two unequal values for one
-  key). Returns the full escalations map. The orchestrator surfaces the
-  count; a human resolves each one. Never silently pick."
-  [root entry]
-  (let [wd   (working-dir root)
-        path (fs/path wd "escalation.edn")
-        cur  (read-escalations path)
-        nxt  (update cur :escalations (fnil conj []) entry)]
-    (write-edn! (str path) nxt)))
-
-(defn pending-collisions
-  "Count of unresolved escalations on disk (0 when none)."
-  [root]
-  (count (:escalations (read-escalations (fs/path (working-dir root)
-                                                   "escalation.edn")))))
-
 ;; --- VCS adapter: prefer jj, fall back to git ----------------------------
 
-(defn jj-repo? [root] (fs/exists? (fs/path root ".jj")))
-(defn git-repo? [root] (fs/exists? (fs/path root ".git")))
+(defn jj-repo? [root] (host/exists? (host/path root ".jj")))
+(defn git-repo? [root] (host/exists? (host/path root ".git")))
 
 (defn detect-vcs
   " :jj when a jj repo is present (preferred, even when collocated with
@@ -108,31 +40,29 @@
   on :exit."
   [root & cmd]
   (let [{:keys [out err exit]}
-        (apply p/shell {:out :string :err :string :continue true
-                        :dir (str root)}
-               (map str cmd))]
+        (apply host/shell {:dir (host/path-str root)} cmd)]
     {:out (str/trim (or out "")) :err (str/trim (or err "")) :exit exit}))
 
 (defn- git-branches
   [root prefix]
   (->> (:out (apply vcs-shell root "git" "for-each-ref"
-                    "--format=%(refname:short)" "refs/heads"))
-       str/split-lines
-       (map str/trim)
-       (remove str/blank?)
-       (filter #(str/starts-with? % prefix))
-       sort
-       vec))
+                     "--format=%(refname:short)" "refs/heads"))
+        str/split-lines
+        (map str/trim)
+        (remove str/blank?)
+        (filter #(str/starts-with? % prefix))
+        sort
+        vec))
 
 (defn- jj-bookmarks
   [root prefix]
   (->> (:out (vcs-shell root "jj" "bookmark" "list" "-T" "name ++ \"\n\""))
-       str/split-lines
-       (map str/trim)
-       (remove str/blank?)
-       (filter #(str/starts-with? % prefix))
-       sort
-       vec))
+        str/split-lines
+        (map str/trim)
+        (remove str/blank?)
+        (filter #(str/starts-with? % prefix))
+        sort
+        vec))
 
 (defn vcs-adapter
   "Return a uniform map of VCS closures for root and detected vcs. All

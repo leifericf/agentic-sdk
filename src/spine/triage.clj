@@ -14,11 +14,9 @@
   so one vocabulary reaches the punch list.
 
   Ordering tiers: correctness, then factoring, then style, then lint."
-  (:require [babashka.fs :as fs]
-            [clojure.edn :as edn]
-            [clojure.pprint :as pprint]
-            [clojure.string :as str]
-            [spine.core :as core]))
+  (:require [spine.host :as host]
+            [spine.repo :as repo]
+            [clojure.string :as str]))
 
 (def ^:private dimension-tier
   "Fallback only: when a finding carries no :level, derive its tier from
@@ -139,36 +137,20 @@
 
 ;; --- file-driven entry point ---------------------------------------------
 
-(defn- read-findings [dir]
-  (when (fs/exists? dir)
-    (mapcat (fn [p]
-              (let [data (edn/read-string (slurp (str p)))]
-                (if (map? data) [data] data)))
-            (sort (fs/glob dir "*.edn")))))
-
-(defn- consume-findings!
-  "Findings are consumed once triage has folded them; the punch list is the
-  record. Delete the inputs so a fresh run starts clean."
-  [dir]
-  (doseq [p (fs/glob dir "*.edn")] (fs/delete p)))
-
 (defn triage!
   "Read every findings/*.edn, triage, and write triage/punch-list.edn and
   .md, then consume (delete) the inputs. Reads protected-idioms.edn when
   present. Returns a bounded summary."
   [root]
-  (let [wd         (core/working-dir root)
-        findings   (vec (read-findings (fs/path wd "findings")))
-        idiom-file (fs/path wd "protected-idioms.edn")
-        idioms     (if (fs/exists? idiom-file)
-                     (edn/read-string (slurp (str idiom-file))) [])
-        punch      (triage findings :protected-idioms idioms)
-        out-dir    (fs/path wd "triage")]
-    (fs/create-dirs out-dir)
-    (core/write-edn! (str (fs/path out-dir "punch-list.edn")) punch)
-    (spit (str (fs/path out-dir "punch-list.md"))
-          (render-punch-list punch))
-    (consume-findings! (fs/path wd "findings"))
+  (let [wd       (repo/working-dir root)
+        findings (vec (repo/read-collection (host/path wd "findings")))
+        idioms   (or (repo/read-edn (host/path wd "protected-idioms.edn")) [])
+        punch    (triage findings :protected-idioms idioms)
+        out-dir  (host/path wd "triage")]
+    (repo/write-edn! (host/path out-dir "punch-list.edn") punch)
+    (repo/write-text! (host/path out-dir "punch-list.md")
+                      (render-punch-list punch))
+    (repo/clear-collection! (host/path wd "findings"))
     (merge (:counts punch) {:queries (count (:queries punch))})))
 
 (defn -main

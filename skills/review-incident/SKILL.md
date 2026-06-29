@@ -25,7 +25,7 @@ detection, and resolution; fill the timeline as facts arrive.
 8. Define action items, each with type (prevent, detect, mitigate), owner, and
    due date.
 9. Plan follow-up verification: how to confirm the fixes work.
-10. Write `.agentic-sdk/artifacts/ops/YYYY-MM-DD_incident_<incident_slug>.md` with:
+10. Write `~/.agentic-sdk/<project>/artifacts/ops/YYYY-MM-DD_incident_<incident_slug>.md` with:
     Metadata, Summary, Impact, Detection, Timeline, Response, Communication,
     Contributing Factors (blameless), Action Items, Follow-Up Verification,
     Open Questions. Slug: lowercase, hyphens, descriptive.

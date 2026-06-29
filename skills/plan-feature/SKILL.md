@@ -14,7 +14,7 @@ acceptance gate and parallel quality-dimension assessments. Two modes: plan
 
 1. Read `product-backlog.md`, `product-requirements.md`, `decision-log.md`,
    and `open-questions.md`. In review mode, read the existing
-   `.agentic-sdk/artifacts/planning/tasks/plan-<slug>.md` instead and treat its
+   `~/.agentic-sdk/<project>/artifacts/planning/tasks/plan-<slug>.md` instead and treat its
    Functional Snapshot and Gherkin as source of truth. Surface and resolve
    any `[Blocking]` item affecting this feature first.
 2. Functional elicitation gate. Read the backlog item and relevant
@@ -50,7 +50,7 @@ acceptance gate and parallel quality-dimension assessments. Two modes: plan
    `Inbox (untriaged)` in `product-backlog.md`; do not expand scope unless the
    user changes the definition of done. Keep the plan a forward-only DAG:
    security and verification ride with each chunk, not bolted on at the end.
-6. Write the plan to `.agentic-sdk/artifacts/planning/tasks/plan-<feature_slug>.md`,
+6. Write the plan to `~/.agentic-sdk/<project>/artifacts/planning/tasks/plan-<feature_slug>.md`,
    filling the section skeleton in `plan-template.md`. Fold the four dimension
    assessments into their sections (Observability, Testing Strategy, Data and
    Migrations, Rollout and Verify); surface any `N/A` with its reason. Follow

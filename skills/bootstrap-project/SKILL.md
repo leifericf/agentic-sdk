@@ -7,17 +7,18 @@ disable-model-invocation: true
 # bootstrap-project
 
 Role: the one-time setup. Detect the stack, write
-`.agentic-sdk/project.edn`, snap the masters (skills, agents, hooks,
-spine, templates) into `.agentic-sdk/`, symlink the `.claude/` adapter
-over it, generate the `.opencode/` projection, drop the root
-`CLAUDE.md` and project `.gitignore`, and wire the spine adapter and
-runtime projections.
+`~/.agentic-sdk/<project>/project.edn`, and hand the mechanical work to
+the `agentic` CLI. The CLI builds the project home, symlinks the
+masters from the shared SDK source into `.claude/`, runs `opencode-sync`
+to generate `.opencode/agent/`, copies `CLAUDE.md`, drops three
+symlinks in the project root, and writes `.git/info/exclude` entries so
+the project repo stays completely clean.
 
 ## Prerequisites
 
 Run in the project repository root, once per project (or after a stack
-change). No descriptor exists yet, or the existing one is being
-regenerated.
+change). The SDK source is on PATH at `bin/agentic`, with
+`$AGENTIC_SDK_SRC` pointing at the shared install.
 
 ## Procedure
 
@@ -26,88 +27,54 @@ Follow `docs/design.md` section 8.2. The descriptor schema is
 `skills/shared/references/spine.md`; the hook templates and their
 runtime mapping are documented in `hooks/README.md`.
 
-1. **Detect the stack.** Scan for language markers: `deps.edn` or
+1. **Detect the stack.** Scan cwd for language markers: `deps.edn` or
    `project.clj` (Clojure), `build.zig` or `.zig-version` (Zig),
    `mix.exs` (Elixir), `CMakeLists.txt` or `Makefile` or `*.h`
    alongside `*.c` (C). Detect the VCS (`.jj` resolves to `:jj`, else
    `.git` to `:git`); jj-first is the default. Detect the UI surface
-   (frontend markers). Detect the spine level from `bb` on
-   PATH: `:babashka` when present, else `:thin` (C, Zig, or Elixir
-   without bb), else `:none` when the project opts out.
-   Derive the working dir as `.agentic-sdk/state/`.
+   (frontend markers). Derive the project name from the basename of the
+   canonical cwd, which selects the home at
+   `~/.agentic-sdk/<project>/`.
 2. **Elicit the gaps.** Ask one batch of at most three questions for
    what the detector cannot decide: the architecture pattern (confirm
    Functional Core / Imperative Shell or name a divergence), the native
-   edge (is there a boundary between the languages), and the module
-   roots (the detector proposes, the author confirms or corrects). Ask
-   in the same batch which `:hooks` to arm and whether to confirm both
+   edge (is there a boundary between the languages), the module roots
+   (the detector proposes, the author confirms or corrects). Ask in the
+   same batch which `:hooks` to arm and whether to confirm both
    `:runtimes`. Apply the descriptor defaults when the author gives no
    answer.
-3. **Write the descriptor.** Write `.agentic-sdk/project.edn`
-   (committed, not gitignored) with the detected and elicited fields.
-   Every field has a default; a minimal descriptor is `{}`.
-4. **Snap masters into `.agentic-sdk/`.** Copy the toolkit's `skills/`
-   (the shared doctrine verbatim; the write-<lang> recipes filtered to
-   the `:languages` subset), `agents/`, `hooks/` (filtered to `:hooks`),
-   the spine (`bb.edn` plus `src/spine/`), and `templates/` into
-   `.agentic-sdk/`. All re-installable by re-running this step.
-5. **Scaffold the artifact and run-state directories.** Create
-   `.agentic-sdk/artifacts/` (planning, decisions, project, ops, and
-   adr per the descriptor's `:adr :store`) and `.agentic-sdk/runs/`
-   (ephemeral, gitignored). The spine working dir
-   (`:spine :working-dir`, default `.agentic-sdk/state/`) is created
-   on first spine task run.
-6. **Symlink the Claude Code adapter.** Create `.claude/skills`,
-   `.claude/agents`, and `.claude/hooks` as symlinks pointing to
-   `../.agentic-sdk/{skills,agents,hooks}` so Claude Code resolves the
-   masters under its expected paths.
-7. **Drop the root CLAUDE.md.** Symlink the project root `CLAUDE.md` to
-   `.agentic-sdk/templates/CLAUDE.md`. The router is standard and identical
-   across projects; it carries no per-project content (the descriptor and
-   `artifacts/` hold the specifics), so it is regenerated, not committed.
-8. **Write the project `.gitignore`.** Copy `templates/gitignore` (now
-   snapped at `.agentic-sdk/templates/gitignore`) to the project root
-   as `.gitignore`. Invariant: the repo commits no agent machinery, only
-   `.agentic-sdk/project.edn` and `.agentic-sdk/artifacts/`. Everything
-   else (`.claude/`, `.opencode/`, the root `CLAUDE.md` symlink, the
-   masters/spine/state under `.agentic-sdk/`) is regenerated and
-   gitignored.
-9. **Wire `.claude/settings.json`.** Write the hooks block (each armed
-   hook mapped to its matcher event per `hooks/README.md`) and the
-   permission allow-list (from `:permissions`) into
-   `.claude/settings.json`. Hook scripts resolve under
-   `$CLAUDE_PROJECT_DIR/.claude/hooks/` through the symlink into
-   `.agentic-sdk/hooks/`.
-10. **Generate the OpenCode adapter and wire the spine.** For every
-    runtime in `:runtimes`: run the `opencode-sync` spine task to project
-    the masters into `.opencode/agent/`; write the OpenCode permission
-    rules and formatter into `.opencode/opencode.json` (the deny list
-    from `deny-secrets`, the formatter config from `format-on-write`);
-    drop the `require-tests-before-land` plugin into
-    `.opencode/plugins/` (auto-loaded, enforces via `tool.execute.before`,
-    no permission rule needed); run `opencode-check` to confirm the
-    derived form is green against the masters. For the detected spine
-    level (`:babashka`, `:thin`, `:none`), wire the spine adapter so the
-    task names in `spine.md` answer.
+3. **Write the descriptor.** Write
+   `~/.agentic-sdk/<project>/project.edn` with the detected and
+   elicited fields. Every field has a default; a minimal descriptor is
+   `{}`.
+4. **Run `agentic setup`.** The CLI does the filesystem work: creates
+   the project home structure (the `state/` and `artifacts/` dirs);
+   writes `.claude/` with skill and agent symlinks from
+   `$AGENTIC_SDK_SRC`, copies the armed hooks from
+   `$AGENTIC_SDK_SRC/hooks/`, and generates `.claude/settings.json`
+   from the descriptor; runs `opencode-sync` to generate
+   `.opencode/agent/`; copies `CLAUDE.md` from `$AGENTIC_SDK_SRC/templates/`;
+   creates three symlinks in the project root (`.claude`, `.opencode`,
+   `CLAUDE.md`) pointing into the project home; and appends the
+   exclude entries to `.git/info/exclude` so the symlinks stay invisible
+   to git.
+5. **Verify.** Run `agentic status` and confirm the home path, the
+   descriptor, the linked adapters, and the armed hooks all read green.
 
 ## Boundaries
 
-Run once per project (or after a stack change). Writes only: the
-descriptor at `.agentic-sdk/project.edn`; the snapped masters and
-scaffolded directories under `.agentic-sdk/`; the `.claude/` symlinks
-and the `.claude/settings.json` hook block; the root `CLAUDE.md`; the
-project `.gitignore`; the spine wiring; and the runtime projections
-under `.opencode/` and `.opencode/opencode.json`. Does not write
-project code, pick a feature, or plan. It is the one setup valve;
-every later retune goes through the add-* meta-skills, which amend the
-descriptor. Atoms dispatched: the `opencode-sync` and `opencode-check`
-spine tasks. Sources copied from: the hook templates in `hooks/`, the
-CLAUDE.md and `gitignore` skeletons in `templates/`, and the
-write-<lang> masters.
+Run once per project (or after a stack change). Writes only the
+descriptor at `~/.agentic-sdk/<project>/project.edn`. Dispatches
+`agentic setup` for the mechanical filesystem work and `agentic status`
+for verification. Does not touch the project repo beyond the three
+symlinks and the exclude entries the CLI writes. Does not write project
+code, pick a feature, or plan. It is the one setup valve; every later
+retune goes through the add-* meta-skills, which amend the descriptor.
+Atoms dispatched: `agentic setup`, `agentic status`. Sources read from:
+`$AGENTIC_SDK_SRC/skills/`, `$AGENTIC_SDK_SRC/agents/`,
+`$AGENTIC_SDK_SRC/hooks/`, and `$AGENTIC_SDK_SRC/templates/`.
 
 ## Return
 
-One line: the descriptor path under `.agentic-sdk/`, the snapped master
-count, the scaffolded paths, the `.claude/` symlinks created, the root
-`CLAUDE.md` and `.gitignore` written, the armed hooks, the detected
-spine level, and the runtime projections written under `.opencode/`.
+One line: the project name, the home path, the descriptor path, the
+armed hooks, and the verification verdict from `agentic status`.

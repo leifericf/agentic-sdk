@@ -9,8 +9,9 @@
   Write, bash from Bash, task from Agent); inject mode: subagent; drop
   model: inherit so OpenCode uses the session model; map model: haiku to the
   OPENCODE_SMALL_MODEL env var, omitting the field when that var is unset.
-  The masters live at .claude/agents/ (deployed) or agents/ (this repo)."
-  (:require [babashka.fs :as fs]
+  The masters live at $SDK_SRC/agents/ (the SDK source)."
+  (:require [spine.host :as host]
+            [spine.repo :as repo]
             [clojure.string :as str]))
 
 (def ^:private stamp
@@ -18,19 +19,15 @@
   edit the master and re-run.")
 
 (defn- masters-dir
-  "First existing masters dir: .agentic-sdk/agents (deployed), .claude/agents
-  (legacy symlink), then agents (this repo). Canonicalizes the path so glob
-  descends when the masters are a symlink (a dev install links them)."
+  "The agent masters dir at $SDK_SRC/agents/. Resolves the SDK source
+  from $AGENTIC_SDK_SRC or the repo/sdk-src derivation. Canonicalizes
+  so glob descends properly."
   [root]
-  (let [candidates [(fs/path root ".agentic-sdk" "agents")
-                    (fs/path root ".claude" "agents")
-                    (fs/path root "agents")]]
-    (->> candidates
-         (filter #(fs/exists? %))
-         first
-         (#(some-> % fs/canonicalize str)))))
+  (let [d (host/path (repo/sdk-src) "agents")]
+    (when (host/exists? d)
+      (host/path-str (host/canonicalize d)))))
 
-(defn- derived-dir [root] (fs/path root ".opencode" "agent"))
+(defn- derived-dir [root] (host/path root ".opencode" "agent"))
 
 ;; --- frontmatter parse/emit ----------------------------------------------
 
@@ -109,7 +106,7 @@
 
 (defn- master-files [root]
   (when-let [d (masters-dir root)]
-    (sort (fs/glob d "*.md"))))
+    (sort (host/glob d "*.md"))))
 
 (defn sync!
   "Project every master into .opencode/agent/. Writes derived files,
@@ -117,10 +114,10 @@
   [root]
   (let [out (derived-dir root)
         wrote (for [p (master-files root)
-                    :let [nm (str/replace (fs/file-name p) #"\.md$" "")
-                          derived (derive (slurp (str p)) nm)]]
-                (do (fs/create-dirs out)
-                    (spit (str (fs/path out (str nm ".md"))) derived)
+                    :let [nm (str/replace (host/file-name p) #"\.md$" "")
+                          derived (derive (slurp (host/path-str p)) nm)]]
+                (do (host/create-dirs out)
+                    (spit (host/path-str (host/path out (str nm ".md"))) derived)
                     nm))]
     {:wrote (vec wrote)}))
 
@@ -129,11 +126,11 @@
   projection of their master. Empty seq means everything is in sync."
   [root]
   (for [p (master-files root)
-        :let [nm (str/replace (fs/file-name p) #"\.md$" "")
-              target (fs/path (derived-dir root) (str nm ".md"))
-              want (derive (slurp (str p)) nm)]
-        :when (or (not (fs/exists? target))
-                  (not= (slurp (str target)) want))]
+        :let [nm (str/replace (host/file-name p) #"\.md$" "")
+              target (host/path (derived-dir root) (str nm ".md"))
+              want (derive (slurp (host/path-str p)) nm)]
+        :when (or (not (host/exists? target))
+                  (not= (slurp (host/path-str target)) want))]
     nm))
 
 (defn check

@@ -1,4 +1,4 @@
-# Project descriptor: `.agentic-sdk/project.edn`
+# Project descriptor: `~/.agentic-sdk/<project>/project.edn`
 
 Status: **Authoritative schema.** The descriptor is the single tuning valve for a
 project. Recipes read it to pick a language recipe; the spine reads it to pick a
@@ -6,10 +6,11 @@ runtime and a store; hooks read it to arm policies; orchestrators read it to kno
 which lanes to run and which dimensions to fan out. Nothing downstream hardcodes
 a stack. `bootstrap-project` writes it once; the `add-*` meta-skills amend it.
 
-The file lives at `.agentic-sdk/project.edn`, committed (not gitignored). EDN, a
-single map, no code execution. Every field has a default, so a minimal descriptor
-is `{}`. Every field is optional in that the system degrades to a sane default,
-but a production project states the ones that matter.
+The file lives at `~/.agentic-sdk/<project>/project.edn`, developer-local and not
+committed to any repo. EDN, a single map, no code execution. Every field has a
+default, so a minimal descriptor is `{}`. Every field is optional in that the
+system degrades to a sane default, but a production project states the ones
+that matter.
 
 Each field below carries: **type**, allowed **values**, **default**, what it
 **configures**, who **reads** it (skill, agent, hook, or spine task), and its
@@ -39,7 +40,7 @@ asks the user, default applied when the user gives no answer).
   list.
 - **default:** `[]` (no recognized language markers).
 - **configures:** which `write-<lang>` recipes `bootstrap-project` materializes
-  into `.agentic-sdk/skills/`, and which language discipline the `writer` agent loads
+  into `~/.agentic-sdk/<project>/skills/`, and which language discipline the `writer` agent loads
   per unit.
 - **reads:** `bootstrap-project`, `writer`, `change-runner`.
 - **origin:** DETECT. Markers: `deps.edn` or `project.clj` for `:clojure`;
@@ -177,37 +178,37 @@ A map of three keys.
 #### `:spine :runtime`
 
 - **type:** keyword.
-- **values:** `:babashka`, `:thin`, or `:none`. See `spine.md` for what each
-  level provides.
-- **default:** `:babashka` when `bb` is on the project PATH; `:thin` otherwise
-  (C, Zig, or Elixir without bb); `:none` only when the project opts out
-  explicitly.
-- **configures:** which spine tasks are invocable and how (bb tasks versus shell
-  stand-ins versus return-value hand-off).
+- **values:** `:mino`, `:babashka`, `:thin`, or `:none`. See `spine.md` for what
+  each level provides. `:mino` runs the spine under the mino runtime; `:babashka`
+  under Babashka.
+- **default:** `:mino` when `mino` is on the project PATH; `:babashka` when `bb`
+  is on PATH and `mino` is not; `:thin` otherwise (C, Zig, or Elixir without
+  mino or bb); `:none` only when the project opts out explicitly.
+- **configures:** which spine tasks are invocable and how (mino tasks versus bb
+  tasks versus shell stand-ins versus return-value hand-off).
 - **reads:** every spine task dispatch, the `bootstrap-project` scaffold step.
-- **origin:** DETECT. `bb` presence on PATH decides; the author may downgrade.
+- **origin:** DETECT. `mino` presence on PATH decides, `bb` as fallback; the
+  author may downgrade.
 
 #### `:spine :store`
 
 - **type:** keyword.
-- **values:** `:edn` (today) or `:future` (future store, Phase 5).
+- **values:** `:edn` (today) or `:mino` (mino store with temporal history).
 - **default:** `:edn`.
 - **configures:** the on-disk format of the working dir and the ledger. The task
   interface is identical across stores; only the serialization changes.
 - **reads:** the spine adapter (the serialization layer).
-- **origin:** DETECT. `:edn` today; the future store is not selectable until
-  Phase 5.
+- **origin:** DETECT. `:edn` today; `:mino` when the mino store backing ships.
 
 #### `:spine :working-dir`
 
 - **type:** string path.
-- **values:** any path relative to the project root. Convention:
-  `.agentic-sdk/state/`.
-- **default:** `.agentic-sdk/state/`.
+- **values:** any path relative to the project home. Convention: `state/`.
+- **default:** `state/`.
 - **configures:** where the spine writes proposals, scans, findings, triage
-  output, run state, and escalations. Gitignored.
+  output, run state, and escalations. Developer-local state, never committed.
 - **reads:** every spine task (each resolves this once and prefixes all paths).
-- **origin:** DETECT, fixed to the canonical `.agentic-sdk/state/` home.
+- **origin:** DETECT, fixed to the canonical `state/` home.
 
 ### `:adr`
 
@@ -217,8 +218,9 @@ A map of two keys.
 
 - **type:** string path.
 - **values:** any directory path.
-- **default:** `"docs/adr/"`. Set to `.agentic-sdk/artifacts/adr/` when the
-  project prefers the artifacts tree.
+- **default:** `"artifacts/adr/"`. Set to `"docs/adr/"` when the project prefers
+  to keep ADRs with committed docs in the project repo rather than under the SDK
+  home.
 - **configures:** where `record-decision` writes ADR files and where
   `write-<lang>` looks for prior decisions ("scan before designing against an
   unexplained rule").
@@ -274,7 +276,7 @@ A map of two keys.
     (PreToolUse on commit and merge).
 - **default:** `[:format-on-write :deny-secrets]`.
 - **configures:** which hook templates `bootstrap-project` scaffolds into
-  `.agentic-sdk/hooks/`.
+  `~/.agentic-sdk/<project>/hooks/`.
 - **reads:** the host runtime hook loader, `bootstrap-project`.
 - **origin:** ELICIT, default applied.
 
@@ -306,6 +308,8 @@ A map of two keys.
 
 ## Full annotated example
 
+Lives at `~/.agentic-sdk/<project>/project.edn`, developer-local and not committed.
+
 ```edn
 {:vcs        :jj                                  ; :git | :jj  (default :jj)
  :languages  [:zig :clojure]                      ; subset of #{:c :zig :clojure :elixir}
@@ -324,10 +328,10 @@ A map of two keys.
  :dimensions-active #{:style :factoring :correctness :security
                       :performance :memory :conformance :design}
  :spine
-  {:runtime     :babashka                          ; :babashka | :thin | :none
-   :store       :edn                               ; :edn | :future (the future store, not selectable yet)
-    :working-dir ".agentic-sdk/state/"}
- :adr        {:store "docs/adr/" :format :nygard}
+   {:runtime     :mino                               ; :mino | :babashka | :thin | :none
+    :store       :edn                               ; :edn | :mino (mino store with temporal history)
+     :working-dir "state/"}
+  :adr        {:store "artifacts/adr/" :format :nygard}
  :commit     {:categories ["Build" "Tests" "Fix" "Refactor" "Docs" "CI" "Skills"]
               :form      "Category: Imperative subject"}
  :hooks      [:format-on-write :deny-secrets :require-tests-before-land]
@@ -344,9 +348,9 @@ A map of two keys.
 | `:vcs` | `.jj/` present, else `.git/` |
 | `:languages` | file markers per language |
 | `:ui?` | frontend surface markers (heuristic) |
-| `:spine :runtime` | `bb` on PATH |
+| `:spine :runtime` | `mino` on PATH; `bb` as fallback |
 | `:spine :store` | always `:edn` today |
-| `:spine :working-dir` | canonical `.agentic-sdk/state/` |
+| `:spine :working-dir` | canonical `state/` |
 | `:lanes` | per-language template, then author refines |
 | `:dimensions-active` | per-stack floor, then author refines |
 
@@ -368,4 +372,6 @@ detector cannot decide:
 
 The single tuning valve. A field change here is the only place a project
 retunes the system: add a language, drop a dimension, arm a hook, downgrade the
-spine. Every `add-*` meta-skill amends this file and only this file.
+spine. Every `add-*` meta-skill amends this file and only this file. The
+descriptor is not version controlled; it is developer-local state at
+`~/.agentic-sdk/<project>/project.edn`.

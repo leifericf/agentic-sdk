@@ -22,7 +22,7 @@ capabilities. No implementation task breakdown.
 4. If blocked by missing information, add a `[Blocking]` item to
    `open-questions.md` and stop. If new decisions are needed, record them in
    `decision-log.md` first.
-5. Write `.agentic-sdk/artifacts/planning/product-backlog.md` as one living document
+5. Write `~/.agentic-sdk/<project>/artifacts/planning/product-backlog.md` as one living document
    with exactly these buckets in order: `Now / Next`, `Later`,
    `Inbox (untriaged)`, `In product (shipped)`. No IDs; priority is order
    within the bucket; each item appears once in one bucket; child items indent

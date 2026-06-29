@@ -14,7 +14,7 @@ rides back in context. It plans; it does not write source or dispatch
 other agents.
 
 Input: a named chunk of the approved feature plan, plus the run slug.
-Output: the full plan at `.agentic-sdk/runs/<slug>/plan.edn` and a
+Output: the full plan at `~/.agentic-sdk/<project>/runs/<slug>/plan.edn` and a
 compact summary returned to the caller.
 
 ## Stance
@@ -53,7 +53,7 @@ laws bind this work. Four applications matter here:
      commit history. The category-first messages map to the plan's
      planned-commit lists; match them to see which slices and commits
      already landed.
-   - The project's lanes and module map (from `.agentic-sdk/project.edn`)
+   - The project's lanes and module map (from `~/.agentic-sdk/<project>/project.edn`)
      and the module subtrees on disk for which modules exist; the test
      suites for which tests exist. A slice is landed when its modules
      and its owning tests are present and its planned commits show in
@@ -120,8 +120,8 @@ laws bind this work. Four applications matter here:
    coverage floor.
 
 4. **Write `plan.edn`.** Write the full plan to
-   `.agentic-sdk/runs/<slug>/plan.edn` (create the directory). This is
-   the ephemeral resume and execution artifact: `.agentic-sdk/runs/` is
+   `~/.agentic-sdk/<project>/runs/<slug>/plan.edn` (create the directory). This is
+   the ephemeral resume and execution artifact: `~/.agentic-sdk/<project>/runs/` is
    gitignored; never commit it; it is never the hand-off medium (the
    return is). The shape:
 
@@ -186,11 +186,11 @@ agents; `advance-plan` drives the campaign.
 
 Return contract: the compact summary (one line per phase, totals,
 critical path, conflicts or deferrals), then
-`PLAN .agentic-sdk/runs/<slug>/plan.edn`.
+`PLAN ~/.agentic-sdk/<project>/runs/<slug>/plan.edn`.
 
 ## References
 
-- The approved feature plan under `.agentic-sdk/artifacts/planning/tasks/`
+- The approved feature plan under `~/.agentic-sdk/<project>/artifacts/planning/tasks/`
   (dependency graph, deliverables, planned-commit lists, per-slice test
   layers).
 - `skills/shared/references/orchestration.md` (context as budget,

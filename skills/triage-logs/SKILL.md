@@ -25,7 +25,7 @@ smallest useful packet, not a full data dump.
    outcomes.
 8. Propose mitigations, reversible first, each with its risk and rollback.
 9. Prioritize concrete next actions.
-10. Write `.agentic-sdk/artifacts/ops/YYYY-MM-DD_triage_<issue_slug>.md` with:
+10. Write `~/.agentic-sdk/<project>/artifacts/ops/YYYY-MM-DD_triage_<issue_slug>.md` with:
     Metadata, Summary, Symptoms, Impact Assessment, Observed Signals, Recent
     Changes, Hypotheses, Experiments, Findings, Mitigations (reversible first),
     Next Actions, Open Questions, Data Request Packet. Slug: lowercase,

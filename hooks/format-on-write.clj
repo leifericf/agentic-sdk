@@ -1,11 +1,15 @@
-#!/usr/bin/env bb
+#!/usr/bin/env mino
 ;; PostToolUse hook (Claude Code): run the project formatter on the file
 ;; just written. Matcher: Write|Edit. Reads the path from the hook JSON;
 ;; picks the formatter from the descriptor's :lanes when present, else by
 ;; extension. Fail-soft: a missing formatter or a bad parse never blocks.
 
-(require '[babashka.process :as p]
-         '[cheshire.core :as json]
+(let [sdk (or (System/getenv "AGENTIC_SDK_SRC")
+              (str (System/getenv "HOME") "/Code/agentic-sdk"))]
+  (add-load-path! (str sdk "/src")))
+
+(require '[spine.host :as host]
+         '[spine.repo :as repo]
          '[clojure.string :as str])
 
 (defn ext [path]
@@ -24,15 +28,17 @@
     :else nil))
 
 (defn lanes-formatter []
-  (let [desc (try (slurp ".agentic-sdk/project.edn")
-                  (catch Exception _ ""))]
-    (cond
-      (re-find #"clang-format" desc) "clang-format"
-      (re-find #"zig fmt" desc)      "zig"
-      (re-find #"cljfmt" desc)       "cljfmt"
-      (re-find #"zprint" desc)       "zprint"
-      (re-find #"mix format" desc)   "mix"
-      :else nil)))
+  (let [home (repo/project-home)
+        f (host/path home "project.edn")]
+    (when (host/exists? f)
+      (let [desc (slurp (host/path-str f))]
+        (cond
+          (re-find #"clang-format" desc) "clang-format"
+          (re-find #"zig fmt" desc)      "zig"
+          (re-find #"cljfmt" desc)       "cljfmt"
+          (re-find #"zprint" desc)       "zprint"
+          (re-find #"mix format" desc)   "mix"
+          :else nil)))))
 
 (def ^:private argv-for
   {"clang-format" #(vector "clang-format" "-i" %)
@@ -42,10 +48,10 @@
    "mix"          #(vector "mix" "format" %)})
 
 (defn -main [& _]
-  (let [m (try (json/parse-string (slurp *in*) true)
-               (catch Exception _ nil))]
+  (let [m (try (host/json-parse (host/slurp-stdin))
+               (catch e nil))]
     (when-let [path (and (map? m) (-> m :tool_input :file_path))]
-      (when (and (ext path) (.exists (java.io.File. path)))
+      (when (and (ext path) (host/exists? path))
         (let [fmt  (or (lanes-formatter)
                        (case (ext path)
                          "c"   "clang-format"
@@ -55,8 +61,7 @@
                          nil))
               make (get argv-for fmt)]
           (when make
-            (try (apply p/shell {:out :string :err :string :continue true}
-                        (make path))
-                 (catch Exception _))))))))
+            (try (apply host/shell (make path))
+                 (catch e nil))))))))
 
 (-main)

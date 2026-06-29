@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env mino
 ;; Policy: gate land operations on a green lane run.
 ;;
 ;; One source for both runtimes. Reads hook JSON on stdin, detects the
@@ -10,12 +10,15 @@
 ;;     emits {"allow" true} or {"allow" false, "reason" "..."}.
 ;;
 ;; A command is a land op if it pushes or merges onto the trunk. A green
-;; marker is the lanes-green file in the spine working dir (default
-;; .agentic-sdk/state, or SPINE_WORK_DIR), or VERDICT: PASS in the
-;; transcript. Fail-safe: any parse error allows (nothing emitted).
+;; marker is the lanes-green file in the spine working dir, or VERDICT: PASS
+;; in the transcript. Fail-safe: any parse error allows (nothing emitted).
 
-(require '[cheshire.core :as json]
-         '[clojure.java.io :as io])
+(let [sdk (or (System/getenv "AGENTIC_SDK_SRC")
+              (str (System/getenv "HOME") "/Code/agentic-sdk"))]
+  (add-load-path! (str sdk "/src")))
+
+(require '[spine.host :as host]
+         '[spine.repo :as repo])
 
 (def land-patterns
   "Full-string regexes. A command is a land op if any matches it whole."
@@ -28,11 +31,11 @@
   (some #(re-matches % cmd) land-patterns))
 
 (defn green? [{:keys [cwd transcript]}]
-  (let [work-dir (or (System/getenv "SPINE_WORK_DIR") ".agentic-sdk/state")
-        base     (if (empty? cwd) "." cwd)]
-    (or (.isFile (io/file base work-dir "lanes-green"))
-        (when (and transcript (.isFile (io/file transcript)))
-          (re-find #"VERDICT: PASS" (slurp (io/file transcript)))))))
+  (let [home (repo/project-home)
+        wd (repo/working-dir home)]
+    (or (host/exists? (host/path wd "lanes-green"))
+        (when (and transcript (host/exists? transcript))
+          (re-find #"VERDICT: PASS" (slurp (host/path-str transcript)))))))
 
 (def reason
   (str "require-tests-before-land: no green lane marker this session. "
@@ -40,17 +43,17 @@
        "and writes the lanes-green marker."))
 
 (defn -main [& _]
-  (let [m (try (json/parse-string (slurp *in*) true)
-               (catch Exception _ nil))]
+  (let [m (try (host/json-parse (host/slurp-stdin))
+               (catch e nil))]
     (when (map? m)
       (let [cc?        (map? (:tool_input m))
             command    (or (and cc? (-> m :tool_input :command)) (:command m))
-            cwd        (or (:cwd m) (System/getProperty "user.dir"))
+            cwd        (or (:cwd m) ".")
             transcript (or (and cc? (:transcript_path m)) (:transcript m))]
         (cond
           (and command (land? command)
                (not (green? {:cwd cwd :transcript transcript})))
-          (println (json/encode
+          (println (host/json-encode
                     (if cc?
                       {:hookSpecificOutput
                        {:permissionDecision "deny"
@@ -58,6 +61,6 @@
                       {:allow false :reason reason})))
 
           (not cc?)
-          (println (json/encode {:allow true})))))))
+          (println (host/json-encode {:allow true})))))))
 
 (-main)

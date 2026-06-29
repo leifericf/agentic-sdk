@@ -27,7 +27,7 @@ recipe, not a planning dimension, despite the name.
    detection method, owner.
 10. Define go/no-go criteria and render the decision: go, go with conditions,
     or no-go pending.
-11. Write `.agentic-sdk/artifacts/ops/YYYY-MM-DD_risk_<change_slug>.md` with:
+11. Write `~/.agentic-sdk/<project>/artifacts/ops/YYYY-MM-DD_risk_<change_slug>.md` with:
     Metadata, Change Summary, Blast Radius, Dependencies, Rollout Plan,
     Monitoring Plan, Rollback Plan, Risk Register, Go/No-Go Criteria, Open
     Questions, Decision. Slug: lowercase, hyphens, descriptive.

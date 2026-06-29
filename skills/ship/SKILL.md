@@ -13,7 +13,7 @@ prepare-release steps into one cycle.
 
 ## Prerequisites
 
-`.agentic-sdk/project.edn` exists with `:lanes :pre-land` and `:vcs`. The tip
+`~/.agentic-sdk/<project>/project.edn` exists with `:lanes :pre-land` and `:vcs`. The tip
 is at a state the maintainer wants to release. A target version (or a
 recommendation the maintainer approves at the gate).
 

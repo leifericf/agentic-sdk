@@ -34,7 +34,7 @@ returns (`LANDED`, `needs-cross-module`, `FAILED`) and changelog lines
 you collect; the escalations list, started empty and grown by a double
 `FAILED` on one finding; for `audit-code`, the out-of-scope items set
 aside. A long run may keep a minimal gitignored resume checkpoint under
-`.agentic-sdk/runs/<slug>/` recording only what is done; never
+`~/.agentic-sdk/<project>/runs/<slug>/` recording only what is done; never
 committed, never the hand-off medium.
 
 ## Batching

@@ -6,10 +6,9 @@
   near-stateless: after each phase or round it advances run.edn and reads
   `bb run status` to learn the next directive. Because the directive is
   computed from disk, a killed run resumes from disk."
-  (:require [babashka.fs :as fs]
-            [clojure.edn :as edn]
-            [clojure.string :as str]
-            [spine.core :as core]))
+  (:require [spine.host :as host]
+            [spine.repo :as repo]
+            [clojure.edn :as edn]))
 
 (def default-stage-order
   "The per-round review loop for software: mechanical lint, reviewer fan-out,
@@ -19,38 +18,31 @@
 
 ;; --- hashing (arm the gates) ---------------------------------------------
 
-(defn- sha256 [^String s]
-  (let [md (java.security.MessageDigest/getInstance "SHA-256")
-        bs (.digest md (.getBytes s "UTF-8"))]
-    (str "sha256:" (apply str (map #(format "%02x" (bit-and % 0xff)) bs)))))
-
 (defn- file-hash [root name]
-  (let [f (fs/path root name)]
-    (when (fs/exists? f) (sha256 (slurp (str f))))))
+  (let [f (host/path root name)]
+    (when (host/exists? f) (host/sha256 (slurp (host/path-str f))))))
 
 ;; --- state read/write ----------------------------------------------------
 
-(defn- run-file [root] (fs/path (core/working-dir root) "run.edn"))
+(defn- run-file [root] (host/path (repo/working-dir root) "run.edn"))
 
 (defn read-state [root]
-  (let [f (run-file root)]
-    (when (fs/exists? f) (edn/read-string (slurp (str f))))))
+  (repo/read-edn (run-file root)))
 
 (defn write-state! [root state]
-  (core/write-edn! (str (run-file root)) state))
+  (repo/write-edn! (run-file root) state))
 
 ;; --- descriptor / plan discovery ----------------------------------------
 
 (defn- read-descriptor [root]
-  (or (core/read-edn (str (fs/path root ".agentic-sdk" "project.edn")))
-      (core/read-edn (str (fs/path root "project.edn")))
+  (or (repo/read-edn (host/path root "project.edn"))
       {}))
 
 (defn- read-plan [root]
   ;; A plan names the campaign's phases. The active campaign lives at
-  ;; .agentic-sdk/runs/current/plan.edn; absence means a single implicit phase.
-  (or (core/read-edn (str (fs/path root ".agentic-sdk" "runs" "current" "plan.edn")))
-      (core/read-edn (str (fs/path root "plan.edn")))
+  ;; runs/current/plan.edn under the project home; absence means a single
+  ;; implicit phase.
+  (or (repo/read-edn (host/path root "runs" "current" "plan.edn"))
       {}))
 
 (defn- plan-phases [plan]
@@ -80,8 +72,8 @@
                :stages      (zipmap order (repeat :pending))
                :phases      (-> (zipmap phs (repeat :pending))
                                 (assoc (first phs) :active))
-                :plan-hash     (file-hash root ".agentic-sdk/runs/current/plan.edn")
-                :descriptor-hash (file-hash root ".agentic-sdk/project.edn")}]
+                 :plan-hash     (file-hash root "runs/current/plan.edn")
+                 :descriptor-hash (file-hash root "project.edn")}]
     (write-state! root state)))
 
 (defn advance!
@@ -125,7 +117,7 @@
                                p))]
               (if nxt
                 {:action :next-phase :phase nxt}
-                {:action :complete})))))
+                {:action :complete})))) )
 
 (defn- stale-phases [state]
   (for [[p s] (:phases state) :when (= s :pending)] p))
@@ -140,12 +132,12 @@
      :round              (:round state)
      :round-cap          (:round-cap state)
      :active-phase       (:active-phase state)
-     :collisions-pending (core/pending-collisions root)
+     :collisions-pending (repo/pending-collisions root)
      :pending-phases     (vec (stale-phases state))
-      :plan-changed?      (not= (:plan-hash state)
-                                (file-hash root ".agentic-sdk/runs/current/plan.edn"))
-      :descriptor-changed? (not= (:descriptor-hash state)
-                                 (file-hash root ".agentic-sdk/project.edn"))}))
+       :plan-changed?      (not= (:plan-hash state)
+                                 (file-hash root "runs/current/plan.edn"))
+       :descriptor-changed? (not= (:descriptor-hash state)
+                                  (file-hash root "project.edn"))}))
 
 (defn -main
   "bb run init|status|advance [ROOT] [EDN-OPTS]. status prints the directive

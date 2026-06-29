@@ -11,8 +11,8 @@ backlog and feature plan, ready to hand to advance-plan or implement-change.
 
 ## Prerequisites
 
-`.agentic-sdk/project.edn` exists (run bootstrap-project first).
-`.agentic-sdk/artifacts/` is scaffolded: project-meta, the decisions log, and
+`~/.agentic-sdk/<project>/project.edn` exists (run bootstrap-project first).
+`~/.agentic-sdk/<project>/artifacts/` is scaffolded: project-meta, the decisions log, and
 open-questions.
 
 ## Procedure

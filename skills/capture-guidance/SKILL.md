@@ -20,7 +20,7 @@ profile every session reads.
      turn, ask-first versus decide-and-continue, probing depth, output
      style, hard red lines): route to the profile.
 2. **Correction route.** Append one entry to
-   `.agentic-sdk/guidance/inbox.edn` (a vector; `[]` if missing;
+   `~/.agentic-sdk/<project>/guidance/inbox.edn` (a vector; `[]` if missing;
    gitignored working state, consumed when incorporate-feedback
    promotes the entry):
 
@@ -44,7 +44,7 @@ profile every session reads.
    `incorporate-feedback` resolves it with the maintainer.
 
 3. **Preference route.** Upsert the preference into
-   `.agentic-sdk/guidance/profile.edn` (a map; `{}` if missing;
+   `~/.agentic-sdk/<project>/guidance/profile.edn` (a map; `{}` if missing;
    gitignored).
    One key per preference, plain values:
 

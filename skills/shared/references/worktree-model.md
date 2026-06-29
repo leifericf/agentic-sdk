@@ -109,7 +109,7 @@ hand-off back.
 
 The hand-off between agents is return values held in the orchestrator's
 context, never files. The only optional disk state is a minimal,
-gitignored resume checkpoint under `.agentic-sdk/runs/<slug>/`: what is
+gitignored resume checkpoint under `~/.agentic-sdk/<project>/runs/<slug>/`: what is
 done (units landed, rounds completed, findings still open), so a crash
 or token-exhausted run can pick up. It is never committed, never the
 hand-off medium; a clean run can delete it. Do not create findings,

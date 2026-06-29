@@ -22,7 +22,7 @@ criteria. Translate risks into testable questions and mitigations.
    organizational risks.
 4. Confirm with targeted questions, at most three per turn; prefer binary and
    pick-one over open-ended. Continue until uncertainty is acceptably low.
-5. Write `.agentic-sdk/artifacts/planning/risk-assumption-review.md` with:
+5. Write `~/.agentic-sdk/<project>/artifacts/planning/risk-assumption-review.md` with:
    Metadata, Confirmed Truths, Key Risks (category, likelihood, impact,
    mitigation, owner), Dangerous Assumptions, Scope Creep Watchlist,
    Over-Engineering Traps, Recommended Simplifications. Record new open

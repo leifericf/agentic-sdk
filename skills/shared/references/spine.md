@@ -8,19 +8,19 @@ write. The implementation behind these names swaps; the calls do not.
 
 ## The stable interface
 
-The skill and agent layer calls **task names**, never the runtime. Today the
-runtime is Babashka and the store is EDN files under the working dir. Tomorrow
-a future static-binary task runtime replaces Babashka and a future
-immutable-fact store replaces EDN files as the store. The task names, their
-arguments, their reads, their writes, and their exit contracts stay fixed. A
-skill that calls `triage` today calls `triage` after the migration; only the
-adapter that answers the call changes.
+The skill and agent layer calls **task names**, never the runtime. Today two
+runtimes are live: Babashka and mino. The store is EDN files today, with the
+mino store as the target. The task names, their arguments, their reads, their
+writes, and their exit contracts stay fixed. A skill that calls `triage` today
+calls `triage` regardless of runtime; only the adapter that answers the call
+changes.
 
 Concretely: a recipe says "run the `triage` spine task over the working dir"; it
-does not say `bb triage`. The host runtime (or a thin dispatch shim) resolves the
-name to the active adapter. This is why a C project at `:spine :runtime :thin`
-and a Clojure project at `:spine :runtime :babashka` invoke the same name and
-get the same contract.
+does not hardcode `agentic triage` or any adapter-specific form. The `agentic`
+CLI resolves the name to the active runtime. This is why a C project at
+`:spine :runtime :thin`, a Clojure project at `:spine :runtime :babashka`, and a
+mino project at `:spine :runtime :mino` invoke the same name and get the same
+contract.
 
 ## Task catalog
 
@@ -30,16 +30,16 @@ Seven tasks. Each entry fixes: the **invocation** (name and arguments), what it
 
 Arguments use `[ROOT]` for the project root, defaulting to `.`. Paths inside the
 working dir are relative to `:spine :working-dir` (shown here as
-`.agentic-sdk/state/`).
+`state/`).
 
 ### `triage`
 
 - **invocation:** `triage [ROOT]`.
-- **reads:** every `.agentic-sdk/state/findings/*.edn` (each a finding map or a vector of
+- **reads:** every `state/findings/*.edn` (each a finding map or a vector of
   finding maps, sorted by filename for deterministic order);
-  `.agentic-sdk/state/protected-idioms.edn` (a vector of idiom strings) when present.
-- **writes:** `.agentic-sdk/state/triage/punch-list.edn` and
-  `.agentic-sdk/state/triage/punch-list.md`.
+  `state/protected-idioms.edn` (a vector of idiom strings) when present.
+- **writes:** `state/triage/punch-list.edn` and
+  `state/triage/punch-list.md`.
 - **invariant:** dedupe on `[file evidence rule]`, drop rule-less opinions (they
   become queries), drop findings whose evidence contains a protected idiom, order
   by editing level then severity then file order, renumber as `FINDING-1`,
@@ -59,7 +59,7 @@ triage normalizes those to `:high`/`:medium`/`:low` before ordering.
 - **invocation:** `integrate [ROOT]`. Opts (passed by the orchestrator, not on
   the command line): `:working-branch`, `:prefix`, `:delete-branches?`.
 - **reads:** the working branch (default the current HEAD); every fix branch
-  under the prefix (default `.agentic-sdk/state/fix/`),
+  under the prefix (default `state/fix/`),
   sorted oldest first; the commits ahead of working on each.
 - **writes:** the landed commits cherry-picked onto the working branch; deletes
   the consumed fix branches when `:delete-branches?` is true (the default).
@@ -79,7 +79,7 @@ Resumption state. Three subforms, all under one task name.
   `:campaign`), `:round-cap`
   (default `3`), `:units` (default every unit).
 - **reads:** the plan and the descriptor (the unit list and statuses).
-- **writes:** `.agentic-sdk/state/run.edn`.
+- **writes:** `state/run.edn`.
 - **invariant:** seeds a minimal checkpoint: scope, the stage map (every stage
   `:pending`), round `0`, per-unit status, and the sha256 of the gate-arming
   inputs (the plan and the descriptor). Not a state engine; the orchestrator
@@ -88,8 +88,8 @@ Resumption state. Three subforms, all under one task name.
 #### `run status`
 
 - **invocation:** `run status [ROOT]`.
-- **reads:** `.agentic-sdk/state/run.edn`, the plan,
-  `.agentic-sdk/state/escalation.edn`,
+- **reads:** `state/run.edn`, the plan,
+  `state/escalation.edn`,
   and the current hash of the gate-arming inputs.
 - **writes:** nothing. Prints the directive map.
 - **invariant:** compute the single next directive (run the first pending stage,
@@ -101,8 +101,8 @@ Resumption state. Three subforms, all under one task name.
 #### `run advance`
 
 - **invocation:** `run advance [ROOT] [EDN]`. The EDN is a partial update map.
-- **reads:** `.agentic-sdk/state/run.edn`.
-- **writes:** `.agentic-sdk/state/run.edn`, deep-merged. Maps merge one level (so
+- **reads:** `state/run.edn`.
+- **writes:** `state/run.edn`, deep-merged. Maps merge one level (so
   `{:stages {:lint :done}}` updates only that stage); other values replace.
 - **invariant:** the orchestrator advances the checkpoint after each phase and
   reads `status` to learn the next directive, never the transcript.
@@ -115,7 +115,7 @@ usage.
 
 - **invocation:** `compile-rules [ROOT] [STYLES-DIR]`. The styles dir defaults
   to the working dir's `rules/`.
-- **reads:** `.agentic-sdk/state/decisions.edn` (banned categories, naming rulings,
+- **reads:** `state/decisions.edn` (banned categories, naming rulings,
   commit categories).
 - **writes:** under `STYLES-DIR`: `lint-rules.edn` (the banned-pattern list as
   rule maps) and `commit-categories.edn` (the allowlist).
@@ -150,8 +150,8 @@ separate; `compile-rules` owns only the project's house rules.
 ### `opencode-sync`
 
 - **invocation:** `opencode-sync [ROOT]`.
-- **reads:** the agent masters under `.agentic-sdk/agents/` (or `agents/` in
-  this repo).
+- **reads:** the agent masters under `~/.agentic-sdk/<project>/agents/` (or
+  `agents/` in this repo).
 - **writes:** the projected OpenCode form under `.opencode/agent/`.
 - **invariant:** one-way deterministic projection of the masters into the
   OpenCode format. Masters are never hand-edited in the derived form. See
@@ -171,21 +171,23 @@ separate; `compile-rules` owns only the project's house rules.
 
 ## Working-directory format
 
-The gitignored `.agentic-sdk/state/` dir (path from `:spine :working-dir`,
-default `.agentic-sdk/state/`). Every path below is relative to it. The store
-is EDN today, a future immutable-fact store tomorrow; the path layout and the
-EDN shapes are the contract the future store schema must preserve.
+The `state/` dir lives under the project home at `~/.agentic-sdk/<project>/`
+(path from `:spine :working-dir`, default `state/`). It is developer-local
+state, not in the project repo. Every path below is relative to that home. The
+store is EDN today, a future immutable-fact store tomorrow; the path layout and
+the EDN shapes are the contract the future store schema must preserve.
 
 ```
-.agentic-sdk/state/
-  findings/             ; one .edn per reviewer/lint finding batch (triage consumes)
-  triage/
-    punch-list.edn      ; the ordered, deduped, numbered findings (triage writes)
-    punch-list.md       ; the human-form projection of the above
-  run.edn               ; resumption checkpoint (run reads and writes)
-  decisions.edn         ; the project's banned-idiom and naming decisions (compile-rules reads)
-  escalation.edn        ; collisions and blocked merges (any merge task may write)
-  protected-idioms.edn  ; optional vector of idiom strings (triage reads)
+~/.agentic-sdk/<project>/
+  state/
+    findings/             ; one .edn per reviewer/lint finding batch (triage consumes)
+    triage/
+      punch-list.edn      ; the ordered, deduped, numbered findings (triage writes)
+      punch-list.md       ; the human-form projection of the above
+    run.edn               ; resumption checkpoint (run reads and writes)
+    decisions.edn         ; the project's banned-idiom and naming decisions (compile-rules reads)
+    escalation.edn        ; collisions and blocked merges (any merge task may write)
+    protected-idioms.edn  ; optional vector of idiom strings (triage reads)
 ```
 
 The EDN shapes below are the working contract. The software port names a
@@ -324,16 +326,23 @@ audited exception that parses rendered output.
 
 ## Spine-presence levels
 
-Until the future runtime ships, a project sits at one of three levels, recorded
-in `:spine :runtime`. The task interface is the same; what differs is which tasks
-answer and how.
+A project sits at one of four levels, recorded in `:spine :runtime`. The task
+interface is the same; what differs is which tasks answer and how.
+
+### Native spine (`:mino`)
+
+All seven tasks invocable as mino tasks over the EDN working dir (or the
+mino store when `:spine :store :mino`). Same guarantees as the Babashka
+level, plus temporal history and optional warm-start via SLAD images. The
+default level, for projects with `mino` on PATH. Picks this level when
+`:spine :runtime :mino`.
 
 ### Full spine (`:babashka`)
 
 All seven tasks invocable as bb tasks over the EDN working dir. Maximum
 guarantees: deterministic triage, conflict-free integration, lossless
 resumption, one-way rule projection, zero-token lint, a green runtime port.
-The level for Clojure projects and any project with `bb` on PATH. Picks this
+The fallback level, for projects with `bb` on PATH but not `mino`. Picks this
 level when `:spine :runtime :babashka`.
 
 ### Thin spine (`:thin`)
@@ -343,25 +352,25 @@ rest (detailed `triage`, `compile-rules`) falls back to return-value hand-off:
 the orchestrator reads one-line returns from sub-agents and folds them in
 conversation, accepting that long campaigns re-derive ground truth from
 `git log` and `ls` rather than from a folded EDN store. The level for C, Zig,
-and Elixir projects without bb. Picks this level when `:spine :runtime :thin`.
+and Elixir projects without mino or bb. Picks this level when
+`:spine :runtime :thin`.
 
 ### Return-value-only (`:none`)
 
 No spine tasks. The engine still works: every dispatch returns a contracted
 one-line value; the orchestrator threads them; disk holds only durable artifacts
-under `.agentic-sdk/artifacts/` and the VCS history. This is the proven
+under `~/.agentic-sdk/<project>/artifacts/` and the VCS history. This is the proven
 return-value-only mode. Picks this level when `:spine :runtime :none`, or
 implicitly when a project opts out of the working dir.
 
 A project picks a level by `:spine :runtime` in the descriptor.
-`bootstrap-project` DETECTS the level from `bb` presence on PATH and writes it;
-the author may downgrade. The level never upgrades silently.
+`bootstrap-project` DETECTS the level from `mino` presence on PATH (with `bb`
+as fallback) and writes it; the author may downgrade. The level never upgrades
+silently.
 
 ## Cross-reference
 
-The reference implementation of the adapter is `bb.edn` at the repo root
-(authored by another agent). It maps each task name above to a Babashka task
-entry that delegates to the namespace owning the invariant. The future runtime
-adapter (Phase 5) presents the same task names against the same working-dir
-semantics, backed by one static binary and a future store. Skills and agents
-import the task names from this contract, not from `bb.edn`.
+The adapter is the `agentic` CLI, a mino script that maps each task name above
+to a concrete invocation. It delegates to the spine namespaces, which route
+host access through `spine.host` and data access through `spine.repo`. Skills
+and agents import the task names from this contract, not from the CLI.

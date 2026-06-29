@@ -9,7 +9,7 @@ user-invocable: false
 Role: run the project's deterministic lanes and report a verdict.
 
 The lane table is descriptor data, never hardcoded commands. Read
-`.agentic-sdk/project.edn`'s `:lanes` map (see
+`~/.agentic-sdk/<project>/project.edn`'s `:lanes` map (see
 `skills/shared/references/project-descriptor.md`): three tiers, each a
 vector of shell command strings run in vector order, stopping on the
 first failure.
@@ -80,7 +80,7 @@ VERDICT: PASS|FAIL
 When the run includes the `:pre-land` tier and the verdict is `PASS`, write
 the green marker the `require-tests-before-land` hook arms on: an empty file
 named `lanes-green` in the spine working dir (the descriptor's
-`:spine :working-dir`, or the default `.agentic-sdk/state`). A `FAIL` on the
+`:spine :working-dir`, or the default `~/.agentic-sdk/<project>/state`). A `FAIL` on the
 `:pre-land` tier removes any existing marker; a run that does not include
 `:pre-land` leaves it untouched.
 

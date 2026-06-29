@@ -12,7 +12,7 @@ Clojure, Elixir), and wire it into the descriptor.
 
 ## Prerequisites
 
-`.agentic-sdk/project.edn` exists (run bootstrap-project first). The new
+`~/.agentic-sdk/<project>/project.edn` exists (run bootstrap-project first). The new
 language is outside the curated four (C, Zig, Clojure, Elixir). A real
 project need for the language, not speculative.
 
@@ -45,7 +45,7 @@ against the skeleton, wire into the descriptor, validate.
    the native-edge doctrine in `architecture.md` instead of restating
    them.
 4. **Wire the descriptor.** Add the language keyword to `:languages` in
-   `.agentic-sdk/project.edn`. If the language brings a native edge, set
+   `~/.agentic-sdk/<project>/project.edn`. If the language brings a native edge, set
    `:architecture :native-edge?` true and add the native-edge citation.
    Add the language's lane commands to `:lanes :cheap`, `:wave`, and
    `:pre-land` (formatter, build, test, release gate).
@@ -58,7 +58,7 @@ against the skeleton, wire into the descriptor, validate.
 
 ## Boundaries
 
-Produces one project-local recipe under `.agentic-sdk/skills/`, snapshotted
+Produces one project-local recipe under `$AGENTIC_SDK_SRC/skills/`, snapshotted
 and owned by the project. The recipe is a candidate for promotion to a
 toolkit master via incorporate-feedback; promotion is deliberate, never
 automatic. Does not modify the curated four. Amends only the

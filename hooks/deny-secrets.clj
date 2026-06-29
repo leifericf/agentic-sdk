@@ -1,9 +1,13 @@
-#!/usr/bin/env bb
+#!/usr/bin/env mino
 ;; PreToolUse hook (Claude Code): deny reads and writes of secret-bearing
 ;; files. Matcher: Read|Edit|Write. Denies when the basename matches a
 ;; secret pattern; allows otherwise. Fail-soft: a bad parse allows.
 
-(require '[cheshire.core :as json]
+(let [sdk (or (System/getenv "AGENTIC_SDK_SRC")
+              (str (System/getenv "HOME") "/Code/agentic-sdk"))]
+  (add-load-path! (str sdk "/src")))
+
+(require '[spine.host :as host]
          '[clojure.string :as str])
 
 (defn basename [path]
@@ -22,11 +26,11 @@
   "deny-secrets: this basename matches a secret-bearing file. Use a secrets manager, not a tracked file.")
 
 (defn -main [& _]
-  (let [m (try (json/parse-string (slurp *in*) true)
-               (catch Exception _ nil))]
+  (let [m (try (host/json-parse (host/slurp-stdin))
+               (catch e nil))]
     (when-let [path (and (map? m) (-> m :tool_input :file_path))]
       (when (secret? (basename path))
-        (println (json/encode
+        (println (host/json-encode
                   {:hookSpecificOutput
                    {:permissionDecision "deny"
                     :permissionDecisionReason reason}}))))))

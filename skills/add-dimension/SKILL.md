@@ -12,7 +12,7 @@ miss, and wire it into the descriptor.
 
 ## Prerequisites
 
-`.agentic-sdk/project.edn` exists (run bootstrap-project first). A real bug
+`~/.agentic-sdk/<project>/project.edn` exists (run bootstrap-project first). A real bug
 class the active `:dimensions-active` set missed, the way a
 memory-unsafe language needs check-memory. The bug class is general,
 not a one-off.
@@ -58,7 +58,7 @@ against the skeleton, wire into the descriptor, validate.
 
 ## Boundaries
 
-Produces one project-local recipe under `.agentic-sdk/skills/`, snapshotted
+Produces one project-local recipe under `$AGENTIC_SDK_SRC/skills/`, snapshotted
 and owned by the project. The recipe is a candidate for promotion to a
 toolkit master via incorporate-feedback; promotion is deliberate, never
 automatic. Does not modify the curated catalog. Amends only the

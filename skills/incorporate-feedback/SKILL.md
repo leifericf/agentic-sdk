@@ -11,7 +11,7 @@ strongest home, conflicts resolved, the inbox emptied in one commit.
 
 ## Procedure
 
-Input: `.agentic-sdk/guidance/inbox.edn`. Per entry, in inbox
+Input: `~/.agentic-sdk/<project>/guidance/inbox.edn`. Per entry, in inbox
 order:
 
 1. **Pick the home by strength.** Strongest first:

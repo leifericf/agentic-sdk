@@ -28,7 +28,7 @@ mode.
 10. Define preventative controls, each with type (test, monitoring, process,
     architecture), what it prevents, how to verify it, and owner.
 11. Assess residual risk and why it is acceptable.
-12. Write `.agentic-sdk/artifacts/ops/YYYY-MM-DD_rca_<incident_slug>.md` with:
+12. Write `~/.agentic-sdk/<project>/artifacts/ops/YYYY-MM-DD_rca_<incident_slug>.md` with:
     Metadata, Problem Statement, Customer Impact, Causal Chain, Five Whys
     (optional), Technical Deep Dive, Reproduction Notes, Fix Summary,
     Preventative Controls, Residual Risk, Open Questions. Slug: lowercase,
