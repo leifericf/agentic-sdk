@@ -133,9 +133,17 @@
       ;; Copy CLAUDE.md
       (copy! (host/path-str (sdk-path "templates" "CLAUDE.md"))
              (host/path-str (home-path "CLAUDE.md")))
-      ;; Run opencode-sync
+      ;; Run opencode-sync (agents)
       (let [{:keys [wrote]} (oc/sync! home)]
         (prn-err (format "opencode-sync: wrote %d agents" (count wrote))))
+      ;; Symlink skills into .opencode/skills (OpenCode discovers skills here)
+      (let [oc-skills (home-path ".opencode" "skills")]
+        (host/create-dirs oc-skills)
+        (doseq [d (host/glob (sdk-path "skills") "*")]
+          (let [nm (host/file-name d)]
+            (when (host/exists? (host/path d "SKILL.md"))
+              (symlink! (host/path-str (host/canonicalize d))
+                        (host/path-str (host/path oc-skills nm)))))))
       ;; Create project-root symlinks
       (symlink! (host/path-str (home-path ".claude"))
                 (host/path-str (host/path cwd ".claude")))

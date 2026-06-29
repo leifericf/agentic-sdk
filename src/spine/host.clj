@@ -121,6 +121,23 @@
                           (not (str/includes? (subs rel 1) "/"))))))
          sort)))
 
+(defn- glob-immediate-children-mino
+  "List immediate children (files and dirs) of dir-s. mino file-seq returns
+  files only, so directories are inferred from path segments."
+  [dir-s]
+  (let [dlen (count dir-s)
+        prefix (if (str/ends-with? dir-s "/") dir-s (str dir-s "/"))
+        plen (count prefix)]
+    (->> ((:file-seq mn-fs) dir-s)
+         (map (fn [path]
+                (let [rel (subs path (min plen (count path)))
+                      slash (str/index-of rel "/")]
+                  (if slash
+                    (str prefix (subs rel 0 slash))
+                    path))))
+         distinct
+         sort)))
+
 (defn glob
   "Seq of paths under dir matching the glob pattern."
   [dir pattern]
@@ -128,14 +145,16 @@
     ((:glob bb-fs) dir pattern)
     (let [dir-s (str dir)]
       (when ((:file-exists? mn-fs) dir-s)
-        (cond
-          (str/starts-with? pattern "**")
-          (->> ((:file-seq mn-fs) dir-s)
-               (filter #(str/ends-with? % (subs pattern 2)))
-               sort)
-          (str/starts-with? pattern "*.")
-          (glob-flat-mino dir-s (subs pattern 1))
-          :else
+         (cond
+           (str/starts-with? pattern "**")
+           (->> ((:file-seq mn-fs) dir-s)
+                (filter #(str/ends-with? % (subs pattern 2)))
+                sort)
+           (str/starts-with? pattern "*.")
+           (glob-flat-mino dir-s (subs pattern 1))
+           (= pattern "*")
+           (glob-immediate-children-mino dir-s)
+           :else
           (->> ((:file-seq mn-fs) dir-s)
                (filter #(re-find (re-pattern pattern) (file-name %)))
                sort))))))
