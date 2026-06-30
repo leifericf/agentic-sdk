@@ -53,7 +53,7 @@
      :conflicts (filterv #(= :conflict (:status %)) flat)}))
 
 (defn -main
-  "bb integrate [ROOT] - land the fix branches; exit 0 clean, 1 conflicts."
+  "agentic integrate [ROOT] - land the fix branches; exit 0 clean, 1 conflicts."
   [& args]
   (let [root (or (first args) ".")
         {:keys [landed conflicts]} (integrate! root {})]

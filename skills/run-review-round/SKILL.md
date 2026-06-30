@@ -52,7 +52,7 @@ returns per batch, not 50 at once).
 ## Procedure
 
 1. **Deterministic lanes first; their findings are free.** Run the
-   `lint` spine task (`bb lint` on the Babashka adapter today) over the
+   `lint` spine task (`agentic lint` today) over the
    changed files, and the cheap lane set from `verify-lanes` on the
    stack. Convert each hard failure into a finding (dimension and level
    per the defect) and add it to the findings pool. Lanes not yet wired
@@ -77,7 +77,7 @@ returns per batch, not 50 at once).
    A reviewer or this runner may add a dimension the floor omits when
    the change clearly warrants it (a pure-core change that parses
    untrusted bytes pulls in `:security`), recorded as a decision.
-3. **Triage.** Run the `triage` spine task (`bb triage` today): it
+3. **Triage.** Run the `triage` spine task (`agentic triage` today): it
    dedupes on `[file evidence rule]`, drops rule-less opinions to the
    query list, drops findings whose evidence carries a protected idiom,
    orders by editing level then severity then file, and renumbers as
@@ -108,7 +108,7 @@ returns per batch, not 50 at once).
      item, leaving it for the maintainer.
    - Barrier: do not start the next level until this wave verified
      clean (step 6).
-5. **Integrate.** Run the `integrate` spine task (`bb integrate`
+5. **Integrate.** Run the `integrate` spine task (`agentic integrate`
    today): it cherry-picks each editor's fix branch onto the working
    branch oldest-first and reports conflicts without guessing (editors
    own disjoint files within a level, so the common case is
@@ -123,7 +123,7 @@ returns per batch, not 50 at once).
    twice before recording an escalation and stopping the round.
 7. **Found-new flag.** True iff triage produced one or more items this
    round, regardless of how many were fixed.
-8. **Advance.** Run the `run` spine task (`bb run status` today) to
+8. **Advance.** Run the `run` spine task (`agentic resume status` today) to
    mark the round complete and compute the next directive
    (`:next-round` when this round found new findings and the cap is
    not hit, else `:complete`). If the run keeps a resume checkpoint,

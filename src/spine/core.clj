@@ -1,7 +1,7 @@
 (ns spine.core
   "Shared spine helpers: the canonical finding shape and the jj-or-git
   VCS adapter (prefer jj). Software-only; no prose-production logic.
-  Babashka-runnable. Fact storage lives in spine.repo; host access
+  Runs under mino. Fact storage lives in spine.repo; host access
   lives in spine.host."
   (:require [spine.host :as host]
             [clojure.string :as str]))

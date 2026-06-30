@@ -38,13 +38,14 @@
 
 (declare working-dir pr-edn norm-path)
 
-(def ^:private mino-runtime?
-  (not (find-ns 'babashka.fs)))
-
 (def ^:private store-ns?
-  (when mino-runtime?
+  "True when mino.store is loadable. mino auto-loads its own lib/
+  directory at startup, where mino.store ships; when the running mino
+  lacks it the spine falls back to EDN files."
+  (try
     (require 'mino.store)
-    (boolean (find-ns 'mino.store))))
+    (boolean (find-ns 'mino.store))
+    (catch _ false)))
 
 (def ^:private -store-conn (atom nil))
 (def ^:private -store-root (atom nil))
@@ -199,9 +200,8 @@
 
 (defn pr-edn
   "Serialize value as deterministic EDN. Map keys are sorted by their
-  string form. Output is stable across runtimes (Babashka, mino):
-  same inputs always produce the same bytes. Replaces pprint which
-  varies by runtime hash ordering."
+  string form. Output is stable: same inputs always produce the same
+  bytes. Replaces pprint which varies by runtime hash ordering."
   ([v] (pr-edn v 0))
   ([v indent]
    (let [pad (apply str (repeat indent "  "))

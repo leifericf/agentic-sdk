@@ -4,7 +4,7 @@
   stage in the current round), the :phases map (per phase in the campaign),
   plus the hashes of the inputs that re-arm gates. The orchestrator stays
   near-stateless: after each phase or round it advances run.edn and reads
-  `bb run status` to learn the next directive. Because the directive is
+  `agentic resume status` to learn the next directive. Because the directive is
   computed from disk, a killed run resumes from disk."
   (:require [spine.host :as host]
             [spine.repo :as repo]
@@ -140,7 +140,7 @@
                                   (file-hash root "project.edn"))}))
 
 (defn -main
-  "bb run init|status|advance [ROOT] [EDN-OPTS]. status prints the directive
+  "agentic resume init|status|advance [ROOT] [EDN-OPTS]. status prints the directive
   map and exits 0 only when complete; init seeds run.edn; advance merges an
   EDN updates map."
   [& args]
@@ -155,5 +155,5 @@
                  (println (pr-str s))
                  (System/exit (if (= :complete (:action (:directive s))) 0 1)))
       (do (binding [*out* *err*]
-            (println "usage: bb run init|status|advance [ROOT] [EDN]"))
+             (println "usage: agentic resume init|status|advance [ROOT] [EDN]"))
           (System/exit 2)))))

@@ -19,11 +19,10 @@ Hard constraints:
    `.opencode/` as generated agent projection plus config. Masters never live
    under the adapters.
 2. **The deterministic spine is core, always present**, but its implementation
-   is an interface with a migration path: today **Babashka + EDN**; a future
-   static-binary task runtime (one static binary, zero deps) replaces bb, and a
-   future immutable-fact store replaces EDN files. The skill/agent layer talks
+   is an interface: today **mino + EDN**, with the mino store as the target
+   immutable-fact store that replaces EDN files. The skill/agent layer talks
    to the spine through **stable task names + a stable working-dir format**,
-   never to bb or EDN directly, so the swap is localized.
+   never to mino or EDN directly, so the swap is localized.
 3. **Descriptor + generated recipes.** `bootstrap-project` detects the stack,
    writes a project descriptor, and materializes concrete `write-<lang>`
    recipes from templates. Maintenance = skeleton + 4 curated recipes +
@@ -61,7 +60,7 @@ flowchart TD
   AG["agent fleet (§7): 8 roles<br/>planner · change-runner · review-round-runner · writer · reviewer · editor · verifier (haiku) · ui-designer"]
   SD["shared doctrine (§5): stack-agnostic<br/>orchestration · FC/IS · native-edge · dimensions · craft"]
   LC["language craft (§6): four adapters<br/>write-c · write-zig · write-clj · write-elixir · write-tests · write-ui · write-prose · write-commit · write-changelog"]
-  SP["deterministic spine (§4): core, always present<br/>triage · integrate · run · compile-rules · lint · opencode-sync / opencode-check<br/>runtime: Babashka or mino · store: EDN or mino store"]
+  SP["deterministic spine (§4): core, always present<br/>triage · integrate · run · compile-rules · lint · opencode-sync / opencode-check<br/>runtime: mino · store: EDN or mino store"]
   PD["project home (§8): ~/.agentic-sdk/<project>/<br/>vcs · languages · architecture · lanes · dimensions · spine · adr · commit · hooks"]
   EP --> AG
   MS --> AG
@@ -111,22 +110,20 @@ do not.
 | `opencode-sync` | ` SDK source agents` masters | `.opencode/agent/` derived | project masters into the OpenCode format |
 | `opencode-check` | masters and derived | exit code | fail the lane when the derived form is stale |
 
-### 4.2 The adapter today: two runtimes, two stores
+### 4.2 The adapter today: one runtime, two stores
 
-Two runtimes are live: **Babashka** (`bb` tasks over EDN files) and **mino**
-(native tasks over EDN files or the mino store). Every task is a pure function
-on the unambiguous cases and refuses with a structured escalation on the
-ambiguous ones (escalate-don't-guess).
+The runtime is **mino** (native tasks over EDN files or the mino store). Every
+task is a pure function on the unambiguous cases and refuses with a structured
+escalation on the ambiguous ones (escalate-don't-guess).
 
 The spine source is a single set of Clojure namespaces. Two seams carry the
-runtime difference so the task namespaces never branch:
+remaining variation so the task namespaces never branch:
 
-- **`spine.host`** abstracts filesystem, process, JSON, and hashing. It
-  detects the runtime at load time (Babashka or mino) and dispatches to
-  `babashka.fs` / `babashka.process` or mino native primitives (`run`,
-  `sha256`, `realpath`, `which`). The task namespaces call `host/path`,
-  `host/exists?`, `host/shell`, and so on; they never import a runtime
-  namespace directly.
+- **`spine.host`** abstracts filesystem, process, JSON, and hashing. It calls
+  mino native primitives (`run`, `sha256`, `realpath`, `which`, `file-exists?`,
+  `mkdir-p`, `rm-rf`, `file-seq`) and the built-in `spine.json` for JSON. The
+  task namespaces call `host/path`, `host/exists?`, `host/shell`, and so on;
+  they never import a runtime namespace directly.
 
 - **`spine.repo`** abstracts the fact store. The EDN backing reads and
   writes files under the working dir. The mino store backing transacts
@@ -136,20 +133,17 @@ runtime difference so the task namespaces never branch:
 
 ### 4.3 Spine-presence levels
 
-A project sits at one of four spine-presence levels, recorded in the
+A project sits at one of three spine-presence levels, recorded in the
 descriptor:
 
 - **Native spine** (`:mino`): mino tasks over the EDN working dir or the
-  mino store. Same guarantees as the Babashka level, plus temporal history
+  mino store. Deterministic triage, conflict-free integration, lossless
+  resumption, one-way rule projection, zero-token lint, plus temporal history
   and optional warm-start via SLAD images. The level for projects with
   `mino` on PATH.
-- **Full spine** (`:babashka`): bb tasks plus an EDN working dir. Maximum
-  guarantees: deterministic triage, conflict-free integration, lossless
-  resumption, one-way rule projection, zero-token lint. The level for
-  Clojure projects and any project with `bb` on PATH.
 - **Thin spine** (`:thin`): plain shell-script stand-ins for `lint`,
   `integrate`, and `run` only; the rest falls back to return-value
-  hand-off. For C/Zig/Elixir projects without bb or mino.
+  hand-off. For C/Zig/Elixir projects without mino.
 - **Return-value-only** (`:none`): no spine tasks. The engine still works;
   long campaigns re-derive ground truth from `git log` and `ls`.
 
@@ -265,7 +259,7 @@ repo. It is NOT committed to any repo; it is developer-local state.
  :dimensions-active #{:style :factoring :correctness :security
                       :performance :memory :conformance}  ; subset of catalog (§11)
  :spine
- {:runtime :babashka           ; :babashka | :thin | :none
+ {:runtime :mino              ; :mino | :thin | :none
   :store   :edn                ; :edn or :mino (mino store with temporal history)
    :working-dir "state/"}}     ; under the project home
  :adr        {:store "artifacts/adr/" :format :nygard}
@@ -425,8 +419,8 @@ double-editing.
 
 Two consequences:
 
-- **The port is a spine task, not a skill.** It runs in whatever runtime the
-  spine adapter selects (Babashka or mino), so it stays
+- **The port is a spine task, not a skill.** It runs in the same runtime the
+  spine adapter selects (mino), so it stays
   installable across all four language stacks. The descriptor records nothing
   extra: the port is always on for every runtime in `:runtimes`.
 - **Masters are never hand-edited in the derived form.** `.opencode/` is

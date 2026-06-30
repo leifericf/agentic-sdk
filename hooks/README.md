@@ -34,15 +34,14 @@ on stdout and exits `0`. An allow exits `0` with no output.
 
 Each hook bootstraps its classpath with `add-load-path!` against
 `$AGENTIC_SDK_SRC`, falling back to `~/Code/agentic-sdk` when the env
-var is unset. This puts `spine.host` on the load path. Hooks never use
-`babashka.classpath`; mino provides `add-load-path!` directly.
+var is unset. This puts `spine.host` on the load path. mino provides
+`add-load-path!` directly.
 
 ### Reading stdin and parsing JSON
 
 Hooks read all of stdin through `host/slurp-stdin`, which loops
-`read-line` so it works under mino (no `*in*` as a Reader) and
-Babashka alike. JSON parsing goes through `host/json-parse`, which uses
-cheshire when available and falls back to the built-in `spine.json`.
+`read-line` so it works under mino (no `*in*` as a Reader). JSON parsing
+goes through `host/json-parse`, backed by the built-in `spine.json`.
 The same pair handles emission via `host/json-encode`.
 
 ## The hooks

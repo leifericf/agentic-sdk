@@ -8,17 +8,16 @@ write. The implementation behind these names swaps; the calls do not.
 
 ## The stable interface
 
-The skill and agent layer calls **task names**, never the runtime. Today two
-runtimes are live: Babashka and mino. The store is EDN files today, with the
-mino store as the target. The task names, their arguments, their reads, their
-writes, and their exit contracts stay fixed. A skill that calls `triage` today
-calls `triage` regardless of runtime; only the adapter that answers the call
-changes.
+The skill and agent layer calls **task names**, never the runtime. The runtime
+is mino. The store is EDN files today, with the mino store as the target. The
+task names, their arguments, their reads, their writes, and their exit
+contracts stay fixed. A skill that calls `triage` today calls `triage`
+regardless of runtime; only the adapter that answers the call changes.
 
 Concretely: a recipe says "run the `triage` spine task over the working dir"; it
 does not hardcode `agentic triage` or any adapter-specific form. The `agentic`
 CLI resolves the name to the active runtime. This is why a C project at
-`:spine :runtime :thin`, a Clojure project at `:spine :runtime :babashka`, and a
+`:spine :runtime :thin`, a project at `:spine :runtime :none`, and a
 mino project at `:spine :runtime :mino` invoke the same name and get the same
 contract.
 
@@ -326,24 +325,17 @@ audited exception that parses rendered output.
 
 ## Spine-presence levels
 
-A project sits at one of four levels, recorded in `:spine :runtime`. The task
+A project sits at one of three levels, recorded in `:spine :runtime`. The task
 interface is the same; what differs is which tasks answer and how.
 
 ### Native spine (`:mino`)
 
 All seven tasks invocable as mino tasks over the EDN working dir (or the
-mino store when `:spine :store :mino`). Same guarantees as the Babashka
-level, plus temporal history and optional warm-start via SLAD images. The
-default level, for projects with `mino` on PATH. Picks this level when
-`:spine :runtime :mino`.
-
-### Full spine (`:babashka`)
-
-All seven tasks invocable as bb tasks over the EDN working dir. Maximum
-guarantees: deterministic triage, conflict-free integration, lossless
-resumption, one-way rule projection, zero-token lint, a green runtime port.
-The fallback level, for projects with `bb` on PATH but not `mino`. Picks this
-level when `:spine :runtime :babashka`.
+mino store when `:spine :store :mino`): deterministic triage, conflict-free
+integration, lossless resumption, one-way rule projection, zero-token lint,
+a green runtime port, plus temporal history and optional warm-start via SLAD
+images. The default level, for projects with `mino` on PATH. Picks this level
+when `:spine :runtime :mino`.
 
 ### Thin spine (`:thin`)
 
@@ -352,7 +344,7 @@ rest (detailed `triage`, `compile-rules`) falls back to return-value hand-off:
 the orchestrator reads one-line returns from sub-agents and folds them in
 conversation, accepting that long campaigns re-derive ground truth from
 `git log` and `ls` rather than from a folded EDN store. The level for C, Zig,
-and Elixir projects without mino or bb. Picks this level when
+and Elixir projects without mino. Picks this level when
 `:spine :runtime :thin`.
 
 ### Return-value-only (`:none`)
@@ -364,9 +356,8 @@ return-value-only mode. Picks this level when `:spine :runtime :none`, or
 implicitly when a project opts out of the working dir.
 
 A project picks a level by `:spine :runtime` in the descriptor.
-`bootstrap-project` DETECTS the level from `mino` presence on PATH (with `bb`
-as fallback) and writes it; the author may downgrade. The level never upgrades
-silently.
+`bootstrap-project` DETECTS the level from `mino` presence on PATH and writes
+it; the author may downgrade. The level never upgrades silently.
 
 ## Cross-reference
 

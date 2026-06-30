@@ -15,7 +15,7 @@
             [clojure.string :as str]))
 
 (def ^:private stamp
-  "# AUTO-GENERATED from the master agent by `bb opencode-sync`. Do not edit;
+  "# AUTO-GENERATED from the master agent by `agentic agents sync`. Do not edit;
   edit the master and re-run.")
 
 (defn- masters-dir
@@ -140,8 +140,8 @@
     {:stale s :ok? (empty? s)}))
 
 (defn -main
-  "bb opencode-sync [ROOT] - writes derived agents.
-  bb opencode-check [ROOT] - exits non-zero with the stale list."
+  "agentic agents sync [ROOT] - writes derived agents.
+  agentic agents check [ROOT] - exits non-zero with the stale list."
   [cmd & args]
   (let [root (or (first args) ".")]
     (case cmd
@@ -158,5 +158,5 @@
                 (doseq [n stale] (println "  " n)))
               (System/exit 1))))
       (do (binding [*out* *err*]
-            (println "usage: bb opencode-sync|opencode-check [ROOT]"))
+            (println "usage: agentic agents sync|check [ROOT]"))
           (System/exit 2)))))

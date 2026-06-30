@@ -13,7 +13,7 @@
   Every finding is lifted into the canonical finding shape with
   :dimension :lint, so it joins the same findings/*.edn pool the reviewers
   write. Zero model tokens. Accepts --edn PATH to write the lifted findings
-  as an EDN vector for bb triage."
+  as an EDN vector for agentic triage."
   (:require [spine.host :as host]
             [spine.repo :as repo]
             [clojure.edn :as edn]
@@ -113,7 +113,7 @@
                  paths))))
 
 (defn load-extra-rules
-  "Read compiled banned-pattern rules (from bb compile-rules) under the
+  "Read compiled banned-pattern rules (from agentic rules compile) under the
   working dir, when present, and scan the given prose files for them. Each
   rule is {:id :pattern :message :level}. One-way projection, deterministic."
   [root files]

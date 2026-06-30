@@ -1,5 +1,5 @@
 (ns spine.json
-  "Minimal JSON parser and emitter for runtimes without cheshire. Handles
+  "Minimal JSON parser and emitter for the hook protocol. Handles
   the hook protocol JSON: objects, arrays, strings, numbers, booleans, and
   null. Pure Clojure, no external dependencies."
   (:require [clojure.string :as str]))

@@ -3,7 +3,7 @@
 .claude/plans/
 .claude/projects/
 
-# Clojure, Babashka, and editor caches (regenerable)
+# Clojure and editor caches (regenerable)
 .clj-kondo/
 .lsp/
 .cpcache/
@@ -12,7 +12,7 @@ target/
 # Spine working dir (EDN checkpoint, findings, escalation)
 .spine/
 
-# Derived OpenCode agent projection (committed; kept fresh by bb opencode-check)
+# Derived OpenCode adapter (regenerated; kept fresh by agentic agents check)
 .opencode/node_modules/
 
 # Ephemeral planning docs

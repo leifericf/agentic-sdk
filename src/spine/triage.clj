@@ -154,7 +154,7 @@
     (merge (:counts punch) {:queries (count (:queries punch))})))
 
 (defn -main
-  "bb triage [ROOT] - writes the punch list, prints the count line.
+  "agentic triage [ROOT] - writes the punch list, prints the count line.
   Exit 0 clean (no findings), 1 findings present, 2 usage."
   [& args]
   (let [root (or (first args) ".")

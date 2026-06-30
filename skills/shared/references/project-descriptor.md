@@ -118,7 +118,7 @@ project root, in vector order, and stop on the first failure.
 - **type:** vector of strings.
 - **values:** any shell commands.
 - **default:** per-language defaults the detector materializes (Clojure
-  `["bb test"]`, Zig `["zig fmt --check" "zig build"]`).
+  `["mino task test"]`, Zig `["zig fmt --check" "zig build"]`).
 - **configures:** the lanes the `verifier` agent runs on every unit and after
   every edit. The cheap tier fits in a tight loop.
 - **reads:** `verifier` (running `verify-lanes`), the `format-on-write` and
@@ -178,17 +178,15 @@ A map of three keys.
 #### `:spine :runtime`
 
 - **type:** keyword.
-- **values:** `:mino`, `:babashka`, `:thin`, or `:none`. See `spine.md` for what
-  each level provides. `:mino` runs the spine under the mino runtime; `:babashka`
-  under Babashka.
-- **default:** `:mino` when `mino` is on the project PATH; `:babashka` when `bb`
-  is on PATH and `mino` is not; `:thin` otherwise (C, Zig, or Elixir without
-  mino or bb); `:none` only when the project opts out explicitly.
-- **configures:** which spine tasks are invocable and how (mino tasks versus bb
-  tasks versus shell stand-ins versus return-value hand-off).
+- **values:** `:mino`, `:thin`, or `:none`. See `spine.md` for what
+  each level provides. `:mino` runs the spine under the mino runtime.
+- **default:** `:mino` when `mino` is on the project PATH; `:thin` otherwise
+  (C, Zig, or Elixir without mino); `:none` only when the project opts out
+  explicitly.
+- **configures:** which spine tasks are invocable and how (mino tasks versus
+  shell stand-ins versus return-value hand-off).
 - **reads:** every spine task dispatch, the `bootstrap-project` scaffold step.
-- **origin:** DETECT. `mino` presence on PATH decides, `bb` as fallback; the
-  author may downgrade.
+- **origin:** DETECT. `mino` presence on PATH decides; the author may downgrade.
 
 #### `:spine :store`
 
@@ -320,15 +318,15 @@ Lives at `~/.agentic-sdk/<project>/project.edn`, developer-local and not committ
   :modules      {"catalog"  "modules/catalog/src"
                  "checkout" "apps/checkout/src"}}
  :lanes
- {:cheap    ["zig fmt --check" "zig build" "bb test"]
+ {:cheap    ["zig fmt --check" "zig build" "mino task test"]
   :wave     ["zig build test -Ddeep"
              "zig build -Doptimize=ReleaseSafe test"
-             "bb test :integration"]
-  :pre-land ["zig build release-gate" "bb test :full"]}
+             "mino task test :integration"]
+  :pre-land ["zig build release-gate" "mino task test :full"]}
  :dimensions-active #{:style :factoring :correctness :security
                       :performance :memory :conformance :design}
  :spine
-   {:runtime     :mino                               ; :mino | :babashka | :thin | :none
+   {:runtime     :mino                               ; :mino | :thin | :none
     :store       :edn                               ; :edn | :mino (mino store with temporal history)
      :working-dir "state/"}
   :adr        {:store "artifacts/adr/" :format :nygard}
@@ -348,7 +346,7 @@ Lives at `~/.agentic-sdk/<project>/project.edn`, developer-local and not committ
 | `:vcs` | `.jj/` present, else `.git/` |
 | `:languages` | file markers per language |
 | `:ui?` | frontend surface markers (heuristic) |
-| `:spine :runtime` | `mino` on PATH; `bb` as fallback |
+| `:spine :runtime` | `mino` on PATH |
 | `:spine :store` | always `:edn` today |
 | `:spine :working-dir` | canonical `state/` |
 | `:lanes` | per-language template, then author refines |

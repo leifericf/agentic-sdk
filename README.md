@@ -55,7 +55,8 @@ project. The skills and agents are the software; the model is the runtime.
 
 1. Clone this repo to a fixed location (for example `~/Code/agentic-sdk`).
 2. Set `AGENTIC_SDK_SRC` in your shell profile to point at it.
-3. Make sure `mino` is on PATH (the spine runs under mino, not Babashka).
+3. Make sure `mino` (built from `~/Code/mino` main, version 0.425.0 or newer)
+   is on PATH; the spine runs under mino.
 4. In any project, run `agentic setup` from the project root. It creates the
    project home at `~/.agentic-sdk/<project-name>/`, symlinks skills, agents,
    and hooks from the SDK source, generates the Claude and OpenCode adapters,
@@ -71,8 +72,8 @@ The `agentic` CLI lives at `$AGENTIC_SDK_SRC/bin/agentic`. Put
 ## The spine
 
 The deterministic spine runs as mino scripts through the `agentic` CLI over an
-EDN working directory. The task names are unchanged; only the invocation
-shifts, from `bb triage` to `agentic triage`:
+EDN working directory. The task names are the interface; the `agentic` CLI
+resolves each to its mino implementation:
 
 | Task | Does |
 |---|---|
@@ -86,7 +87,7 @@ shifts, from `bb triage` to `agentic triage`:
 The interface is stable; the runtime sits behind a host seam, so it can swap
 without touching the skill layer.
 
-Verify the spine: `bb test` (the test suite). Prose-lint: `agentic lint`.
+Verify the spine: `mino task test` (the test suite). Prose-lint: `agentic lint`.
 
 ## Status
 

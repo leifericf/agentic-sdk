@@ -1,0 +1,6 @@
+{:paths ["src" "test"]
+
+ :tasks
+ {test
+  {:doc  "Run the spine test suite"
+   :task spine.test-runner/run}}}

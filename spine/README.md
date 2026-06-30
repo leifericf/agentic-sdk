@@ -1,30 +1,29 @@
 # Spine
 
 The deterministic spine for the agentic-sdk toolkit, ported and generalized
-from a prior prose-production system's Babashka spine. The model: Babashka
-tasks own the clerical work; agents write EDN to a working dir; tasks fold
-deterministically; collisions escalate, never guess; code never parses its own
-rendered output. Prose-only tasks are out of scope.
+from a prior prose-production system's spine. The model: mino tasks own the
+clerical work; agents write EDN to a working dir; tasks fold deterministically;
+collisions escalate, never guess; code never parses its own rendered output.
+Prose-only tasks are out of scope.
 
 For the human-facing reference, see `skills/shared/references/spine.md`
 (authored separately; this file is the task interface).
 
 ## Tasks
 
-All tasks take a target root (default `.`) and are Babashka-runnable via
-`bb.edn` at the repo root.
+All tasks take a target root (default `.`) and are invoked via the `agentic`
+CLI (a mino script), which delegates to the namespaces below.
 
 | Task | What it does |
 |---|---|
-| `bb triage [ROOT]` | Fold `findings/*.edn` into one ordered punch list. Dedup on file+evidence+rule, drop protected idioms, convert rule-less opinions to queries, order by editing level then severity then file, renumber FINDING-N. Writes `triage/punch-list.edn` and `.md`, consumes the inputs. |
-| `bb integrate [ROOT]` | Land parallel fix branches onto the working branch oldest-first (jj rebase or git cherry-pick via the core adapter). Abort and report any conflict; delete consumed branches. |
-| `bb run init\|status\|advance [ROOT] [EDN]` | Resumption state. `init` seeds `run.edn` from the plan and descriptor; `advance` deep-merges an EDN updates map (maps one level, scalars replace); `status` prints the next directive and exits 0 only when complete. |
-| `bb compile-rules [ROOT] [DIR]` | Project `decisions.edn` (banned categories, naming rulings, commit categories) into a deterministic lint config under DIR (default `<working-dir>/rules`). One-way projection. |
-| `bb lint [--edn PATH] [FILE...]` | House prose regex pre-pass (bans the em-dash, ASCII arrows in prose, plan/task process IDs, ASCII banners) over `.md`/`.mdx`/`.txt`, plus a detected project linter (clj-kondo, credo, clang-tidy, cppcheck). Lifts every finding into the canonical shape. |
-| `bb opencode-sync [ROOT]` | Project the agent masters (`.claude/agents/`, or `agents/` in this repo) into `.opencode/agent/` in OpenCode format. |
-| `bb opencode-check [ROOT]` | Exit non-zero and list derived agent files that are stale vs their masters. Never hand-edit the derived form. |
-| `bb test` | Run the spine test suite. |
-| `bb help` | List the tasks. |
+| `agentic triage [ROOT]` | Fold `findings/*.edn` into one ordered punch list. Dedup on file+evidence+rule, drop protected idioms, convert rule-less opinions to queries, order by editing level then severity then file, renumber FINDING-N. Writes `triage/punch-list.edn` and `.md`, consumes the inputs. |
+| `agentic integrate [ROOT]` | Land parallel fix branches onto the working branch oldest-first (jj rebase or git cherry-pick via the core adapter). Abort and report any conflict; delete consumed branches. |
+| `agentic resume init\|status\|advance [ROOT] [EDN]` | Resumption state. `init` seeds `run.edn` from the plan and descriptor; `advance` deep-merges an EDN updates map (maps one level, scalars replace); `status` prints the next directive and exits 0 only when complete. |
+| `agentic rules compile [ROOT] [DIR]` | Project `decisions.edn` (banned categories, naming rulings, commit categories) into a deterministic lint config under DIR (default `<working-dir>/rules`). One-way projection. |
+| `agentic lint [--edn PATH] [FILE...]` | House prose regex pre-pass (bans the em-dash, ASCII arrows in prose, plan/task process IDs, ASCII banners) over `.md`/`.mdx`/`.txt`, plus a detected project linter (clj-kondo, credo, clang-tidy, cppcheck). Lifts every finding into the canonical shape. |
+| `agentic agents sync [ROOT]` | Project the agent masters (`.claude/agents/`, or `agents/` in this repo) into `.opencode/agent/` in OpenCode format. |
+| `agentic agents check [ROOT]` | Exit non-zero and list derived agent files that are stale vs their masters. Never hand-edit the derived form. |
+| `mino task test` | Run the spine test suite. |
 
 ## Working-dir format
 
@@ -39,7 +38,7 @@ state/
     punch-list.edn     the folded, ordered, renumbered list (record of truth)
     punch-list.md      the rendered view
   rules/
-    lint-rules.edn     banned patterns, from bb compile-rules
+    lint-rules.edn     banned patterns, from agentic rules compile
     commit-categories.edn
   run.edn              the resumption checkpoint
   escalation.edn       collisions that need a human, never auto-resolved
@@ -77,7 +76,7 @@ dimension-to-tier map. The tier ordering is:
 - style
 - lint and render
 
-## Directives from `bb run status`
+## Directives from `agentic resume status`
 
 `next-directive` computes one action from the on-disk state:
 

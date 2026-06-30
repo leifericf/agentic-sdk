@@ -202,8 +202,8 @@ and complex .gitignore to having nothing SDK-related at all.
 ## Key facts and pointers
 
 SDK source: ~/Code/agentic-sdk. Skills at skills/, agents at agents/,
-hooks at hooks/, spine at src/spine/. The unified spine.host detects
-Babashka vs mino. spine.repo dispatches EDN vs store. Both carry
+hooks at hooks/, spine at src/spine/. The unified spine.host calls mino
+primitives. spine.repo dispatches EDN vs store. Both carry
 over unchanged; only path resolution changes.
 
 mino repo: ~/Code/mino. Built via make (C-only). mino.edn has the
