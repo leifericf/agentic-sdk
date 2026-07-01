@@ -1,6 +1,6 @@
 ---
 name: check-factoring
-description: Review dimension for module boundaries, dependency direction, pure/shell/native leakage, duplication, and oversized units. Invoked by reviewer agents over one module shard.
+description: Review dimension for module boundaries, dependency direction, pure/effect and native leakage, duplication, and oversized units. Invoked by reviewer agents over one module shard.
 user-invocable: false
 ---
 
@@ -19,18 +19,22 @@ and native-wrapper split). The placement source is the descriptor's
 
 ## Look for
 
-1. **Dependency direction violations.** A core unit (pure functions and
-   data) that imports, requires, or calls a shell unit (IO, state,
-   platform, persistence); a shell unit that calls across to another
-   shell when only data should cross; a cycle between two units that are
-   therefore one unit or have the boundary drawn wrong. Dependencies
-   point inward; the core never reaches up.
-2. **Pure, shell, and native leakage.** IO, a clock, a global, a native
-   call, a persistence write, or state mutation inside a core unit. Or
-   pure decision logic (query construction, view-spec computation, plan
-   or transaction-data building) buried in the shell where a test
-   cannot reach it. Or domain logic inside a native wrapper (the wrapper
-   marshals; it does not decide).
+1. **Dependency-direction violations.** A pure function that calls an
+   effectful one (IO, state, platform, persistence, a native handle) — the
+   effectful callee may sit in the same module or another; the rule is at
+   the function, not the module, since modules are cut by domain and may
+   hold both. An effectful function that threads another module's live
+   state where only data should cross; a cycle between two modules that are
+   therefore one domain or have the boundary drawn wrong. A pure function
+   may not know an effect exists.
+2. **Pure/effect and native leakage.** IO, a clock, a global, a native
+   call, a persistence write, or state mutation inside a PURE FUNCTION.
+   A module that mixes pure and effectful functions is NOT a leak —
+   modules are domain-based. Or pure decision logic (query construction,
+   view-spec computation, plan or transaction-data building) buried
+   inside an effectful function where a test cannot reach it. Or domain
+   logic inside a native wrapper (the wrapper marshals; it does not
+   decide).
 3. **Native edge leakage.** A wrapper that reaches into a handle's
    internals from the calling language, or that holds domain logic
    instead of marshalling data in and data out. Handles are opaque; the
@@ -73,7 +77,7 @@ Performance cost (check-performance).
 
 ## Severity
 
-- `:medium`. A boundary violation, pure, shell, or native leakage, or
+- `:medium`. A boundary violation, pure/effect or native leakage, or
   duplication. Each makes a branch untestable or lets two copies drift.
 - `:low`. Size pressure or dead structure with no current harm.
 

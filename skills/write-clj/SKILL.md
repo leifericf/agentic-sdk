@@ -1,6 +1,6 @@
 ---
 name: write-clj
-description: Recipe for writing Clojure, the pure core and imperative shell split, native wrappers, and the boundary discipline. Invoked when writing Clojure for the project.
+description: Recipe for writing Clojure, Functional Core / Imperative Shell at the function level (namespaces by domain), native wrappers, and the boundary discipline. Invoked when writing Clojure for the project.
 user-invocable: false
 ---
 
@@ -9,53 +9,65 @@ user-invocable: false
 Write Clojure for the project. The standard is
 `skills/write-clj/references/clj-style.md` (read it first). The
 architecture it implements is Functional Core / Imperative Shell; the
-Clojure expression of that split, and the native boundary contract,
-live in `skills/shared/references/architecture.md`. Placement follows
-the three-way split (pure core, shell, native wrappers) recorded in the
-project's module map (the `:architecture :modules` entry in the
-descriptor). The why behind the constraints is the ADR log: scan it
-before designing against an unexplained rule.
+Clojure expression of that discipline, and the native boundary contract,
+live in `skills/shared/references/architecture.md`. Namespaces are placed
+by domain (recorded in the project's module map, the
+`:architecture :modules` entry in the descriptor), and each holds its own
+pure and effectful functions. The why behind the constraints is the ADR
+log: scan it before designing against an unexplained rule.
 
-The three-way split is load-bearing, not a preference. JVM Clojure
+The discipline is load-bearing, not a preference. JVM Clojure
 semantics are the spec for the surface; check real Clojure behavior for
 every edge (nil, empty, laziness, arity, unsigned ranges) before
 writing.
 
-1. **Pure core.** Namespaces that take data and return data, do no IO,
-   never shell out, never transact, hold no clock, thread, or atom.
-   Model entities, specs, transactions, and operation chains as plain
-   data; let pure functions transform them. This is the project's
-   architectural identity: description, not instruction. The standalone
-   library module (if the project ships one) lives here and depends on
-   nothing; the dependency direction is into the core, never out of it.
+1. **Pure functions.** Functions that take data and return data, do no IO,
+   never shell out, never transact, hold no clock, thread, or atom. Model
+   entities, specs, transactions, and operation chains as plain data; let
+   pure functions transform them. This is the project's architectural
+   identity: description, not instruction. A pure function may not call an
+   effectful one; the dependency direction is into the pure logic, never
+   out of it.
 
-2. **Imperative shell.** Namespaces that own persistence, platform, and
+2. **Effectful functions.** Functions that own persistence, platform, and
    lifecycle: the database wiring, OS integration, the application
-   composer, scan and update orchestration. The shell adapts inputs to
-   data, calls the core, applies the result as effects. It switches on
-   values the core returns and carries no logic of its own.
+   composer, scan and update orchestration. An effectful function adapts
+   inputs to data, calls pure functions, and applies the result as
+   effects; it switches on values the pure functions return and carries no
+   logic of its own. Mark effectful functions with a trailing `!`
+   (`scan!`, `recompile!`, `ensure-library!`).
 
-3. **Native wrappers.** A thin Clojure layer over a foreign-function or
+3. **Namespaces divide by domain.** A namespace is named for the domain it
+   owns (a single concept: `cache`, `compiler`, `source`), not for the
+   pure/effectful split. A namespace routinely holds both pure functions
+   and the `!`-marked effectful functions that drive them; the split is a
+   function-level discipline (and the dependency rule of
+   `architecture.md` §2), not a namespace boundary. Do not split one
+   domain into a `foo` (pure) and a `foo-store`/`foo-shell` namespace —
+   that fragments the domain and is a factoring bug.
+
+4. **Native wrappers.** A thin Clojure layer over a foreign-function or
    native edge. Marshal data in, marshal data out, pass opaque handles
    back and forth. No domain logic on either side of the boundary: the
-   pure core decides what to call, the wrapper calls it, the core
-   consumes the result.
+   pure functions decide what to call, the wrapper calls it, the result
+   is consumed back in the pure logic.
 
 ## Procedure
 
-1. **Place it.** Find the owning namespace from the three-way split in
-   the module map. Pure logic goes in the core; IO, state, and platform
-   calls go in the shell; the host side of a native call goes in a
-   wrapper. If you reach for a side effect in a core namespace, the
-   design is wrong: move the effect to the shell and keep the decision
-   in the core.
+1. **Place it.** Find the owning namespace by DOMAIN in the module map —
+   the namespace named for the concern this code belongs to. Within that
+   namespace, keep pure logic pure and put IO, state, and platform calls
+   in `!`-marked effectful functions. If you reach for a side effect
+   inside a pure function, the design is wrong: move the effect into an
+   effectful function (in the same, or the right domain's, namespace) and
+   keep the decision pure.
 2. **Clojure discipline.** The load-bearing rules:
    - **Description, not instruction.** Model entities, specs,
      transactions, and operation chains as plain data; let pure
      functions transform them. The shell applies the result.
    - **Transactions are data.** Build transaction data in a pure
-     function; the shell transacts. Never call the transact API from a
-     pure namespace; never build transaction data in the shell where a
+      function; the shell transacts. Never call the transact API from a
+      pure function; never build transaction data in the shell where a
      test cannot reach it.
    - **Bound an untrusted seq before realizing it into a primitive
      array.** Before `float-array`, `byte-array`, or `double-array`
@@ -86,8 +98,8 @@ writing.
    caller pattern-matches.
 4. **Verify like the lanes.** The project's cheap lanes from the
    descriptor (formatter, lint, the unit runner). REPL-driven: evaluate
-   small forms, inspect values, adjust. The pure core is built for this:
-   data in, data out, no setup ceremony. For any native-wrapper code,
+   small forms, inspect values, adjust. The pure functions are built for
+   this: data in, data out, no setup ceremony. For any native-wrapper code,
    run the integration lane that compiles, loads, and calls the native
    side with both a known-good and a malformed input.
 
@@ -95,22 +107,22 @@ writing.
 
 Tests live under the test tree mirroring the namespace layout of `src`.
 TDD: a failing test against the intended behavior first, then the
-implementation. Test the pure core directly: data in, data out, no
-mocks, no fixtures beyond literal data. A shell branch a test wants to
-reach is a factoring finding: move the decision into the core, do not
+implementation. Test the pure functions directly: data in, data out, no
+mocks, no fixtures beyond literal data. An effectful branch a test wants to
+reach is a factoring finding: move the decision into a pure function, do not
 build a mock. See write-tests for surface selection and the teeth every
 assertion needs.
 
 ## Boundaries
 
-Owns: the Clojure namespace, its place in the three-way split, and the
+Owns: the Clojure namespace, its domain (per the module map), and the
 data shapes that cross the seams. Cites: the architecture contract in
 `skills/shared/references/architecture.md` for the Functional Core /
-Imperative Shell split, the description-not-instruction rule, and the
+Imperative Shell discipline (function-level), the description-not-instruction rule, and the
 native boundary contract; the module map for placement; the ADR log for
 the why. Siblings: write-tests owns the test surface; write-zig owns
 the Zig side of a foreign-function edge; write-prose owns the prose
-standard. The core never reaches up into the shell; a wrapper stays
+standard. A pure function never reaches up into an effectful one; a wrapper stays
 thin.
 
 ## Comments and public text

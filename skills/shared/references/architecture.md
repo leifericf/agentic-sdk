@@ -40,14 +40,20 @@ Dependencies point inward. The core depends on nothing. The shell depends on
 the core. Native edges depend on both: on the core for the data shapes they
 marshal, on the shell for the lifetime that owns them.
 
-**The core never reaches up.** A core namespace, module, or translation unit
-never imports, requires, or calls a shell unit, and never names a native
-handle type. A violation of this rule is a factoring bug regardless of
-whether it compiles. The shell may call the core; the core may not know the
-shell exists.
+**A pure function never reaches up.** A pure function never calls an
+effectful one (IO, persistence, a clock, a native handle, mutable state),
+and never names a native handle type. A violation of this rule is a
+factoring bug regardless of whether it compiles. Effectful functions may
+call pure ones; a pure function may not know an effect exists.
 
-No cycles, anywhere. If two units depend on each other they are one unit, or
-the boundary is drawn wrong.
+**Modules follow domains, not the split.** The pure/effectful distinction
+is a function-level discipline, not a module boundary. Modules, packages,
+namespaces, and translation units are organized by domain; a module may
+hold both pure and effectful functions. Splitting one domain into separate
+"pure" and "shell" modules fragments the domain and is a factoring bug.
+
+No cycles, anywhere. If two modules depend on each other they are one
+domain, or the boundary is drawn wrong.
 
 ## 3. The house shape: pure core, imperative shell, native wrapper
 
@@ -66,9 +72,12 @@ core/shell split. A project whose entire surface is pure (a library) may keep
 only the core. The wrapper layer appears the moment one language calls
 another.
 
-The same shape repeats inside a module: a pure namespace, a shell namespace,
-and, when the module owns a native call, a thin wrapper. It repeats down to
-the function: a pure function and the shell caller that feeds it.
+The shape repeats down to the function: a pure function and the effectful
+caller that feeds it. It does NOT repeat as a module split: modules are cut
+by domain (see §2), and a single module routinely holds both pure functions
+and the effectful callers that drive them, plus a thin native wrapper when
+the module owns a native call. The discipline lives at the function; the
+module is a domain.
 
 ## 4. Per-language expression
 
@@ -143,7 +152,7 @@ Rigor:
   transactions, and op-chains as plain data; let pure functions transform
   them. This is the project's architectural identity.
 - **Transactions are data.** Build tx-data in a pure function; the shell
-  transacts. Never call `d/transact` from a pure namespace; never build
+  transacts. Never call `d/transact` from a pure function; never build
   tx-data in the shell where a test cannot reach it.
 - **Bound untrusted seqs before realizing them.** Before `float-array`,
   `byte-array`, or `double-array` turns a caller-supplied seq into a JVM

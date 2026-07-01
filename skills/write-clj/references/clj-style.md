@@ -58,17 +58,20 @@ The spine separates deciding from doing, with a native edge for what
 must run on the metal. This is load-bearing structure, not a preference
 (see `skills/shared/references/architecture.md`).
 
-- **Pure core.** Namespaces that take data and return data, do no IO,
+- **Pure functions.** Functions that take data and return data, do no IO,
   never shell out, never transact, never hold a clock, thread, or atom.
-  A standalone library module is the canonical case: zero dependencies
-  on any other module.
-- **Shell.** Persistence wiring, OS integration, lifecycle and
-  composition. The shell adapts inputs to data, calls the core, applies
-  the result as effects. It switches on values the core returns and
-  carries no logic of its own.
+- **Effectful functions.** Persistence wiring, OS integration, lifecycle
+  and composition — functions that adapt inputs to data, call pure
+  functions, and apply the result as effects. Marked with a trailing `!`.
 - **Native wrappers.** Each a thin layer over a native call. Marshal
   data in, marshal data out, pass handles back and forth. No domain
-  logic; the pure core decides what to call.
+  logic; the pure functions decide what to call.
+- **Namespaces are domain-based.** A namespace is named for the domain
+  it owns (a single concept: the cache, the compiler, the source), not
+  for the pure/effectful split. A namespace holds both pure functions and
+  the `!`-marked effectful functions that drive them; the split is a
+  function-level discipline, not a namespace boundary. Do not split a
+  domain into a pure namespace and a shell namespace.
 
 Most tests target the core directly: data in, data out. Shell tests are
 fewer and integration-style (a real scratch store, a real scratch
@@ -84,7 +87,7 @@ connection.
 
 - **Build transaction data in pure functions.** A pure function takes a
   domain event and returns a vector of transaction maps. The shell
-  transacts. Never call the transact API from a pure namespace.
+  transacts. Never call the transact API from a pure function.
 - **Schema is data.** Schema installation lives as a data structure;
   tests assert it installs cleanly on an empty store and migrates from
   the previous release's schema.
@@ -119,14 +122,17 @@ connection.
 - kebab-case namespaces under the project root, matching the module
   directory. Exactly one namespace per file, one file per namespace.
   Public API at the top, private helpers below.
+- Name a namespace for the domain it owns — a single concept (`cache`,
+  `compiler`, `source`) — not for the pure/effectful split. A namespace
+  holds both its pure and its `!`-marked effectful functions.
 - Start each file with one `ns` form: `:require` before `:import`.
   `:require :as` over `:refer [...]` over `:refer :all`; avoid `:use`.
   Sort entries alphabetically.
 - Use idiomatic aliases and the same alias for a namespace across the
   project: `str` for `clojure.string`, `set` for `clojure.set`, `io` for
   `clojure.java.io`.
-- A standalone library module must require nothing from the shell, the
-  UI, or native wrappers. A violation is a factoring finding.
+- A standalone library module must hold only pure functions and require
+  nothing effectful or native. A violation is a factoring finding.
 
 ## Formatting and layout
 
