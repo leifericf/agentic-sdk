@@ -13,7 +13,7 @@
             [clojure.edn :as edn]
             [clojure.string :as str]))
 
-;; --- project resolution --------------------------------------------------
+;;;; project resolution
 
 (defn project-name
   "The project name: basename of the canonical cwd."
@@ -34,7 +34,7 @@
   (or (System/getenv "AGENTIC_SDK_SRC")
       (host/path-str (host/path (System/getenv "HOME") "Code" "agentic-sdk"))))
 
-;; --- store detection ----------------------------------------------------
+;;;; store detection
 
 (declare working-dir pr-edn norm-path)
 
@@ -123,7 +123,7 @@
       (retract-fn conn (:db/id e) :spine/path)
       (retract-fn conn (:db/id e) :spine/value))))
 
-;; --- working dir ---------------------------------------------------------
+;;;; working dir
 
 (defn init!
   "Initialize the repo for root. Opens the store when :spine :store
@@ -140,7 +140,7 @@
       (close-fn @-store-conn))
     (reset! -store-conn nil)))
 
-;; --- session sealing (Phase 5) -------------------------------------------
+;;;; session sealing (Phase 5)
 
 (defn seal!
   "Capture a hermetic session bundle under artifacts/sessions/<run-id>/.
@@ -196,7 +196,7 @@
                      "state")
                  "state"))))
 
-;; --- deterministic EDN serialization ------------------------------------
+;;;; deterministic EDN serialization
 
 (defn pr-edn
   "Serialize value as deterministic EDN. Map keys are sorted by their
@@ -238,7 +238,7 @@
        (seq? v) (str "(" (str/join " " (for [item v] (pr-edn item 0))) ")")
        :else (pr-str v)))))
 
-;; --- EDN fact read/write -------------------------------------------------
+;;;; EDN fact read/write
 
 (defn read-edn
   "Parse an EDN value at path, nil if it does not exist. Routes to the
@@ -266,7 +266,7 @@
   [root & segments]
   (read-edn (host/path-str (apply host/path root (map str segments)))))
 
-;; --- collection operations (findings) ------------------------------------
+;;;; collection operations (findings)
 
 (defn read-collection
   "Read and parse every value in a collection. Routes to the store when
@@ -288,7 +288,7 @@
     (store-clear-collection! @-store-conn (host/path-str dir))
     (doseq [p (host/glob dir "*.edn")] (host/delete p))))
 
-;; --- text projection -----------------------------------------------------
+;;;; text projection
 
 (defn write-text!
   "Write content as text to path, creating parent dirs. Used for markdown
@@ -298,7 +298,7 @@
     (host/create-dirs (host/parent p))
     (spit (host/path-str p) content)))
 
-;; --- escalation ----------------------------------------------------------
+;;;; escalation
 
 (defn- read-escalations [esc-path]
   (if (host/exists? esc-path)

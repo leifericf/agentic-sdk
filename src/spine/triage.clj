@@ -102,7 +102,7 @@
               :by-level (frequencies (map :level numbered))
               :by-severity (frequencies (map :severity numbered))}}))
 
-;; --- rendering -----------------------------------------------------------
+;;;; rendering
 
 (defn- finding-block [f]
   (str/join "\n"
@@ -135,7 +135,7 @@
              (:total counts) (pr-str (:by-level counts))
              (pr-str (:by-severity counts)))])))
 
-;; --- file-driven entry point ---------------------------------------------
+;;;; file-driven entry point
 
 (defn triage!
   "Read every findings/*.edn, triage, and write triage/punch-list.edn and

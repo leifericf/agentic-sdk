@@ -64,7 +64,7 @@
        (remove #(skip-dir? (host/components %)))
        vec))
 
-;; --- house regex pre-pass ------------------------------------------------
+;;;; house regex pre-pass
 
 (defn- scan-lines
   "Return findings for one file. fence-aware for every rule; inline-code
@@ -112,6 +112,104 @@
                      (scan-lines (host/path-str p) (slurp (host/path-str p)))))
                  paths))))
 
+;;;; source-comment pre-pass
+
+(def ^:private src-exts #{"clj" "cljc" "cljs" "ex" "exs" "zig" "c" "h" "cpp" "hpp" "cc"})
+
+(defn- src-lang
+  "The comment family for a source path: :clj (`;`), :hash (`#`, Elixir),
+  :slash (`//`, C/Zig), or nil."
+  [p]
+  (let [ext (some-> (host/extension p) str/lower-case (str/replace #"^\." ""))]
+    (cond (contains? #{"clj" "cljc" "cljs"} ext) :clj
+          (contains? #{"ex" "exs"} ext) :hash
+          (contains? #{"c" "h" "cpp" "hpp" "cc" "zig"} ext) :slash
+          :else nil)))
+
+(def ^:private src-comment-re
+  {:clj   #"^\s*;+"
+   :hash  #"^\s*#($|[^{!])"
+   :slash #"^\s*//"})
+
+(def ^:private src-banner-re
+  {:clj   #"^\s*;+\s+-{3,}"
+   :hash  #"^\s*#\s+-{3,}"
+   :slash #"^\s*//\s+-{3,}"})
+
+(def ^:private wall-threshold 4)
+
+(defn- default-source-files
+  "All source files under root whose comment family the scanner speaks."
+  [root]
+  (->> (mapcat #(host/glob root (str "**." %)) src-exts)
+       (remove #(skip-dir? (host/components %)))
+       vec))
+
+(defn- banner-findings [lang file lines]
+  (let [re (src-banner-re lang)]
+    (into []
+      (for [[i line] (map vector (range) lines)
+            :when (re-find re line)]
+        {:file file :line (inc i) :severity :MODERATE
+         :rule "src/banner"
+         :evidence (str "Decorated comment banner is banned; use a bare label line: "
+                        (str/trim line))}))))
+
+(defn- wall-findings
+  "Inline comment walls: wall-threshold or more consecutive comment lines
+  AFTER the file's leading header. Comments, blanks, and a shebang line
+  before the first code line form the file-top header block, which is
+  exempt (mirrors the C translation-unit block comment). Blank lines and
+  code break a run."
+  [lang file lines]
+  (let [re (src-comment-re lang)]
+    (letfn [(emit [start end]
+              {:file file :line (inc start) :severity :MODERATE
+               :rule "src/comment-wall"
+               :evidence (str "Comment block of " (- end start)
+                              " lines exceeds the 3-line budget")})]
+      (loop [i 0 start nil seen-code? false acc []]
+        (if (>= i (count lines))
+          (cond-> acc (and start seen-code? (>= (- i start) wall-threshold))
+                  (conj (emit start i)))
+          (let [line (nth lines i)]
+            (cond
+              (re-find re line)
+              (recur (inc i)
+                     (if seen-code? (or start i) nil)
+                     seen-code? acc)
+              (or (str/blank? line) (re-find #"^\s*#!" line))
+              (let [end-run? (and start seen-code?
+                                  (>= (- i start) wall-threshold))]
+                (recur (inc i) nil seen-code?
+                       (if end-run? (conj acc (emit start i)) acc)))
+              :else
+              (let [end-run? (and start (>= (- i start) wall-threshold))]
+                (recur (inc i) nil true
+                       (if end-run? (conj acc (emit start i)) acc))))))))))
+
+(defn scan-source
+  "Banner and comment-wall findings for one source file's text. Accepts a
+  path or path-str; returns nil when the comment family is unknown. Public
+  for testing; zero model tokens."
+  [p text]
+  (let [path (if (string? p) (host/path p) p)
+        file (host/path-str path)]
+    (when-let [lang (src-lang path)]
+      (let [lines (str/split-lines text)]
+        (into [] (concat (banner-findings lang file lines)
+                         (wall-findings lang file lines)))))))
+
+(defn source-scan
+  "Run the source-comment pre-pass over files (paths or strings). Returns
+  findings in canonical shape."
+  [files]
+  (let [paths (map #(if (string? %) (host/path %) %) files)]
+    (vec (mapcat (fn [p]
+                   (when (host/exists? p)
+                     (scan-source p (slurp (host/path-str p)))))
+                 paths))))
+
 (defn load-extra-rules
   "Read compiled banned-pattern rules (from agentic rules compile) under the
   working dir, when present, and scan the given prose files for them. Each
@@ -131,7 +229,7 @@
                  :evidence (str (:message r) ": " (str/trim line))})))))
 
 
-;; --- project linter detection and running --------------------------------
+;;;; project linter detection and running
 
 (def ^:private known-linters
   "first-token -> [config-flags matcher]. matcher parses one line of stdout
@@ -207,13 +305,13 @@
                     :severity (findmap (:level f) :MINOR)
                     :rule (str "clj-kondo/" (:type f "lint"))
                     :evidence (:message f)})))
-          (catch e []))
+           (catch Exception _ []))
         (= tool "credo")
         (vec (keep #(grep-finding (:file (re-find #"^([^:]+):" %)) tool %)
                    (str/split-lines out)))
         :else []))))
 
-;; --- canonical lifting and entry point -----------------------------------
+;;;; canonical lifting and entry point
 
 (defn as-finding
   "Lift a raw lint finding into the canonical shape (flat, :dimension :lint)."
@@ -237,11 +335,14 @@
                                [nil args])
         home (repo/project-home)
         scan-dir "."
-        files (if (empty? files-raw) (default-files scan-dir) files-raw)
-        house (house-scan files)
-        extra (or (load-extra-rules home files) [])
-        proj  (or (run-project-linter scan-dir) [])
-        raw   (concat house extra proj)
+         files (if (empty? files-raw)
+                 (concat (default-files scan-dir) (default-source-files scan-dir))
+                 files-raw)
+         house (house-scan files)
+         src   (source-scan files)
+         extra (or (load-extra-rules home files) [])
+         proj  (or (run-project-linter scan-dir) [])
+         raw   (concat house src extra proj)
         findings (mapv as-finding raw)]
     (doseq [f findings] (println (format-finding f)))
     (when edn-path

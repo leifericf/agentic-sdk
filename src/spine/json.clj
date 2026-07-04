@@ -4,7 +4,7 @@
   null. Pure Clojure, no external dependencies."
   (:require [clojure.string :as str]))
 
-;; --- parser --------------------------------------------------------------
+;;;; parser
 
 (declare parse-value)
 
@@ -127,7 +127,7 @@
        (throw (ex-info "JSON: trailing data" {:pos pos})))
      v)))
 
-;; --- emitter -------------------------------------------------------------
+;;;; emitter
 
 (defn- escape-char [c]
   (case c

@@ -22,7 +22,7 @@
    :sha256       @(resolve 'sha256)
    :run          @(resolve 'run)})
 
-;; --- path construction and inspection -----------------------------------
+;;;; path construction and inspection
 
 (defn path
   "Build a path string from segments, dropping nils."
@@ -64,7 +64,7 @@
   (let [r ((:realpath fs) (str p))]
     (if (nil? r) p r)))
 
-;; --- filesystem predicates and operations -------------------------------
+;;;; filesystem predicates and operations
 
 (defn exists?
   "True when p (a path or string) exists on the filesystem."
@@ -135,7 +135,7 @@
   [cmd]
   ((:which fs) cmd))
 
-;; --- process execution ---------------------------------------------------
+;;;; process execution
 
 (defn shell
   "Run cmd (with optional args) under opts, returning {:out :err :exit}.
@@ -147,7 +147,7 @@
         real-args (if (map? cmd) (rest args) args)]
     (apply (:run fs) opts real-cmd real-args)))
 
-;; --- JSON (hooks) --------------------------------------------------------
+;;;; JSON (hooks)
 
 (defn json-parse
   "Parse JSON string s to Clojure data. Keywordizes keys when keywordize?
@@ -162,7 +162,7 @@
   [data]
   (json/emit data))
 
-;; --- stdin (hooks) -------------------------------------------------------
+;;;; stdin (hooks)
 
 (defn slurp-stdin
   "Read all of stdin as a string. Uses read-line so it works under mino
@@ -175,7 +175,7 @@
                 (recur (conj lines line)))))]
     (step [])))
 
-;; --- hashing -------------------------------------------------------------
+;;;; hashing
 
 (defn sha256
   "The sha256 of s prefixed with sha256:. Used for gate-arming hashes."

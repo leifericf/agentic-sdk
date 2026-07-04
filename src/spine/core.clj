@@ -6,7 +6,7 @@
   (:require [spine.host :as host]
             [clojure.string :as str]))
 
-;; --- canonical finding shape ---------------------------------------------
+;;;; canonical finding shape
 
 (def finding-keys
   "The canonical finding shape consumed by triage. Reporters and lint write
@@ -24,7 +24,7 @@
        (:file m)
        (not (str/blank? (str (:evidence m))))))
 
-;; --- VCS adapter: prefer jj, fall back to git ----------------------------
+;;;; VCS adapter: prefer jj, fall back to git
 
 (defn jj-repo? [root] (host/exists? (host/path root ".jj")))
 (defn git-repo? [root] (host/exists? (host/path root ".git")))

@@ -29,7 +29,7 @@
 
 (defn- derived-dir [root] (host/path root ".opencode" "agent"))
 
-;; --- frontmatter parse/emit ----------------------------------------------
+;;;; frontmatter parse/emit
 
 (defn- split-frontmatter
   "Return {:frontmatter str :body str} or nil when the file has no YAML
@@ -102,7 +102,7 @@
         (for [[k v] (sort-by key perm)]
           (str "  " (name k) ": " v))))
 
-;; --- sync / check --------------------------------------------------------
+;;;; sync / check
 
 (defn- master-files [root]
   (when-let [d (masters-dir root)]

@@ -16,13 +16,13 @@
   or the descriptor."
   [:lint :review :triage :fix :verify])
 
-;; --- hashing (arm the gates) ---------------------------------------------
+;;;; hashing (arm the gates)
 
 (defn- file-hash [root name]
   (let [f (host/path root name)]
     (when (host/exists? f) (host/sha256 (slurp (host/path-str f))))))
 
-;; --- state read/write ----------------------------------------------------
+;;;; state read/write
 
 (defn- run-file [root] (host/path (repo/working-dir root) "run.edn"))
 
@@ -32,7 +32,7 @@
 (defn write-state! [root state]
   (repo/write-edn! (run-file root) state))
 
-;; --- descriptor / plan discovery ----------------------------------------
+;;;; descriptor / plan discovery
 
 (defn- read-descriptor [root]
   (or (repo/read-edn (host/path root "project.edn"))
@@ -51,7 +51,7 @@
 (defn- plan-scope [plan]
   (:scope plan))
 
-;; --- init / advance / status --------------------------------------------
+;;;; init / advance / status
 
 (defn init!
   "Seed run.edn from the plan and descriptor. opts override: :round-cap
