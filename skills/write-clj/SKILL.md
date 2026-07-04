@@ -43,7 +43,7 @@ writing.
    and the `!`-marked effectful functions that drive them; the split is a
    function-level discipline (and the dependency rule of
    `architecture.md` §2), not a namespace boundary. Do not split one
-   domain into a `foo` (pure) and a `foo-store`/`foo-shell` namespace —
+   domain into a `foo` (pure) and a `foo-store`/`foo-shell` namespace;
    that fragments the domain and is a factoring bug.
 
 4. **Native wrappers.** A thin Clojure layer over a foreign-function or
@@ -54,7 +54,7 @@ writing.
 
 ## Procedure
 
-1. **Place it.** Find the owning namespace by DOMAIN in the module map —
+1. **Place it.** Find the owning namespace by DOMAIN in the module map:
    the namespace named for the concern this code belongs to. Within that
    namespace, keep pure logic pure and put IO, state, and platform calls
    in `!`-marked effectful functions. If you reach for a side effect
@@ -90,6 +90,13 @@ writing.
      different unit. Name the unit on the var and the fn
      (`press-time-ms`, not `press-time`); the producer and the pure
      consumer must agree on it.
+    - **A dynamic var's docstring is its value unless it has an explicit
+      init.** `(def ^:dynamic *x* "doc")` binds the string as the value,
+      not the doc; a nil-guarded optional seam (`(when *x* ...)`) is then
+      always truthy and `vreset!` throws on the default. Write
+      `(def ^:dynamic *x* "doc" nil)` (three-arg def: docstring then an
+      explicit nil init) so an optional seam defaults to nil and the
+      guard skips on production paths.
 3. **Failure model.** The core takes values and returns values; errors
    inside the core are explicit return values when callers branch on the
    outcome, and `ex-info` with a rich data map at boundaries. The shell
@@ -127,13 +134,17 @@ thin.
 
 ## Comments and public text
 
-`;;;` for namespace-level, `;;` for top-level forms, `;` for inline.
-Terse and sparse; comment the why, never the what. Comment only what the
-code cannot say: an ownership or lifetime constraint at a native
-boundary, why a branch is unreachable, a non-obvious algorithmic
-decision. No decorative banners, no commented-out code, no change
-narrative. A comment block longer than a few lines, or comments
-outweighing the code they sit in, is itself a finding.
+`clojure.core` is the calibration target. The full budget lives in
+`references/clj-style.md`; in short: comment only the why, never the
+what; a comment block is at most three lines; density above one line
+per fifty code lines is a finding; a section marker is a single `;;;;`
+line, no banner, no prose underneath. Docstrings carry the
+documentation: one to three lines for most fns, longer only when the
+arguments have surface area.
+
+Marker idiom: `;;;;` for section labels, `;;;` for namespace-level,
+`;;` for top-level forms, `;` for inline. `(comment ...)` is REPL
+scratch under a `;;;; Scratch` marker at the foot of the file.
 
 Public-facing text rule: never describe code as hand-written or
 hand-rolled in docstrings, docs, or changelog lines, and never carry an

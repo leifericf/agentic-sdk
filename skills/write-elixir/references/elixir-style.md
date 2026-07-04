@@ -99,6 +99,28 @@ in the core: move it, do not mock the process.
 - Use module attributes for compile-time constants and configuration,
   not as hidden mutable state at runtime.
 
+## Comments and docstrings
+
+The Elixir standard library is the calibration target: inline comments
+are rare one-liners, and documentation lives in `@moduledoc` and `@doc`.
+
+- Comment the why, never the what. Comment only what the code cannot
+  say: a restart-strategy choice, a NIF scheduling decision, another
+  constraint a future reader could not derive.
+- A comment block is at most three lines; one line is preferred. Four
+  lines is the essay threshold and a finding. File inline comment
+  density above roughly one line per fifty code lines is a finding.
+- Delete or move. Delete a comment that restates the next line,
+  describes mechanism, or narrates history. Move a design rationale to
+  an ADR and cite it by path.
+- No banners. No `---` rules, no ASCII art, no decorated separators.
+- No commented-out code; the VCS holds history.
+- `@doc` is the documentation. One to three lines for most functions:
+  what the function returns and the shape of inputs that require it,
+  not the mechanism. A long `@doc` is earned by argument surface area
+  (an options map, a DSL, a public primitive), never by a clever
+  implementation.
+
 ## Pattern matching and control flow
 
 - Pattern match in the function head; prefer multiple clauses over a

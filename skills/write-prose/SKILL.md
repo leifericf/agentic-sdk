@@ -95,17 +95,16 @@ Invoke write-commit before any commit operation.
 
 ### Source-code comments
 
-Terse and sparse; the standard library is the benchmark. Comment the
-why, never the what; clear names carry the meaning. Comment only what
-the code cannot say: an ownership or lifetime constraint at a language
-boundary, why a branch is unreachable, a non-obvious algorithmic or
-numeric decision.
+Terse and sparse; `clojure.core` and the standard library are the
+benchmark. The budget is concrete; see `prose-style.md` for the full
+rule. In short: comment only the why (an ownership or lifetime
+constraint at a boundary, why a branch is unreachable, a non-obvious
+numeric decision), never the what; a comment block is at most three
+lines; file density above one line per fifty code lines is a finding;
+no banners (a section marker is a single `;;;; label` line, label only,
+no prose underneath); no commented-out code, no change narration.
 
-No decorative banners, no commented-out code, no change narration (the
-VCS holds history). A comment block longer than a few lines, or comments
-outweighing the code they sit in, is itself a finding.
-
-Per-language convention:
+Per-language marker idiom:
 
 - **C**: block comment at the top of the translation unit stating its
   single responsibility; inline comments only for constraints the code
@@ -113,19 +112,25 @@ Per-language convention:
 - **Zig**: `//!` file-top (one or two lines naming the file's
   responsibility), `///` doc comments on public declarations whose
   contract is not obvious from the signature, `//` for inline.
-- **Clojure**: `;;;` for namespace-level, `;;` for top-level forms, `;`
-  for inline.
+- **Clojure**: `;;;;` for section labels, `;;;` for namespace-level,
+  `;;` for top-level forms, `;` for inline.
 - **Elixir**: `@moduledoc` and `@doc` on public modules and functions,
   terse inline comments only for the why.
 
 ### Docstrings
 
-Describe what the function returns and the shape of inputs that require
-it; do not describe the mechanism.
+The docstring is the documentation. Every public var and every fn gets
+one. One to three lines for most fns: what it returns and the shape of
+inputs that require it; never the mechanism. A long docstring (ten or
+more lines) is earned by argument surface area (an options map, a spec,
+a public primitive), never by a clever implementation. Rationale
+belongs in an ADR; cite it by path. Deprecation lives in `:deprecated`
+metadata or a one-line note.
 
-Good: a function that returns a vector of records matching a predicate.
+Good: returns the vector of records matching the predicate.
 
-Bad: a function that goes through the index and filters.
+Bad: goes through the index and filters; a ten-line docstring on a
+one-line helper.
 
 ### ADRs
 

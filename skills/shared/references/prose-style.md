@@ -91,14 +91,41 @@ in the design docs and are not duplicated per ADR.
 
 ## Code comments
 
-- Terse and sparse. Comment the why, never the what; clear names
-  carry the meaning. Comment only what the code cannot say: an
-  ownership or lifetime constraint at a language boundary, why a
-  branch is unreachable, a non-obvious algorithmic or rendering
-  decision.
-- No decorative banners, no commented-out code, no change narration
-  (the VCS holds history). A comment block longer than a few lines,
-  or comments outweighing the code they sit in, is itself a finding.
+The north star is `clojure.core`: inline comments are rare one-liners
+(roughly one per fifty to one hundred twenty code lines), comment walls
+are absent, and documentation lives in docstrings.
+
+- Comment only what the code cannot say: an ownership or lifetime
+  constraint at a language boundary, why a branch is unreachable, a
+  non-obvious algorithmic or numeric decision. Comment the why, never
+  the what; clear names carry the meaning.
+- A comment block is at most three lines; one line is preferred. Four
+  lines is the essay threshold and a finding. File inline comment
+  density above roughly one line per fifty code lines is a finding.
+- Delete or move. Delete a comment that restates the next line,
+  describes mechanism, or narrates history ("used to", "previously").
+  Move a design rationale to an ADR and cite the ADR by path.
+- No banners. No `---` rules, no ASCII art, no decorated separators.
+  A section marker, when used, is a single `;;;; label` line (or `;;`
+  then `;`), label only, no prose underneath.
+- No commented-out code; the VCS holds history. A `(comment ...)`
+  form is REPL scratch under a `;;;; Scratch` marker at the foot of the
+  file, not inline narration.
+
+## Docstrings
+
+The docstring is the documentation; inline comments are the exception.
+Every public var and every fn gets one.
+
+- One to three lines for most fns: what it returns and the shape of
+  inputs that require it. Never the mechanism.
+- A long docstring (ten or more lines) is earned by argument surface
+  area: an options map, a spec or DSL, a public API primitive. Length
+  tracks the interface, not the implementation. A long docstring that
+  explains a clever implementation is a finding.
+- A docstring that narrates mechanism, history, or rationale is a
+  finding. Rationale belongs in an ADR; cite it by path. Deprecation
+  lives in `:deprecated` metadata or a one-line note.
 
 ## Commit messages
 

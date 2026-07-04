@@ -152,9 +152,14 @@ and small functions carry the meaning.
   say: which allocator owns a slice, why a branch is unreachable, an
   endianness or layout invariant, a non-obvious numeric or rendering
   decision.
-- No decorative banners, no commented-out code, no per-line annotation,
-  no change narration. A comment block longer than a few lines is itself
-  a finding.
+- A comment block is at most three lines; one line is preferred. Four
+  lines is the essay threshold and a finding. File inline comment
+  density above roughly one line per fifty code lines is a finding.
+- Delete or move. Delete a comment that restates the next line,
+  describes mechanism, or narrates history ("used to", "previously").
+  Move a design rationale to an ADR and cite the ADR by path.
+- No banners. No `---` rules, no ASCII art, no decorated separators.
+- No commented-out code; the VCS holds history.
 - `//!` file-top: one or two lines naming the file's responsibility.
 - `///` doc comments on public declarations whose contract is not
   obvious from the signature.

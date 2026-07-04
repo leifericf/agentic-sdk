@@ -95,13 +95,18 @@ decision log first.
 
 ## Comments and public text
 
-Terse and sparse; comment the why, never the what. Comment only what the
-code cannot say: an ownership or lifetime constraint at a language
-boundary, why a branch is unreachable, a non-obvious algorithmic
-decision. No decorative banners, no commented-out code, no change
-narrative (the VCS holds history). A comment block longer than a few
-lines, or comments outweighing the code they sit in, is itself a
-finding.
+The C standard library and coreutils are the calibration target: inline
+comments are rare one-liners, and documentation lives in the file-top
+block comment. The full budget lives in `prose-style.md`; in short:
+comment only the why (an ownership or lifetime constraint at a language
+boundary, why a branch is unreachable, a non-obvious numeric or
+algorithmic decision), never the what; a comment block is at most three
+lines; file density above one line per fifty code lines is a finding;
+no banners, no commented-out code, no change narrative.
+
+Marker idiom: a block comment at the top of the translation unit stating
+its single responsibility; `//` for inline, only for constraints the
+code cannot say.
 
 Public-facing text rule: never describe code as hand-written or
 hand-rolled in docstrings, docs, or changelog lines, and never carry an

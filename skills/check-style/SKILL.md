@@ -23,11 +23,10 @@ The standards are cited, not duplicated:
 - Elixir: `skills/write-elixir/references/elixir-style.md`.
 
 Those files are the checklist, but apply them for judgment, not for
-what a lane already gates. An em dash, a prose arrow, a decorative
-banner, or a process ID is the `lint` spine task's job; a format nit is
-the formatter's; an unused binding is the language linter's. This is the
-nit tax the dimension rejects: flag only the style judgment no lane can
-make.
+what a lane already gates. An em dash, a prose arrow, or a process ID
+is the `lint` spine task's job; a format nit is the formatter's; an
+unused binding is the language linter's. This is the nit tax the
+dimension rejects: flag only the style judgment no lane can make.
 
 ## Look for
 
@@ -43,11 +42,26 @@ make.
 3. **Boundary contract drift.** A native call whose signature disagrees
    with the edge contract, or that reaches into a handle's internals
    from the calling language.
-4. **Comment debt.** An ownership or lifetime constraint that is true
-   but unstated where it matters (an allocator ownership transfer, a
-   borrow duration, a transaction invariant); comments that narrate the
-   next line instead of stating a constraint; stale comments
-   contradicting the code.
+4. **Comment and docstring debt.** The standard and the concrete budget
+   live in `prose-style.md` and the per-language style file. Apply both
+   directions:
+   - *Missing:* an ownership or lifetime constraint that is true but
+     unstated where it matters (an allocator ownership transfer, a
+     borrow duration, a transaction invariant).
+   - *Stale:* a comment or docstring that contradicts the code.
+   - *Narration:* a comment that restates the next line, or a docstring
+     that describes mechanism instead of returns and input shape.
+   - *Verbose:* an inline comment block longer than three lines; a file
+     whose inline comment density exceeds one line per fifty code lines;
+     a rationale essay that belongs in an ADR; a change note ("used to",
+     "previously") that belongs in `:deprecated` metadata.
+   - *Docstring overweight:* a docstring longer than three lines on a
+     fn whose arguments have no surface area. An options map, a spec,
+     or a public primitive earns the length; a clever implementation
+     does not.
+   - *Banner:* a `---` rule, ASCII art, or any decorated separator. A
+     section marker is a single `;;;; label` line, label only, no prose
+     underneath.
 5. **Leaked process identifiers.** A phase, task, slice, run, or plan
    identifier, a `plan.edn` or `decisions.edn` reference, or an internal
    ticket label in a comment, docstring, test description, or commit

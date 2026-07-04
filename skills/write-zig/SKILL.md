@@ -127,14 +127,20 @@ wrapper calls it, the core consumes the result.
 
 ## Comments and public text
 
-Terse and sparse, like the standard library. `//!` file-top: one or two
-lines naming the file's responsibility. `///` doc comments on public
-declarations whose contract is not obvious from the signature. `//` for
-inline, and only what the code cannot say: which allocator owns a slice,
-why a branch is unreachable, a layout or endianness invariant, a
-non-obvious numeric or rendering decision. No banners, no commented-out
-code, no change narration. A well-placed `assert` documents an invariant
-more strongly than a comment; it is enforced in Debug and ReleaseSafe.
+The Zig standard library is the calibration target: inline comments are
+rare one-liners, `///` doc comments carry the public contract, and `//!`
+names the file. The full budget lives in `references/zig-style.md`; in
+short: comment only the why (which allocator owns a slice, why a branch
+is unreachable, a layout or endianness invariant, a non-obvious numeric
+or rendering decision), never the what; a comment block is at most three
+lines; file density above one line per fifty code lines is a finding;
+no banners, no commented-out code, no change narrative. A well-placed
+`assert` documents an invariant more strongly than a comment; it is
+enforced in Debug and ReleaseSafe.
+
+Marker idiom: `//!` file-top (one or two lines naming the file's
+responsibility), `///` doc comments on public declarations whose
+contract is not obvious from the signature, `//` for inline.
 
 Public-facing text rule: never hand-written or hand-rolled in docs, doc
 comments, or commit lines, and never an internal process identifier (a

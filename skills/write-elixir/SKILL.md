@@ -103,15 +103,18 @@ thin.
 
 ## Comments and public text
 
+The Elixir standard library is the calibration target: inline comments
+are rare one-liners, and documentation lives in `@moduledoc` and `@doc`.
+The full budget lives in `references/elixir-style.md`; in short: comment
+only the why (a restart-strategy choice, a NIF scheduling decision,
+another constraint the code cannot say), never the what; a comment block
+is at most three lines; file density above one line per fifty code lines
+is a finding; no banners, no commented-out code, no change narrative.
+
 `@moduledoc` and `@doc` on every public module and function, describing
 what the function returns and the shape of inputs that require it, not
-the mechanism. Typespecs (`@spec`) on public functions whose contract is
-not obvious from the name and the pattern. Inline comments are terse
-and sparse: the why, never the what; comment only what the code cannot
-say, such as a restart-strategy choice or a NIF scheduling decision. No
-decorative banners, no commented-out code, no change narration. A
-comment block longer than a few lines, or comments outweighing the code
-they sit in, is itself a finding.
+the mechanism. `@spec` on public functions whose contract is not obvious
+from the name and the pattern.
 
 Public-facing text rule: never describe code as hand-written or
 hand-rolled in docs, docstrings, or changelog lines, and never carry an

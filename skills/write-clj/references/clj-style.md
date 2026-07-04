@@ -60,8 +60,8 @@ must run on the metal. This is load-bearing structure, not a preference
 
 - **Pure functions.** Functions that take data and return data, do no IO,
   never shell out, never transact, never hold a clock, thread, or atom.
-- **Effectful functions.** Persistence wiring, OS integration, lifecycle
-  and composition — functions that adapt inputs to data, call pure
+- **Effectful functions.** Persistence wiring, OS integration, lifecycle,
+  and composition: functions that adapt inputs to data, call pure
   functions, and apply the result as effects. Marked with a trailing `!`.
 - **Native wrappers.** Each a thin layer over a native call. Marshal
   data in, marshal data out, pass handles back and forth. No domain
@@ -122,8 +122,8 @@ connection.
 - kebab-case namespaces under the project root, matching the module
   directory. Exactly one namespace per file, one file per namespace.
   Public API at the top, private helpers below.
-- Name a namespace for the domain it owns — a single concept (`cache`,
-  `compiler`, `source`) — not for the pure/effectful split. A namespace
+- Name a namespace for the domain it owns, a single concept (`cache`,
+  `compiler`, `source`), not for the pure/effectful split. A namespace
   holds both its pure and its `!`-marked effectful functions.
 - Start each file with one `ns` form: `:require` before `:import`.
   `:require :as` over `:refer [...]` over `:refer :all`; avoid `:use`.
@@ -328,6 +328,47 @@ Work the problem in data terms first, then write:
 6. Provide sample data and tests for the core functions.
 
 Think it through, then write; do not narrate the checklist in the code.
+
+## Comments and docstrings
+
+The north star is `clojure.core`: inline comments are rare one-liners
+(roughly one per fifty to one hundred twenty code lines), comment walls
+are absent, and the documentation lives in docstrings. Match that shape.
+
+### Comments
+
+- Comment only what the code cannot say: an ownership or lifetime
+  constraint at a native boundary, why a branch is unreachable, a
+  non-obvious algorithmic or numeric decision. Comment the why, never
+  the what; clear names carry the meaning.
+- A comment block is at most three lines; one line is preferred. Four
+  lines is the essay threshold and a finding. File inline comment
+  density above roughly one line per fifty code lines is a finding.
+- Delete or move. Delete a comment that restates the next line,
+  describes mechanism, or narrates history ("used to", "previously").
+  Move a design rationale to an ADR and cite the ADR by path.
+- Section markers are a single `;;;; label` line (or `;; label`), label
+  only. No `---` rules, no ASCII art, no prose paragraph underneath.
+- No commented-out code; the VCS holds history. A `(comment ...)`
+  form is REPL scratch under a `;;;; Scratch` marker at the foot of the
+  file, never inline narration.
+
+Marker idiom: `;;;;` for section labels, `;;;` for namespace-level,
+`;;` for top-level forms, `;` for inline.
+
+### Docstrings
+
+- Every public var and every fn gets a docstring. The docstring is the
+  documentation.
+- One to three lines for most fns: what it returns and the shape of
+  inputs that require it. Never the mechanism.
+- A long docstring (ten or more lines) is earned by argument surface
+  area: an options map, a spec or DSL, a public API primitive. Length
+  tracks the interface, not the implementation. A long docstring that
+  explains a clever implementation is a finding.
+- A docstring that narrates mechanism, history, or rationale is a
+  finding. Rationale belongs in an ADR; cite it by path. Deprecation
+  lives in `:deprecated` metadata or a one-line note.
 
 ## Public-facing text
 
