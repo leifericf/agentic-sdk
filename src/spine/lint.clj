@@ -305,7 +305,7 @@
                     :severity (findmap (:level f) :MINOR)
                     :rule (str "clj-kondo/" (:type f "lint"))
                     :evidence (:message f)})))
-           (catch Exception _ []))
+            (catch e []))
         (= tool "credo")
         (vec (keep #(grep-finding (:file (re-find #"^([^:]+):" %)) tool %)
                    (str/split-lines out)))
