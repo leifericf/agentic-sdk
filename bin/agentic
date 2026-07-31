@@ -33,8 +33,16 @@
     (apply println msgs)))
 
 (defn- symlink!
-  "Create or refresh a symlink: target exists at link-path."
+  "Create or refresh a symlink: target exists at link-path. Refuses to
+  overwrite a real file or directory: ln -sfn would silently nest a new
+  symlink inside it instead of replacing it, so a stale real .claude or
+  .opencode at the project root must be removed by hand first."
   [target link-path]
+  (let [lp link-path]
+    (when (and (host/exists? lp)
+               (not (zero? (:exit (host/shell "test" "-L" lp)))))
+      (prn-err (format "refusing to overwrite %s (a real file or directory, not a symlink); remove it first" lp))
+      (System/exit 1)))
   (host/shell "ln" "-sfn" target link-path))
 
 (defn- copy!
