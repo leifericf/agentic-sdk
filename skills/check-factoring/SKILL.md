@@ -20,7 +20,7 @@ and native-wrapper split). The placement source is the descriptor's
 ## Look for
 
 1. **Dependency-direction violations.** A pure function that calls an
-   effectful one (IO, state, platform, persistence, a native handle) — the
+   effectful one (IO, state, platform, persistence, a native handle); the
    effectful callee may sit in the same module or another; the rule is at
    the function, not the module, since modules are cut by domain and may
    hold both. An effectful function that threads another module's live
@@ -29,7 +29,7 @@ and native-wrapper split). The placement source is the descriptor's
    may not know an effect exists.
 2. **Pure/effect and native leakage.** IO, a clock, a global, a native
    call, a persistence write, or state mutation inside a PURE FUNCTION.
-   A module that mixes pure and effectful functions is NOT a leak —
+   A module that mixes pure and effectful functions is NOT a leak;
    modules are domain-based. Or pure decision logic (query construction,
    view-spec computation, plan or transaction-data building) buried
    inside an effectful function where a test cannot reach it. Or domain

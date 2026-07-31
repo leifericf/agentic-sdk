@@ -120,8 +120,8 @@ Run once per project from the project root:
    scanning for markers.
 4. Write ~/.agentic-sdk/<project>/project.edn.
 5. Create ~/.agentic-sdk/<project>/.claude/:
-   - skills/: one symlink per selected skill -> $SDK_SRC/skills/<name>.
-   - agents/: one symlink per agent -> $SDK_SRC/agents/<name>.
+   - skills/: one symlink per selected skill, pointing at $SDK_SRC/skills/<name>.
+   - agents/: one symlink per agent, pointing at $SDK_SRC/agents/<name>.
    - hooks/: copy selected hooks from $SDK_SRC/hooks/.
    - settings.json: generated from descriptor :hooks and :permissions.
 6. Run opencode-sync to generate ~/.agentic-sdk/<project>/.opencode/.
