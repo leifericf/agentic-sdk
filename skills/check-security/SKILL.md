@@ -13,8 +13,9 @@ that should enforce a capability does not, or a path crosses a trust
 line without a check.
 
 Trust boundaries are project-specific, but the shape repeats. Read the
-descriptor and design docs for the project's trust boundaries before
-sweeping. The general trust lines:
+descriptor and design docs for the project's trust boundaries, and the
+recurring defect-class catalog in `references/known-pitfalls.md`,
+before sweeping. The general trust lines:
 
 - **Caller-supplied data at a native edge** is untrusted. A seq, stream,
   iterator, or buffer from the calling language, materialized into a

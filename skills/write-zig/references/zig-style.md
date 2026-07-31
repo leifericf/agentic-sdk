@@ -35,6 +35,20 @@ brace placement, and trailing commas, so this guide covers what
   opaque pointer unless they need the layout. A handle's name matches
   the keyword the host-side wrapper uses for it.
 
+### File naming
+
+The filename signals what the file is, the same way the identifier does.
+
+| File | Convention | Example |
+|---|---|---|
+| File struct (a top-level type that is instantiated) | `TitleCase.zig` | `Registry.zig` |
+| File namespace (pure declarations, no instance) | `snake_case.zig` | `reader.zig`, `math.zig` |
+| Directories | `snake_case` | `src/decode/`, `src/net/` |
+
+When a file struct splits into children, the children live in a sibling
+directory of the same root name, without the `.zig` (`Foo.zig` plus
+`foo/` for its helpers).
+
 ## 2. Formatting
 
 - `zig fmt` is authoritative: 4-space indent, braces on the same line,
@@ -133,6 +147,9 @@ declare the dependency.
   initialization.
 - Keep functions short. Approaching a size limit means two
   responsibilities; split by phase or by domain, do not shave lines.
+- Push `if`s up to the parent and push `for`s down into leaves; leaf
+  helpers stay pure. A branch a caller would want to reach belongs at
+  the caller, not buried in an effectful loop.
 
 ## 9. Comptime
 
@@ -146,9 +163,11 @@ declare the dependency.
 ## 10. Comments
 
 Terse and sparse; the Zig standard library is the benchmark. Clear names
-and small functions carry the meaning.
+and small functions carry the meaning; comments are the exception, not
+running narration.
 
-- Comment the why, never the what. Comment only what the code cannot
+- Comment the why, never the what. Code needing a what-comment should be
+  renamed or refactored. Comment only what the code cannot
   say: which allocator owns a slice, why a branch is unreachable, an
   endianness or layout invariant, a non-obvious numeric or rendering
   decision.
@@ -158,11 +177,15 @@ and small functions carry the meaning.
 - Delete or move. Delete a comment that restates the next line,
   describes mechanism, or narrates history ("used to", "previously").
   Move a design rationale to an ADR and cite the ADR by path.
-- No banners. No `---` rules, no ASCII art, no decorated separators.
+- No banners. No `---` rules, no ASCII art, no decorated separators, no
+  per-line annotation.
 - No commented-out code; the VCS holds history.
+- Stale comments contradicting the code are findings, same as stale
+  names.
 - `//!` file-top: one or two lines naming the file's responsibility.
 - `///` doc comments on public declarations whose contract is not
   obvious from the signature.
+- No `/* */` block comments; Zig has none.
 - A well-placed `assert` documents an invariant more strongly than a
   comment; it is enforced in Debug and ReleaseSafe.
 
@@ -202,6 +225,10 @@ and small functions carry the meaning.
   policy before they cross back; the wrapper does not silently truncate.
 - Platform branches are comptime-gated on `builtin.target.os.tag` and
   `builtin.cpu.arch`. The target is part of the compile cache key.
+- Float `==` is meaningful only for assigned or copied values, never
+  for computed results; compare those with a tolerance. Do not expect
+  bit-identical floats across platforms or optimization levels; tests
+  on printed floats tolerate this.
 
 ## 13. Safety and assertions
 
