@@ -24,12 +24,15 @@ recommendation the maintainer approves at the gate).
    This is the release gate: it must pass clean. FAIL feeds back to
    fix-bug or implement-change; the release does not proceed on a
    failing gate.
-2. **Write the changelog.** Dispatch write-changelog. It reads the
-   commit log since the last release tag, groups changes by category,
-   drops internal-only churn, and writes the release section. Determine
-   the version bump from the landed changes: breaking changes force
-   major, new capabilities force minor, fixes force patch. Recommend;
-   the maintainer decides at the gate.
+2. **Write the changelog (if the project keeps one).** Dispatch
+   write-changelog. It checks the project stage first: alpha and beta
+   projects keep no changelog, and the dispatch returns immediately with
+   no entry. For stable projects it reads the commit log since the last
+   release tag, groups changes by category, drops internal-only churn,
+   and writes the release section. Determine the version bump from the
+   landed changes: breaking changes force major, new capabilities force
+   minor, fixes force patch. Recommend; the maintainer decides at the
+   gate.
 3. **Assess release risk.** Dispatch assess-risk against the landed
    changes. It maps the blast radius, dependencies and their failure
    behavior, the rollout strategy, monitoring and rollback plan, the
@@ -41,11 +44,11 @@ recommendation the maintainer approves at the gate).
    merge-to-trunk step folded in. Then tag at main: with jj
    (git-compatible), `git tag -a v<version> -m "<version>"` and push
    the tag.
-5. **Present the gate.** Show the maintainer the changelog, the risk
-   assessment path, the recommended version, and the tag. The tag is
-   the approval gate. On approval, apply the tag and advance trunk. An
-   autonomous run never tags or advances main without the maintainer's
-   yes.
+5. **Present the gate.** Show the maintainer the changelog (if any),
+   the risk assessment path, the recommended version, and the tag. The
+   tag is the approval gate. On approval, apply the tag and advance
+   trunk. An autonomous run never tags or advances main without the
+   maintainer's yes.
 
 ## Boundaries
 
@@ -55,9 +58,11 @@ or implement-change. It does not advance main or tag without the
 maintainer's approval at the gate. The tag and the trunk advance are the
 one approval gate. Atoms dispatched: verifier (verify-lanes against
 `:pre-land`), write-changelog, assess-risk, write-commit for the
-changelog commit when the project keeps the changelog committed.
+changelog commit when the project is stable and keeps the changelog
+committed.
 
 ## Return
 
-One line: the version, the tag, the trunk position, the changelog path,
-and the risk assessment path, with the pre-land lane verdict.
+One line: the version, the tag, the trunk position, the changelog path
+(or "no changelog" for alpha/beta projects), and the risk assessment
+path, with the pre-land lane verdict.

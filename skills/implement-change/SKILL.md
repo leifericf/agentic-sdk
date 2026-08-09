@@ -87,15 +87,16 @@ it: it forks history when main lags the tip.
    forward tasks in the decisions log per the forward-only law. Each
    round returns exactly one summary line; hold those lines in context.
 7. **Land.** The history is already a linear stack on the tip; nothing
-   to restack. Update the changelog via write-changelog: create the
-   `## Unreleased` heading if absent; append each `CHANGELOG:` line the
-   writers and round-runners returned, grouped by category prefix.
-   Describe the change via write-commit. Then show the maintainer: the
-   stack head, the commit list, the changelog diff, the round
-   summaries, and any escalations held. Advancing main is the
-   maintainer's call: offer, do not assume. An autonomous run never
-   advances main itself. On a yes, the maintainer advances the bookmark
-   over the stack and pushes. A clean run can delete its resume
+   to restack. Update the changelog via write-changelog (if the project
+   keeps one; alpha/beta projects do not, and write-changelog returns
+   no line): create the `## Unreleased` heading if absent; append each
+   `CHANGELOG:` line the writers and round-runners returned, grouped by
+   category prefix. Describe the change via write-commit. Then show the
+   maintainer: the stack head, the commit list, the changelog diff (if
+   any), the round summaries, and any escalations held. Advancing main
+   is the maintainer's call: offer, do not assume. An autonomous run
+   never advances main itself. On a yes, the maintainer advances the
+   bookmark over the stack and pushes. A clean run can delete its resume
    checkpoint.
 
 ## Boundaries

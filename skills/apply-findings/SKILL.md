@@ -43,7 +43,9 @@ Per finding:
    (`jj squash` or `jj rebase`). Never edit `CHANGELOG.md` or version
    fields. RETURN your changelog lines; the round runner collects them.
    Changelog lines follow `write-changelog` (user-visible effects only;
-   no line is normal for a style or factoring fix).
+   no line is normal for a style or factoring fix). If the project is
+   alpha or beta, write-changelog refuses and returns no line; return
+   none yourself.
 
 If two of your findings conflict (one wants the code the other
 removes), fix in punch-list order and note the second as overtaken:

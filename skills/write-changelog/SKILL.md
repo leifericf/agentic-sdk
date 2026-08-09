@@ -15,6 +15,33 @@ them in context, and places them into the changelog at land time. The
 changelog is the committed, durable artifact; the lines reach it as
 return values, never as files read back from disk.
 
+## Stage gate: alpha and beta projects keep no changelog
+
+Before authoring or placing any entry, check the project's stage. The
+descriptor's version string or the project's stated release line carries
+it. If the project is in alpha or beta (version suffix `-alphaN`,
+`-betaN`, or any prerelease tag; CalVer or SemVer alike), the project
+keeps no `CHANGELOG.md` at all. Return immediately with no entry; do
+not create the file, do not append to it, do not return `CHANGELOG:`
+lines from editors or writers.
+
+Rationale: an alpha or beta surface is shifting too fast for a
+changelog to carry signal. Every entry would either describe a surface
+that gets retracted next week or duplicate what the commit log already
+says. The changelog starts with the first stable release. Until then,
+the commit log is the history; the README's versioning section is the
+contract.
+
+If you are asked to cut a release on an alpha or beta project, refuse
+the changelog step. The version tag and the release notes (if any) are
+the only artifacts.
+
+When the project crosses to stable (v1.0, the first unqualified
+CalVer date, or whatever the project's stage convention marks as
+stable), the first stable release creates `CHANGELOG.md` with a top
+heading, the first version section, and the entries accumulated since
+the stage decision. From there the rituals below apply.
+
 ## Does it deserve an entry?
 
 Yes: behavior a user can observe changed. A new surface (a menu, a view,
