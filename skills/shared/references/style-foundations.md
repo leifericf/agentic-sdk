@@ -143,6 +143,41 @@ prose lands.
   modules...".
 - **Trendy intensifiers.** "Really", "very", "super", "incredibly",
   "highly". Delete; let the noun carry the weight.
+- **Punchy standalone rhythm fragments.** "Two paths.", "That is
+  it.", "Use any combination.", "One queued item remains." These
+  two- to five-word sentences exist for cadence, not content. If a
+  sentence adds no information the surrounding sentences do not
+  already carry, cut it. The AI default is to insert these as
+  transitions or openers; they read as a machine trying to sound
+  punchy.
+- **Parallel-staccato triples.** "The developer does X. The
+  engineer does Y. The scripter does Z." Three short parallel
+  sentences in a row is a classic AI-pacing shape. Combine into
+  one sentence or restructure.
+- **Marketing verbs and cliches.** "Drop in / drop into / drop the
+  runtime into" as a verb for integrating a library. "Out of the
+  box." "Just works." "Zero hassle." Use concrete verbs: link,
+  embed, include, configure. State the mechanism, not the
+  experience.
+- **"X enough to Y" constructions.** "Small enough to drop in.
+  Fast enough to be useful." This is marketing copy dressed as a
+  heading. Headings name the topic; they do not sell it.
+- **Editorial comparisons.** "improves on X", "blows X out of the
+  water", "leaves X in the dust". State the factual difference:
+  "differs from X because..." Let the reader judge whether it is
+  an improvement.
+- **Marketing absolute claims.** "Zero overhead", "full type
+  safety", "battle-tested", "rock solid", "bulletproof". State
+  the mechanism concretely: "reads the header at compile time"
+  not "zero overhead, full type safety."
+- **Enthusiasm framing in headings.** "Where the JIT shines"
+  implies the reader should be impressed. "Where the JIT helps"
+  states the scope neutrally. Headings describe; they do not
+  editorialize.
+- **Tagline-shaped subtitles.** "Cooperative async by default,
+  with host-granted threading when needed" is a tagline that says
+  nothing concrete. Subtitles state what the thing is, not how it
+  feels.
 
 ## Pre-flight before submitting any prose
 
@@ -155,9 +190,14 @@ Run the prose through this check before considering it done:
 4. Search for adverbs ending in `-ly`. Most can go.
 5. Search for "that". Half of them are filler.
 6. Search for the AI tells above. Find one, fix one.
-7. End each sentence on its point, not its preamble.
-8. Check parallelism in lists and headings. Coordinate ideas in
+7. Search for short standalone sentences (under five words). If one
+   adds no information the adjacent sentences carry, cut it.
+8. End each sentence on its point, not its preamble.
+9. Check parallelism in lists and headings. Coordinate ideas in
    coordinate form.
+10. For documentation prose: check every heading and subtitle. Does
+    it name the topic, or does it sell the product? If it sells,
+    rewrite it to name.
 
 ## When the books and the project disagree
 

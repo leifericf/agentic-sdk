@@ -56,6 +56,10 @@ The four non-negotiables:
 - State constraints and effects, not narrative.
 - No marketing adjectives. If a property matters, state the measurement
   or the mechanism.
+- Factual, neutral, accurate. State what the thing is and what it does,
+  not how it feels or how exciting it is. No editorial comparisons
+  ("improves on X"); state the factual difference and let the reader
+  judge.
 
 ## No internal process identifiers
 
@@ -183,6 +187,19 @@ Plain, direct, scannable. Headings every few paragraphs. Bullet lists
 for enumerations. Code blocks for commands and paths. Update the guide
 when a new skill or agent lands; update the README when the project
 shape changes.
+
+### Documentation pages and reference docs
+
+Factual, neutral, accurate, clear, concise. The documentation voice
+is the same as the code-comment voice: state what the thing is and
+what it does, not how it feels. The failure mode specific to
+documentation is marketing drift: headings that sell ("Small enough
+to drop in"), tagline subtitles ("Cooperative async by default"),
+punchy rhythm fragments ("Two paths."), and editorial comparisons
+("improves on the JVM approach"). Headings name the topic;
+subtitles state what the thing is; sentences carry information the
+adjacent sentences do not. If a claim matters, state the measurement
+or the mechanism. Do not tell the reader to be impressed.
 
 ## Pre-flight before submitting any prose
 
