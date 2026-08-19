@@ -61,6 +61,17 @@ a project has, and which lane covers each, live in the descriptor, not
 here. Do not invent a conditional lane; run only what the descriptor
 names.
 
+## CI-only oracles need local proxies
+
+Some verdicts only CI can produce: a compiler the host lacks, a
+sanitizer the host runtime cannot run, a foreign linker. When a change
+can emit a defect class only that oracle sees (gcc-only pedantic
+diagnostics, leaks visible to linux ASan, windows link semantics), the
+pre-land tier carries the nearest local proxy the descriptor names: a
+containerized gcc or ASan sweep, a cross-build with the CI flags. A
+defect first caught by a red CI run after the push is a missing proxy,
+not a CI flake; add the proxy to the tier.
+
 ## Reporting
 
 One line per lane, exactly:

@@ -197,6 +197,11 @@ and float encodings where both are accepted. Synthesize larger or odder
 inputs in the test itself. Native fixtures compile once per signature
 shape; see the compile-once rule in `pyramid.md`.
 
+Fixture servers run on the project's own runtime, in process where it
+can host them, or on baseline tools the suite already shells out to.
+Never add an interpreter dependency for a fixture, and never
+platform-gate a fixture so a whole OS runs its runtime paths untested.
+
 ## Adversarial bounds on untrusted input
 
 When a body does arithmetic on fields a payload controls (a coordinate,
@@ -292,6 +297,14 @@ returns to zero. This is asserted after every test sequence that touches
 an owned resource, not as a separate suite. A non-zero counter is a
 leak, not a tolerance question: the lane uses exact integer equality
 with zero. See `pyramid.md` for the full statement.
+
+## A pooled resource tests its reuse edges
+
+A pool or cache keyed for reuse is wrong at its key and liveness
+edges: a stale entry reused, a wrong-key entry reused (scheme, port,
+credentials, an insecure flag), a failed checkout that returns anyway.
+Drive the reuse matrix; the happy-path reuse test passes while
+contamination sits in the queue.
 
 ## The TDD commit choreography
 

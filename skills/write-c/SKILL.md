@@ -29,10 +29,15 @@ before designing anything that feels constrained by an unexplained rule.
      runtime's owner, with temporaries pinned across allocation points)
      or caller-owned (malloc, freed on every error path). Decide before
      writing, never retrofit. When a helper allocates twice, write the
-     pin or ownership guard for the first before allocating the second.
-     Never free a runtime-managed value through `free`; never let a
-     caller-owned struct hold the only reference to a runtime-managed
-     value across an allocation point.
+      pin or ownership guard for the first before allocating the second.
+      Never free a runtime-managed value through `free`; never let a
+      caller-owned struct hold the only reference to a runtime-managed
+      value across an allocation point.
+    - **Pin and free across yield and throw windows.** A prim error is
+      a longjmp past local cleanup, and a blocked or yielding call lets
+      a collection run concurrently. Pin every Lisp value live across
+      such a window; free a caller-owned allocation before firing a
+      throw. Blocking IO counts as much as allocation does.
    - **Explicit control flow.** Validate early, return early. Invalid
      input and failure cases exit at the top; the normal path runs at
      low indentation, not nested inside success conditionals. One
