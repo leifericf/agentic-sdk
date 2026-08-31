@@ -475,6 +475,10 @@ Every atom is non-overlapping and single-layer.
 - **Review dimensions (10):** `check-correctness`, `check-factoring`,
   `check-style`, `check-conformance`, `check-security`, `check-performance`,
   `check-portability`, `check-memory`, `check-design`, `check-clarity`.
+- **Conformance recipes (2):** `extend-conformance-corpus`,
+  `triage-conformance-diffs`. The differential-probe pair: grow the corpus
+  (a `write-tests` specialization), then classify what the probe surfaces
+  (`check-conformance` applied to diff output instead of source).
 - **Ops and release recipes (5):** `analyze-root-cause`, `assess-risk`,
   `design-ui`, `review-incident`, `triage-logs`. `design-ui` is the UI design
   recipe the `ui-designer` loads; `assess-risk` is the release-risk recipe
